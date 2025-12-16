@@ -1,0 +1,238 @@
+---
+import "../styles/index.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | Dashboard JLC</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app" class="dashboard-container" style="display: none;">
+      <!-- Oculto hasta verificar auth -->
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2 class="brand">JLC Ventas</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="/dashboard" class="nav-link active">
+            <span class="icon">📊</span> Resumen
+          </a>
+          <a href="/ventas/nueva" class="nav-link">
+            <span class="icon">➕</span> Nueva Venta
+          </a>
+          <a href="/ventas/historial" class="nav-link">
+            <span class="icon">📋</span> Historial
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button id="logoutBtn" class="nav-link logout-btn">
+            <span class="icon">🚪</span> Cerrar Sesión
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="top-header">
+          <div class="user-info">
+            <span class="user-name" id="userName">Cargando...</span>
+            <span class="user-role" id="userRole">...</span>
+          </div>
+        </header>
+
+        <div class="content-wrapper">
+          <slot />
+        </div>
+      </main>
+    </div>
+
+    <!-- Script de Protección y UI -->
+    <script is:inline>
+      // 1. Verificar Autenticación
+      const token = localStorage.getItem("token");
+      const userStr = localStorage.getItem("user");
+
+      if (!token || !userStr) {
+        window.location.href = "/login";
+      } else {
+        // Auth OK: Mostrar App y cargar datos usuario
+        const app = document.getElementById("app");
+        if (app) app.style.display = "flex";
+
+        try {
+          const user = JSON.parse(userStr);
+          const nameEl = document.getElementById("userName");
+          const roleEl = document.getElementById("userRole");
+
+          if (nameEl)
+            nameEl.textContent = `${user.nombre} ${user.apellido || ""}`;
+          if (roleEl)
+            roleEl.textContent =
+              user.rol === "administrador"
+                ? "Administrador"
+                : "Asesor Comercial";
+        } catch (e) {
+          console.error("Error parsing user data");
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+      }
+
+      // 2. Manejar Logout
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/login";
+        });
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-main);
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background-color: var(--color-bg-card);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+  }
+
+  .sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .brand {
+    color: var(--color-accent);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .sidebar-nav {
+    padding: 1.5rem 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background-color: rgba(66, 153, 225, 0.1);
+    color: var(--color-accent);
+  }
+
+  .sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .logout-btn:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+    color: #fc8181;
+  }
+
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    margin-left: 260px; /* Ancho del sidebar */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-header {
+    height: 64px;
+    background-color: var(--color-bg-card);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 2rem;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+
+  .user-name {
+    color: var(--color-text-main);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .user-role {
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+  }
+
+  .content-wrapper {
+    padding: 2rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+      z-index: 50;
+    }
+
+    .main-content {
+      margin-left: 0;
+    }
+
+    /* Aquí faltaría lógica para un botón de menú hamburguesa móvil, 
+       pero por ahora lo dejamos básico */
+  }
+</style>

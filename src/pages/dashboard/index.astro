@@ -1,0 +1,68 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import Card from "../../components/Card.astro";
+---
+
+<DashboardLayout title="Resumen">
+  <div class="welcome-section">
+    <h1>Panel de Control</h1>
+    <p class="subtitle">Bienvenido al sistema de ventas JLC.</p>
+  </div>
+
+  <div class="stats-grid">
+    <Card title="Ventas del Mes">
+      <div class="stat-value">0</div>
+      <p class="stat-label">Total ventas registradas</p>
+    </Card>
+
+    <Card title="Ventas de Hoy">
+      <div class="stat-value">0</div>
+      <p class="stat-label">Registros del día</p>
+    </Card>
+
+    <Card title="Estado">
+      <div class="stat-value active">Activo</div>
+      <p class="stat-label">Tu cuenta está operativa</p>
+    </Card>
+  </div>
+</DashboardLayout>
+
+<style>
+  .welcome-section {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    color: var(--color-text-main);
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--color-text-secondary);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin: 1rem 0;
+  }
+
+  .stat-value.active {
+    color: #48bb78; /* Verde para estado activo */
+    font-size: 2rem;
+  }
+
+  .stat-label {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+  }
+</style>

@@ -1,9 +1,155 @@
 ---
-import LayoutB from "../layouts/Layout-b.astro";
-
+import AuthLayout from "../layouts/AuthLayout.astro";
+import Card from "../components/Card.astro";
+import Button from "../components/Button.astro";
 ---
 
-<LayoutB title="Login">
+<AuthLayout title="Iniciar Sesión">
+  <Card class="login-card">
+    <div class="login-header">
+      <h1 class="login-title">Bienvenido</h1>
+      <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
+    </div>
 
+    <form id="loginForm" class="login-form">
+      <div class="form-group">
+        <label for="cedula" class="form-label">Cédula</label>
+        <input
+          type="text"
+          id="cedula"
+          name="cedula"
+          class="form-input"
+          placeholder="Ej: 1234567890"
+          required
+          autofocus
+        />
+      </div>
 
-</LayoutB>
+      <div class="form-group">
+        <label for="password" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          required
+        />
+      </div>
+
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+      <div class="form-actions">
+        <Button type="submit" variant="primary" class="w-full">Ingresar</Button>
+      </div>
+
+      <div class="form-footer">
+        <p>¿No tienes cuenta? <a href="/registro">Regístrate aquí</a></p>
+      </div>
+    </form>
+  </Card>
+</AuthLayout>
+
+<style>
+  .login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .login-title {
+    color: var(--color-accent);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-subtitle {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .form-actions {
+    margin-top: 1rem;
+  }
+
+  .w-full {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .error-message {
+    background-color: rgba(229, 62, 62, 0.1);
+    border: 1px solid #e53e3e;
+    color: #fc8181;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+  }
+</style>
+
+<script>
+  const loginForm = document.getElementById("loginForm");
+  const errorMessage = document.getElementById("errorMessage");
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Reset error
+      if (errorMessage) {
+        errorMessage.style.display = "none";
+        errorMessage.textContent = "";
+      }
+
+      const formData = new FormData(e.target as HTMLFormElement);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const response = await fetch("http://localhost:8000/auth/login.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === 200) {
+          // Login exitoso
+          localStorage.setItem("token", result.token);
+          localStorage.setItem("user", JSON.stringify(result.user));
+
+          // Redireccionar
+          window.location.href = "/dashboard";
+        } else {
+          // Error de login
+          if (errorMessage) {
+            errorMessage.textContent =
+              result.message || "Error al iniciar sesión";
+            errorMessage.style.display = "block";
+          }
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        if (errorMessage) {
+          errorMessage.textContent = "Error de conexión con el servidor";
+          errorMessage.style.display = "block";
+        }
+      }
+    });
+  }
+</script>
