@@ -1,68 +1,30 @@
----
-import Layout from "../layouts/Layout.astro";
+title---
+import Layout_a from "../layouts/Layout-a.astro";
 import Card from "../components/Card.astro";
 import Button from "../components/Button.astro";
 ---
 
-<Layout title="Inicio">
+<Layout_a title="Inicio">
   <main class="container hero-container">
-    <div class="hero-content">
-      <h1 class="hero-title">Sistema JLC Ventas</h1>
+    <img src="" alt="">
+    <Card title="Registro de Ventas">
       <p class="hero-subtitle">
         Plataforma de gestión de ventas para asesores.
       </p>
-
       <div class="hero-actions">
         <Button href="/login" variant="primary">Iniciar Sesión</Button>
         <Button href="/registro" variant="outline">Registrarse</Button>
       </div>
-    </div>
-
-    <div class="features-grid">
-      <Card title="Frontend Astro">
-        <p class="feature-text">
-          Renderizado estático rápido y optimizado para máxima velocidad.
-        </p>
-      </Card>
-
-      <Card title="Backend PHP">
-        <p class="feature-text">
-          API robusta con seguridad PDO y autenticación JWT.
-        </p>
-      </Card>
-
-      <Card title="Diseño Azul">
-        <p class="feature-text">
-          Interfaz minimalista "Azul Nocturno" con UX moderna.
-        </p>
-      </Card>
-    </div>
+    </Card>
   </main>
-</Layout>
+</Layout_a>
 
 <style>
   .hero-container {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-  }
-
-  .hero-content {
-    max-width: 600px;
-    margin-bottom: 4rem;
-    animation: fadeIn 0.8s ease-out;
-  }
-
-  .hero-title {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--color-accent);
-    margin-bottom: 1rem;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
   }
 
   .hero-subtitle {
@@ -79,19 +41,6 @@ import Button from "../components/Button.astro";
     flex-wrap: wrap;
   }
 
-  .features-grid {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    width: 100%;
-    max-width: 1000px;
-    animation: slideUp 0.8s ease-out 0.2s backwards;
-  }
-
-  .feature-text {
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-  }
 
   @media (max-width: 768px) {
     .hero-container {
@@ -99,9 +48,6 @@ import Button from "../components/Button.astro";
       padding-bottom: 3rem;
     }
 
-    .hero-title {
-      font-size: 2.25rem;
-    }
 
     .hero-subtitle {
       font-size: 1.125rem;
@@ -110,9 +56,6 @@ import Button from "../components/Button.astro";
   }
 
   @media (max-width: 480px) {
-    .hero-title {
-      font-size: 1.875rem;
-    }
 
     .hero-actions {
       flex-direction: column;
