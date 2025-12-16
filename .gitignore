@@ -1,0 +1,32 @@
+# Astro
+node_modules/
+dist/
+.astro/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# PHP / Backend
+vendor/
+composer.lock
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
+api/config/config.php
+
+# Database
+*.sqlite
+database/*.sqlite
+*.db
+
+# Documentation / Agents
+agente-*.md
+brain/

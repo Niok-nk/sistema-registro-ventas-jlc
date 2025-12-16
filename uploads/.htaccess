@@ -1,0 +1,16 @@
+# Denegar todo por defecto
+Order Deny,Allow
+Deny from all
+
+# Permitir solo acceso a archivos estáticos específicos
+<FilesMatch "\.(jpg|jpeg|png|pdf)$">
+    Allow from all
+</FilesMatch>
+
+# Deshabilitar ejecución de scripts PHP (Capa extra de seguridad)
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Prevenir listado de directorio
+Options -Indexes
