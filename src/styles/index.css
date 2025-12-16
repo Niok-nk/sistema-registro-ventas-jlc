@@ -1,14 +1,14 @@
 :root {
   /* Paleta de Colores - Azul Nocturno Minimalista */
   --color-bg-main: #1A202C;
-  --color-bg-card: #2D3748;
-  --color-border: #4A5568;
+  --color-bg-card: #2d374846;
+  --color-border: #4a5568;
 
   --color-text-main: #E2E8F0;
   --color-text-secondary: #A0AEC0;
 
-  --color-accent: #b8d1e6;
-  --color-accent-hover: #a6c3df;
+  --color-accent: hsla(228, 38%, 95%, 0.274);
+  --color-accent-hover: #74b8c885;
   --color-accent-text: #EBF8FF;
 
   --color-focus-ring: rgba(145, 187, 221, 0.5);

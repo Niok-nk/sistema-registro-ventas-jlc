@@ -1,0 +1,292 @@
+
+    <div class="gradient-container">
+        <div class="gradient-orb orb1"></div>
+        <div class="gradient-orb orb2"></div>
+        <div class="gradient-orb orb3"></div>
+        <div class="gradient-orb orb4"></div>
+        <div class="gradient-orb orb5"></div>
+        <div class="glass-overlay"></div>
+        <div class="noise"></div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .gradient-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #000000 100%);
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.5;
+            mix-blend-mode: screen;
+            will-change: transform;
+        }
+
+        .orb1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.8), rgba(0, 102, 255, 0.4));
+            animation: moveCircular1 25s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+
+        .orb2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.7), rgba(75, 0, 130, 0.3));
+            animation: moveCircular2 20s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            animation-delay: -7s;
+        }
+
+        .orb3 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(0, 255, 204, 0.6), rgba(0, 153, 255, 0.3));
+            animation: moveCircular3 28s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            animation-delay: -14s;
+        }
+
+        .orb4 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(0, 191, 255, 0.7), rgba(30, 144, 255, 0.4));
+            animation: moveCircular4 22s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            animation-delay: -5s;
+        }
+
+        .orb5 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(123, 104, 238, 0.6), rgba(72, 61, 139, 0.3));
+            animation: moveCircular5 24s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            animation-delay: -12s;
+        }
+
+        @keyframes moveCircular1 {
+            0%, 100% {
+                top: 15%;
+                left: 10%;
+                transform: scale(1) rotate(0deg);
+            }
+            25% {
+                top: 5%;
+                left: 75%;
+                transform: scale(1.2) rotate(90deg);
+            }
+            50% {
+                top: 65%;
+                left: 85%;
+                transform: scale(0.9) rotate(180deg);
+            }
+            75% {
+                top: 75%;
+                left: 15%;
+                transform: scale(1.1) rotate(270deg);
+            }
+        }
+
+        @keyframes moveCircular2 {
+            0%, 100% {
+                top: 60%;
+                left: 75%;
+                transform: scale(1) rotate(0deg);
+            }
+            25% {
+                top: 75%;
+                left: 5%;
+                transform: scale(1.15) rotate(90deg);
+            }
+            50% {
+                top: 5%;
+                left: 15%;
+                transform: scale(0.85) rotate(180deg);
+            }
+            75% {
+                top: 15%;
+                left: 85%;
+                transform: scale(1.05) rotate(270deg);
+            }
+        }
+
+        @keyframes moveCircular3 {
+            0%, 100% {
+                top: 40%;
+                left: 50%;
+                transform: scale(1) rotate(0deg);
+            }
+            25% {
+                top: 80%;
+                left: 65%;
+                transform: scale(1.1) rotate(120deg);
+            }
+            50% {
+                top: 25%;
+                left: 5%;
+                transform: scale(0.95) rotate(240deg);
+            }
+            75% {
+                top: 0%;
+                left: 45%;
+                transform: scale(1.2) rotate(360deg);
+            }
+        }
+
+        @keyframes moveCircular4 {
+            0%, 100% {
+                top: 5%;
+                left: 35%;
+                transform: scale(1) rotate(0deg);
+            }
+            25% {
+                top: 45%;
+                left: 10%;
+                transform: scale(1.25) rotate(90deg);
+            }
+            50% {
+                top: 80%;
+                left: 75%;
+                transform: scale(0.8) rotate(180deg);
+            }
+            75% {
+                top: 25%;
+                left: 90%;
+                transform: scale(1.1) rotate(270deg);
+            }
+        }
+
+        @keyframes moveCircular5 {
+            0%, 100% {
+                top: 50%;
+                left: 20%;
+                transform: scale(1) rotate(0deg);
+            }
+            25% {
+                top: 10%;
+                left: 60%;
+                transform: scale(1.15) rotate(72deg);
+            }
+            50% {
+                top: 70%;
+                left: 50%;
+                transform: scale(0.9) rotate(144deg);
+            }
+            75% {
+                top: 35%;
+                left: 80%;
+                transform: scale(1.05) rotate(216deg);
+            }
+        }
+
+        .glass-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.03) 0%, transparent 50%);
+            backdrop-filter: blur(1px);
+            pointer-events: none;
+        }
+
+        .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .content h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #00d4ff 0%, #7b68ee 50%, #00ffcc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1.5s ease-out, shimmer 8s infinite;
+            background-size: 200% 200%;
+        }
+
+        .content p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 1rem;
+            animation: fadeInUp 1.5s ease-out 0.3s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content h1 {
+                font-size: 2.5rem;
+            }
+
+            .content p {
+                font-size: 1rem;
+            }
+
+            .orb1, .orb2, .orb3, .orb4, .orb5 {
+                width: 350px;
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+
+
+

@@ -8,7 +8,7 @@ const { class: className, title } = Astro.props;
 ---
 
 <div class:list={["card", className]}>
-  {title && <h3 class="card-title">{title}</h3>}
+  {title && <h1 class="card-title">{title}</h3>}
   <slot />
 </div>
 
@@ -34,7 +34,7 @@ const { class: className, title } = Astro.props;
   .card-title {
     margin-bottom: 0.5rem;
     color: var(--color-text-main);
-    font-size: 1.125rem;
+    font-size: 2rem;
     font-weight: 600;
   }
 </style>
