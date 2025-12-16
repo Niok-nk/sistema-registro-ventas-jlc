@@ -63,6 +63,10 @@ class JWT {
     }
 
     private static function getSecret() {
-        return getenv('JWT_SECRET') ?: self::$secret_key;
+        $secret = getenv('JWT_SECRET');
+        if (!$secret) {
+            throw new Exception("Error Crítico de Seguridad: JWT_SECRET no definida en variables de entorno.");
+        }
+        return $secret;
     }
 }
