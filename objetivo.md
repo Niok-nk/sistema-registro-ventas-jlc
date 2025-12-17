@@ -2,12 +2,9 @@
 
 ## Documento de Arquitectura y Especificación Técnica
 
-**Versión:** 1.0
-
-**Fecha:** Diciembre 2025
-
-**Cliente:** Distribuidores JLC
-
+**Versión:** 1.0  
+**Fecha:** Diciembre 2025  
+**Cliente:** Distribuidores JLC  
 **Alcance:** Sistema web para gestión de ventas de asesores
 
 ---
@@ -21,36 +18,33 @@ Desarrollar una aplicación web para registrar y gestionar las ventas realizadas
 ### 1.2 Stack Tecnológico Seleccionado
 
 **Frontend:**
-
 - Astro (generación de sitios estáticos)
 - JavaScript nativo para interactividad
 - CSS
 
 **Backend:**
-
 - PHP 8.x (nativo en Hostinger)
 - JWT (JSON Web Tokens) para autenticación
 - PDO para operaciones de base de datos
 
 **Base de Datos:**
-
-- MySQL 8.0
-- Alojamiento: Hostinger (servidor Colombia)
-- Gestión: phpMyAdmin
+- MySQL 8.0 (Producción en Hostinger)
+- SQLite (Desarrollo local)
+- Sistema híbrido con abstracción de capa de datos
+- Gestión: phpMyAdmin (Hostinger) / SQLite Browser (Local)
 
 **Infraestructura:**
-
 - Hosting: Hostinger Colombia
 - Versionado: GitHub
 - Deploy: GitHub Actions (automático vía FTP)
-- Almacenamiento de archivos: servidor local
+- Almacenamiento de archivos: servidor Hostinger
 
 ### 1.3 Capacidad del Sistema
 
 - **Usuarios concurrentes:** 100-150 sin optimizaciones adicionales
 - **Tiempo de respuesta objetivo:** < 1 segundo
 - **Disponibilidad:** 99.5% (con infraestructura Hostinger)
-- **Almacenamiento de imágenes:** Ilimitado (según plan Hostinger)
+- **Almacenamiento de imágenes:** Según plan Hostinger
 
 ---
 
@@ -59,68 +53,68 @@ Desarrollar una aplicación web para registrar y gestionar las ventas realizadas
 ### 2.1 Diagrama de Arquitectura
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    USUARIOS (100 asesores)                   │
-│                         Colombia 🇨🇴                          │
-└────────────────────┬────────────────────────────────────────┘
-                     │ HTTPS
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   HOSTINGER COLOMBIA                         │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │              FRONTEND (Astro Static)                  │  │
-│  │  • HTML/CSS/JS optimizado                            │  │
-│  │  • Páginas pre-renderizadas                          │  │
-│  │  • Assets comprimidos                                │  │
-│  └───────────────────┬──────────────────────────────────┘  │
-│                      │                                       │
-│                      │ Fetch API                             │
-│                      ▼                                       │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │                  BACKEND PHP                          │  │
-│  │                                                       │  │
-│  │  ┌─────────────────────────────────────────────┐    │  │
-│  │  │         CAPA DE AUTENTICACIÓN               │    │  │
-│  │  │  • JWT Token validation                     │    │  │
-│  │  │  • Role-based access control                │    │  │
-│  │  │  • Session management                       │    │  │
-│  │  └─────────────────────────────────────────────┘    │  │
-│  │                                                       │  │
-│  │  ┌─────────────────────────────────────────────┐    │  │
-│  │  │          LÓGICA DE NEGOCIO                  │    │  │
-│  │  │  • Registro de usuarios                     │    │  │
-│  │  │  • Gestión de ventas                        │    │  │
-│  │  │  • Generación de reportes                   │    │  │
-│  │  │  • Validación de datos                      │    │  │
-│  │  └─────────────────────────────────────────────┘    │  │
-│  │                                                       │  │
-│  │  ┌─────────────────────────────────────────────┐    │  │
-│  │  │          CAPA DE DATOS (PDO)                │    │  │
-│  │  │  • Connection pooling                       │    │  │
-│  │  │  • Prepared statements                      │    │  │
-│  │  │  • Transaction management                   │    │  │
-│  │  └──────────────────┬──────────────────────────┘    │  │
-│  └─────────────────────┼──────────────────────────────┘  │
-│                        │                                   │
-│                        ▼                                   │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │                  BASE DE DATOS MySQL                  │  │
-│  │                                                       │  │
-│  │  • Usuarios (asesores + admin)                       │  │
-│  │  • Ventas (con fotos de facturas)                    │  │
-│  │  • Productos JLC                                     │  │
-│  │  • Sesiones                                          │  │
-│  │  • Auditoría                                         │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │            ALMACENAMIENTO DE ARCHIVOS                 │  │
-│  │  /uploads/facturas/                                  │  │
-│  │  • Fotos de facturas (JPG, PNG, PDF)                │  │
-│  │  • Máximo 5MB por archivo                           │  │
-│  └──────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                    USUARIOS (100 asesores)                 │
+│                         Colombia 🇨🇴                        │
+└──────────────────────┬─────────────────────────────────────┘
+                       │ HTTPS
+                       ▼
+┌────────────────────────────────────────────────────────────┐
+│                   HOSTINGER COLOMBIA                       │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │              FRONTEND (Astro Static)                 │ │
+│  │  • HTML/CSS/JS optimizado                            │ │
+│  │  • Páginas pre-renderizadas                          │ │
+│  │  • Assets comprimidos                                │ │
+│  └───────────────────┬──────────────────────────────────┘ │
+│                      │                                     │
+│                      │ Fetch API                           │
+│                      ▼                                     │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │                  BACKEND PHP                         │ │
+│  │                                                      │ │
+│  │  ┌─────────────────────────────────────────────┐   │ │
+│  │  │         CAPA DE AUTENTICACIÓN               │   │ │
+│  │  │  • JWT Token validation                     │   │ │
+│  │  │  • Role-based access control                │   │ │
+│  │  │  • Session management                       │   │ │
+│  │  └─────────────────────────────────────────────┘   │ │
+│  │                                                      │ │
+│  │  ┌─────────────────────────────────────────────┐   │ │
+│  │  │          LÓGICA DE NEGOCIO                  │   │ │
+│  │  │  • Registro de usuarios                     │   │ │
+│  │  │  • Gestión de ventas                        │   │ │
+│  │  │  • Generación de reportes                   │   │ │
+│  │  │  • Validación de datos                      │   │ │
+│  │  └─────────────────────────────────────────────┘   │ │
+│  │                                                      │ │
+│  │  ┌─────────────────────────────────────────────┐   │ │
+│  │  │          CAPA DE DATOS (PDO)                │   │ │
+│  │  │  • Abstracción MySQL/SQLite                 │   │ │
+│  │  │  • Prepared statements                      │   │ │
+│  │  │  • Transaction management                   │   │ │
+│  │  └──────────────────┬──────────────────────────┘   │ │
+│  └─────────────────────┼──────────────────────────────┘ │
+│                        │                                 │
+│                        ▼                                 │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │              BASE DE DATOS MySQL/SQLite              │ │
+│  │                                                      │ │
+│  │  • Usuarios (asesores + admin)                      │ │
+│  │  • Ventas (con fotos de facturas)                   │ │
+│  │  • Productos JLC                                    │ │
+│  │  • Sesiones                                         │ │
+│  │  • Auditoría                                        │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │            ALMACENAMIENTO DE ARCHIVOS                │ │
+│  │  /uploads/facturas/                                 │ │
+│  │  • Fotos de facturas (JPG, PNG, PDF)               │ │
+│  │  • Máximo 5MB por archivo                          │ │
+│  └──────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘
                            │
                            │ GitHub Actions
                            │ (Deploy automático)
@@ -129,13 +123,12 @@ Desarrollar una aplicación web para registrar y gestionar las ventas realizadas
                     │    GITHUB    │
                     │  Repository  │
                     └──────────────┘
-
 ```
 
 ### 2.2 Flujo de Autenticación
 
 ```
-1. Usuario ingresa cédula + contraseña
+1. Usuario ingresa número de documento + contraseña
    ↓
 2. Frontend envía credenciales a /api/auth/login.php
    ↓
@@ -151,7 +144,6 @@ Desarrollar una aplicación web para registrar y gestionar las ventas realizadas
    ↓
 8. Si token válido: permite acceso
    Si token inválido: retorna 401 Unauthorized
-
 ```
 
 ### 2.3 Estructura de Carpetas
@@ -167,7 +159,7 @@ jlc-ventas/
 │
 ├── api/                          # Backend PHP
 │   ├── config/                   # Configuraciones
-│   │   ├── database.php          # Conexión MySQL
+│   │   ├── database.php          # Conexión MySQL/SQLite
 │   │   ├── jwt.php               # Manejo de tokens
 │   │   └── constants.php         # Constantes del sistema
 │   │
@@ -196,7 +188,8 @@ jlc-ventas/
 │       └── reportes.php          # /api/reportes/*
 │
 ├── database/                     # Scripts de base de datos
-│   ├── schema.sql                # Estructura completa
+│   ├── schema.sql                # Estructura MySQL
+│   ├── schema.sqlite             # Estructura SQLite
 │   ├── migrations/               # Migraciones versionadas
 │   └── seeds/                    # Datos iniciales
 │
@@ -205,7 +198,6 @@ jlc-ventas/
 │
 └── .github/workflows/            # Automatización
     └── deploy.yml                # Deploy a Hostinger
-
 ```
 
 ---
@@ -216,162 +208,224 @@ jlc-ventas/
 
 **Tabla: usuarios**
 
+```sql
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Autenticación
+    numero_documento VARCHAR(20) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('asesor', 'administrador') DEFAULT 'asesor',
+    activo BOOLEAN DEFAULT TRUE,
+    
+    -- Información Personal
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    tipo_documento ENUM('CC', 'CE', 'TI', 'Pasaporte') NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    ciudad_residencia VARCHAR(100) NOT NULL,
+    departamento VARCHAR(100) NOT NULL,
+    whatsapp VARCHAR(20) NOT NULL,
+    telefono VARCHAR(20),
+    correo VARCHAR(150) UNIQUE NOT NULL,
+    
+    -- Información de Distribuidor
+    nombre_distribuidor VARCHAR(200) NOT NULL,
+    ciudad_punto_venta VARCHAR(100) NOT NULL,
+    direccion_punto_venta VARCHAR(255),
+    cargo VARCHAR(100) NOT NULL,
+    antiguedad_meses INT NOT NULL,
+    
+    -- Información Financiera
+    metodo_pago ENUM('Nequi', 'Daviplata', 'Bancolombia', 'Otro') NOT NULL,
+    llave_breb VARCHAR(100) NOT NULL COMMENT 'Debe coincidir con nombre para pago de bonos',
+    
+    -- Políticas y Permisos
+    acepta_tratamiento_datos BOOLEAN NOT NULL DEFAULT FALSE,
+    acepta_contacto_comercial BOOLEAN NOT NULL DEFAULT FALSE,
+    declara_info_verdadera BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Índices
+    INDEX idx_rol_activo (rol, activo),
+    INDEX idx_distribuidor (nombre_distribuidor),
+    INDEX idx_ciudad (ciudad_punto_venta)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
-Propósito: Almacenar información completa de asesores y administradores
 
-Campos principales:
-├── Autenticación
-│   ├── cedula (VARCHAR 20, UNIQUE) - Login del usuario
-│   ├── password (VARCHAR 255) - Hash bcrypt
-│   └── rol (ENUM: 'asesor', 'administrador')
-│
-├── Información Personal
-│   ├── nombre, apellido (VARCHAR 100)
-│   ├── tipo_documento (ENUM: CC, CE, TI, Pasaporte)
-│   ├── numero_documento (VARCHAR 20)
-│   ├── fecha_nacimiento (DATE)
-│   ├── ciudad_residencia (VARCHAR 100)
-│   ├── departamento (VARCHAR 100)
-│   ├── whatsapp (VARCHAR 20)
-│   ├── telefono (VARCHAR 20)
-│   └── correo (VARCHAR 150, UNIQUE)
-│
-├── Información de Distribuidor
-│   ├── nombre_distribuidor (VARCHAR 200)
-│   ├── ciudad_punto_venta (VARCHAR 100)
-│   ├── direccion_punto_venta (VARCHAR 255, opcional)
-│   ├── cargo (VARCHAR 100)
-│   └── antiguedad_meses (INT)
-│
-├── Información Financiera
-│   ├── metodo_pago_preferido (ENUM: Nequi, Daviplata, etc)
-│   └── llave_breb (VARCHAR 100)
-│
-└── Políticas y Permisos
-    ├── acepta_tratamiento_datos (BOOLEAN)
-    ├── acepta_contacto_comercial (BOOLEAN)
-    └── declara_info_verdadera (BOOLEAN)
-
-Índices:
-- PRIMARY KEY (id)
-- UNIQUE (cedula)
-- UNIQUE (correo)
-- INDEX (rol, activo) - Para filtros rápidos
-
-```
+**Observación Crítica sobre Llave BRE-B:**
+- La llave BRE-B debe coincidir exactamente con el nombre del asesor
+- Si no coincide, no se realizarán los pagos de bonos
+- El sistema debe validar esta coincidencia antes de registrar
 
 **Tabla: productos_jlc**
 
-```
-Propósito: Catálogo de productos JLC
-
-Campos:
-├── id (INT, AUTO_INCREMENT)
-├── modelo (VARCHAR 100, UNIQUE)
-├── descripcion (VARCHAR 255)
-└── activo (BOOLEAN)
-
-Relación: Referenciada por ventas.producto_id
-
+```sql
+CREATE TABLE productos_jlc (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    modelo VARCHAR(100) UNIQUE NOT NULL,
+    descripcion VARCHAR(255),
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Tabla: ventas**
 
+```sql
+CREATE TABLE ventas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Referencias
+    asesor_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    
+    -- Datos de la venta
+    numero_factura VARCHAR(50) NOT NULL,
+    foto_factura VARCHAR(255) NOT NULL COMMENT 'Path relativo al archivo',
+    numero_serie VARCHAR(100) NOT NULL COMMENT 'Debe coincidir exactamente con el producto',
+    fecha_venta DATE NOT NULL,
+    
+    -- Estado
+    estado ENUM('pendiente', 'aprobada', 'rechazada') DEFAULT 'pendiente',
+    observaciones TEXT,
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Claves foráneas
+    FOREIGN KEY (asesor_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos_jlc(id),
+    
+    -- Índices para búsquedas
+    INDEX idx_asesor_fecha (asesor_id, fecha_venta DESC),
+    INDEX idx_fecha (fecha_venta DESC),
+    INDEX idx_numero_factura (numero_factura),
+    INDEX idx_estado (estado),
+    
+    -- Restricción: un asesor no puede repetir el mismo número de factura
+    UNIQUE KEY unique_asesor_factura (asesor_id, numero_factura)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
-Propósito: Registro de ventas realizadas por asesores
 
-Campos:
-├── id (INT, AUTO_INCREMENT)
-├── asesor_id (INT) → FK a usuarios.id
-├── numero_factura (VARCHAR 50)
-├── foto_factura (VARCHAR 255) - Path relativo
-├── producto_id (INT) → FK a productos_jlc.id
-├── numero_serie (VARCHAR 100)
-├── fecha_venta (DATE)
-└── created_at, updated_at (TIMESTAMP)
-
-Índices:
-- INDEX (asesor_id, fecha_venta) - Consultas por asesor
-- INDEX (fecha_venta DESC) - Ordenamiento cronológico
-- INDEX (numero_factura) - Búsqueda por factura
-
-Restricciones:
-- ON DELETE CASCADE en asesor_id (si se borra usuario, se borran sus ventas)
-
-```
+**Observación Crítica sobre Número de Serie:**
+- El número de serie debe ingresarse exactamente como aparece en el producto
+- Cualquier variación invalidará la redención del bono
+- El sistema debe validar formato y caracteres especiales
 
 **Tabla: sesiones**
 
-```
-Propósito: Tracking de sesiones activas (opcional)
-
-Campos:
-├── id (INT)
-├── usuario_id (INT) → FK a usuarios.id
-├── token_hash (VARCHAR 64, UNIQUE)
-├── expires_at (DATETIME)
-└── revoked (BOOLEAN) - Para invalidar tokens
-
-Uso: Blacklist de tokens JWT revocados
-
+```sql
+CREATE TABLE sesiones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    token_hash VARCHAR(64) UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    revoked BOOLEAN DEFAULT FALSE,
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    INDEX idx_token (token_hash),
+    INDEX idx_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 **Tabla: auditoria**
 
+```sql
+CREATE TABLE auditoria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    accion VARCHAR(100) NOT NULL,
+    tabla_afectada VARCHAR(50),
+    registro_id INT,
+    datos_anteriores TEXT COMMENT 'JSON',
+    datos_nuevos TEXT COMMENT 'JSON',
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_accion (accion),
+    INDEX idx_fecha (created_at DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
-Propósito: Log de acciones importantes del sistema
 
-Campos:
-├── usuario_id (INT)
-├── accion (VARCHAR 100) - Ej: "crear_venta", "editar_perfil"
-├── tabla_afectada (VARCHAR 50)
-├── registro_id (INT)
-├── datos_anteriores (TEXT) - JSON
-├── datos_nuevos (TEXT) - JSON
-├── ip_address (VARCHAR 45)
-└── created_at (TIMESTAMP)
+### 3.2 Sistema Híbrido MySQL/SQLite
 
-Casos de uso:
-- Rastrear modificaciones de datos
-- Investigar problemas
-- Cumplimiento normativo
+**Abstracción de Capa de Datos:**
 
+```php
+// database.php
+class DatabaseFactory {
+    public static function getConnection() {
+        $env = getenv('APP_ENV') ?? 'development';
+        
+        if ($env === 'production') {
+            return self::getMySQLConnection();
+        } else {
+            return self::getSQLiteConnection();
+        }
+    }
+    
+    private static function getMySQLConnection() {
+        $host = getenv('DB_HOST');
+        $name = getenv('DB_NAME');
+        $user = getenv('DB_USER');
+        $pass = getenv('DB_PASS');
+        
+        return new PDO(
+            "mysql:host=$host;dbname=$name;charset=utf8mb4",
+            $user,
+            $pass,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+    }
+    
+    private static function getSQLiteConnection() {
+        return new PDO(
+            'sqlite:' . __DIR__ . '/../../database/local.db',
+            null,
+            null,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+    }
+}
 ```
 
-### 3.2 Optimizaciones de Base de Datos
+**Consideraciones:**
+- Usar tipos de datos compatibles entre MySQL y SQLite
+- Evitar sintaxis específica de cada motor
+- Probar migraciones en ambos sistemas
+- Mantener esquemas sincronizados
+
+### 3.3 Optimizaciones de Base de Datos
 
 **Índices Críticos:**
 
 ```sql
--- Búsquedas frecuentes
-CREATE INDEX idx_ventas_asesor_fecha ON ventas(asesor_id, fecha_venta);
-CREATE INDEX idx_usuarios_rol_activo ON usuarios(rol, activo);
-CREATE INDEX idx_ventas_fecha_desc ON ventas(fecha_venta DESC);
+-- Búsquedas frecuentes en historial de ventas
+CREATE INDEX idx_ventas_busqueda ON ventas(numero_factura, numero_serie, fecha_venta);
 
--- Impacto: Reduce queries de 2s → 50ms
+-- Filtrado por rangos de fechas
+CREATE INDEX idx_ventas_rango_fecha ON ventas(fecha_venta, estado);
 
+-- Búsqueda por asesor en reportes
+CREATE INDEX idx_ventas_asesor_completo ON ventas(asesor_id, fecha_venta, estado);
+
+-- Exportación de reportes por distribuidor
+CREATE INDEX idx_usuarios_distribuidor_ciudad ON usuarios(nombre_distribuidor, ciudad_punto_venta);
 ```
 
-**Connection Pooling:**
-
-```
-Configuración PDO:
-- ATTR_PERSISTENT = true
-- Reutiliza conexiones existentes
-- Reduce overhead de conexión en 90%
-- Soporta 10-15 usuarios concurrentes por conexión
-
-```
-
-**Prepared Statements:**
-
-```
-Todas las queries usan PDO prepared statements:
-- Previene SQL injection 100%
-- Mejora performance (query plan caching)
-- Validación automática de tipos
-
-```
+**Impacto:** Reduce queries de reportes de 3-5s → 200-500ms
 
 ---
 
@@ -381,243 +435,414 @@ Todas las queries usan PDO prepared statements:
 
 **Página:** `/registro`
 
-**Flujo:**
+**Formulario Completo:**
 
-1. Usuario completa formulario de 4 secciones:
-    - Información Personal (12 campos)
-    - Información de Distribuidor (5 campos)
-    - Información Financiera (2 campos)
-    - Aceptación de Políticas (3 checkboxes)
-2. Frontend valida datos en tiempo real:
-    - Cédula: solo números, 6-10 dígitos
-    - Email: formato válido
-    - Whatsapp: formato colombiano (+57)
-    - Fecha nacimiento: mayor de 18 años
-    - Campos obligatorios completados
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Registro de Asesor JLC                                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  SECCIÓN 1: INFORMACIÓN PERSONAL                            │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  Nombre: [_________________________] *                      │
+│  Apellido: [_______________________] *                      │
+│                                                             │
+│  Tipo de Documento: [▼ Seleccionar] *                      │
+│  ├─ Cédula de Ciudadanía (CC)                              │
+│  ├─ Cédula de Extranjería (CE)                             │
+│  ├─ Tarjeta de Identidad (TI)                              │
+│  └─ Pasaporte                                               │
+│                                                             │
+│  Número de Documento: [_______________] *                   │
+│  (Este será tu usuario de acceso)                           │
+│                                                             │
+│  Fecha de Nacimiento: [📅 DD/MM/AAAA] *                    │
+│                                                             │
+│  Ciudad de Residencia: [_______________] *                  │
+│  Departamento: [_______________________] *                  │
+│                                                             │
+│  WhatsApp: [+57 _________________] *                        │
+│  Teléfono: [________________________]                       │
+│                                                             │
+│  Correo Electrónico: [_________________] *                  │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  SECCIÓN 2: INFORMACIÓN DE DISTRIBUIDOR                     │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  Nombre del Distribuidor: [_______________] *               │
+│  Ciudad del Punto de Venta: [_____________] *               │
+│  Dirección Punto de Venta: [_______________]                │
+│  (Opcional)                                                 │
+│                                                             │
+│  Cargo: [______________________________] *                  │
+│                                                             │
+│  Antigüedad en el Distribuidor:                             │
+│  [___] meses *                                              │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  SECCIÓN 3: INFORMACIÓN FINANCIERA                          │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  Método de Pago Preferido: [▼ Seleccionar] *               │
+│  ├─ Nequi                                                   │
+│  ├─ Daviplata                                               │
+│  ├─ Bancolombia                                             │
+│  └─ Otro                                                    │
+│                                                             │
+│  Llave BRE-B: [_________________________] *                 │
+│  ⚠️ IMPORTANTE: La llave debe coincidir con tu nombre       │
+│     completo o no se realizarán pagos de bonos              │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  SECCIÓN 4: ACEPTACIÓN DE POLÍTICAS                         │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  [✓] Acepto el tratamiento de datos personales *            │
+│      [Ver política completa]                                │
+│                                                             │
+│  [✓] Acepto recibir contacto comercial *                    │
+│                                                             │
+│  [✓] Declaro que toda la información es verdadera *         │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  Contraseña: [_________________________] *                  │
+│  Confirmar Contraseña: [_______________] *                  │
+│  (Mínimo 8 caracteres, al menos 1 número)                   │
+│                                                             │
+│  [Cancelar]  [Registrar Cuenta]                            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Flujo de Registro:**
+
+1. Usuario completa todas las secciones del formulario
+2. Frontend valida en tiempo real:
+   - Número de documento: formato válido según tipo
+   - Email: formato estándar
+   - WhatsApp: formato colombiano
+   - Fecha nacimiento: mayor de 18 años
+   - Llave BRE-B: advertencia de coincidencia con nombre
+   - Contraseña: mínimo 8 caracteres, 1 número
+   - Políticas: todas marcadas
 3. Backend recibe datos en `/api/auth/register.php`:
-    - Re-valida todos los campos
-    - Verifica que cédula no exista
-    - Verifica que email no exista
-    - Hash del password con `password_hash()` bcrypt
-    - Inserta en tabla `usuarios`
-    - Retorna JWT token
-4. Usuario es redirigido automáticamente a su dashboard
+   - Re-valida todos los campos
+   - Verifica unicidad de número de documento
+   - Verifica unicidad de correo
+   - Hash de contraseña con `password_hash()`
+   - Inserta en tabla `usuarios`
+   - Genera JWT token
+4. Usuario redirigido a dashboard según rol
 
-**Validaciones Específicas:**
+**Validaciones Críticas:**
 
-- **Cédula:** Única en el sistema, sirve como username
-- **Contraseña:** Mínimo 8 caracteres, al menos 1 número
-- **Llave BRE-B:** Advertencia visual de que debe coincidir con nombre
-- **Políticas:** Todas deben estar aceptadas para continuar
+```javascript
+// Frontend - Validación de Llave BRE-B
+function validarLlaveBREB(nombre, apellido, llave) {
+    const nombreCompleto = `${nombre} ${apellido}`.toLowerCase();
+    const llaveNormalizada = llave.toLowerCase();
+    
+    if (nombreCompleto !== llaveNormalizada) {
+        mostrarAdvertencia(
+            "⚠️ La llave BRE-B no coincide con tu nombre completo. " +
+            "Esto impedirá el pago de bonos."
+        );
+        return false;
+    }
+    return true;
+}
+
+// Backend - Validación de edad
+function validarEdadMinima($fechaNacimiento) {
+    $edad = (new DateTime())->diff(new DateTime($fechaNacimiento))->y;
+    return $edad >= 18;
+}
+```
 
 ### 4.2 Módulo de Autenticación
 
 **Login (Página: `/login`)**
 
-Campos:
+```
+┌──────────────────────────────────────────┐
+│  Iniciar Sesión - JLC Ventas             │
+├──────────────────────────────────────────┤
+│                                          │
+│  Número de Documento: [_______________]  │
+│                                          │
+│  Contraseña: [________________________]  │
+│                                          │
+│  [✓] Recordarme                          │
+│                                          │
+│  [Iniciar Sesión]                        │
+│                                          │
+│  ¿No tienes cuenta? [Registrarse]       │
+│  [¿Olvidaste tu contraseña?]            │
+│                                          │
+└──────────────────────────────────────────┘
+```
 
-- Cédula de ciudadanía
-- Contraseña
-- [Checkbox] Recordarme
+**Proceso de Login:**
 
-Proceso:
-
-1. Usuario ingresa credenciales
+1. Usuario ingresa número de documento y contraseña
 2. POST a `/api/auth/login.php`
 3. Backend valida contra tabla `usuarios`
 4. Si válido: genera JWT (válido 8 horas)
 5. Redirige según rol:
-    - Asesor → `/dashboard/asesor`
-    - Admin → `/dashboard/admin`
+   - Asesor → `/dashboard/asesor`
+   - Administrador → `/dashboard/admin`
 
-**Logout**
-
-- DELETE a `/api/auth/logout.php`
-- Invalida token en tabla `sesiones`
-- Limpia localStorage del frontend
-- Redirige a `/login`
+**Seguridad:**
+- Límite de 5 intentos fallidos por IP/hora
+- Registro en auditoría de intentos fallidos
+- Tokens con expiración automática
 
 ### 4.3 Dashboard de Asesor
 
 **Página:** `/dashboard/asesor`
 
-**Secciones:**
-
-**A. Header Personal**
-
 ```
-┌────────────────────────────────────────┐
-│  Bienvenido, Juan Pérez                │
-│  Distribuidor: JLC Pasto               │
-│  Ventas este mes: 24                   │
-└────────────────────────────────────────┘
-
+┌───────────────────────────────────────────────────────────────┐
+│  🏠 Dashboard - Juan Pérez                      [Cerrar Sesión]│
+├───────────────────────────────────────────────────────────────┤
+│                                                               │
+│  Distribuidor: JLC Pasto                                      │
+│  Ventas este mes: 24        Ventas totales: 187              │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │  [+ NUEVA VENTA]                                         │ │
+│  └─────────────────────────────────────────────────────────┘ │
+│                                                               │
+│  ┌───────────────────────────────────────────────────────────┐
+│  │  HISTORIAL DE MIS VENTAS                                 │
+│  ├───────────────────────────────────────────────────────────┤
+│  │                                                           │
+│  │  Buscar: [_________________] 🔍                           │
+│  │                                                           │
+│  │  Filtros:                                                 │
+│  │  Desde: [📅] Hasta: [📅]   Estado: [▼ Todos]            │
+│  │  Producto: [▼ Todos]                                     │
+│  │                                                           │
+│  │  [Exportar SVG] [Exportar Excel] [Exportar PDF]         │
+│  │                                                           │
+│  ├───┬──────────┬─────────┬───────────┬────────┬───────────┤
+│  │ # │  Fecha   │ Factura │ Producto  │ Serie  │ Acciones  │
+│  ├───┼──────────┼─────────┼───────────┼────────┼───────────┤
+│  │ 1 │15/12/24  │ F-12345 │ JLC-2024A │ SN1234 │[Ver foto] │
+│  │ 2 │14/12/24  │ F-12344 │ JLC-2024B │ SN1233 │[Ver foto] │
+│  │ 3 │13/12/24  │ F-12343 │ JLC-2024A │ SN1232 │[Ver foto] │
+│  │...│   ...    │   ...   │    ...    │  ...   │    ...    │
+│  └───┴──────────┴─────────┴───────────┴────────┴───────────┘
+│                                                               │
+│  Mostrando 1-20 de 187 registros    [1] [2] [3] ... [10]    │
+│                                                               │
+└───────────────────────────────────────────────────────────────┘
 ```
 
-**B. Registro Rápido de Venta**
+**Funcionalidades:**
 
-```
-[Botón destacado: + Nueva Venta]
-→ Redirige a /ventas/nueva
-
-```
-
-**C. Mis Ventas Recientes**
-
-```
-Tabla con columnas:
-- Fecha
-- N° Factura
-- Producto
-- N° Serie
-- Estado
-- Acciones [Ver foto]
-
-Paginación: 20 registros por página
-Filtros: Por fecha, producto
-
-```
-
-**D. Estadísticas Personales**
-
-```
-┌─────────────┬─────────────┬─────────────┐
-│ Esta semana │  Este mes   │   Total     │
-│     5       │     24      │    187      │
-└─────────────┴─────────────┴─────────────┘
-
-```
+- **Búsqueda:** Por número de factura, producto, número de serie
+- **Filtros:** 
+  - Rango de fechas (desde/hasta)
+  - Estado (pendiente, aprobada, rechazada)
+  - Producto JLC
+- **Exportación:** SVG, Excel, PDF con sus propias ventas
+- **Vista de foto:** Modal para ver imagen de factura en tamaño completo
 
 ### 4.4 Registro de Nueva Venta
 
 **Página:** `/ventas/nueva`
 
-**Formulario:**
-
 ```
-┌─────────────────────────────────────────┐
-│  Registrar Nueva Venta                  │
-├─────────────────────────────────────────┤
-│                                         │
-│  N° de Factura: [_____________]         │
-│                                         │
-│  Foto de Factura:                       │
-│  [Arrastrar o Click para subir]        │
-│  Formatos: JPG, PNG, PDF (Max 5MB)     │
-│                                         │
-│  Producto JLC: [▼ Seleccionar]         │
-│  ├─ JLC-2024-A1                        │
-│  ├─ JLC-2024-A2                        │
-│  └─ ... (lista completa)               │
-│                                         │
-│  N° de Serie: [_____________]           │
-│                                         │
-│  Fecha de Venta: [📅 DD/MM/YYYY]       │
-│                                         │
-│  [Cancelar]  [Registrar Venta]         │
-└─────────────────────────────────────────┘
-
+┌──────────────────────────────────────────────────────────┐
+│  Registrar Nueva Venta                   [← Volver]      │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  N° de Factura: [___________________________] *          │
+│                                                          │
+│  Foto de Factura: *                                      │
+│  ┌────────────────────────────────────────────────────┐ │
+│  │                                                    │ │
+│  │         📁 Arrastrar archivo aquí                  │ │
+│  │         o hacer clic para seleccionar              │ │
+│  │                                                    │ │
+│  │   Formatos aceptados: JPG, PNG, PDF               │ │
+│  │   Tamaño máximo: 5MB                               │ │
+│  └────────────────────────────────────────────────────┘ │
+│                                                          │
+│  Producto JLC: [▼ Seleccionar Producto] *                │
+│  ├─ JLC-2024-A1                                          │
+│  ├─ JLC-2024-A2                                          │
+│  ├─ JLC-2024-B1                                          │
+│  └─ ... (catálogo completo)                              │
+│                                                          │
+│  N° de Serie: [___________________________] *            │
+│  ⚠️ IMPORTANTE: Ingrese el número exactamente como       │
+│     aparece en el producto. Cualquier variación          │
+│     invalidará la redención del bono.                    │
+│                                                          │
+│  Fecha de Venta: [📅 DD/MM/AAAA] *                      │
+│                                                          │
+│  ─────────────────────────────────────────────────────  │
+│                                                          │
+│  [Cancelar]  [Registrar Venta]                          │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
 ```
 
-**Proceso:**
+**Proceso de Registro:**
 
 1. Usuario completa formulario
-2. Valida que todos los campos estén llenos
-3. Valida formato de imagen/PDF
+2. Selecciona o arrastra archivo de factura
+3. Frontend valida:
+   - Todos los campos obligatorios completos
+   - Formato de archivo (JPG, PNG, PDF)
+   - Tamaño máximo 5MB
+   - Formato de número de serie
 4. POST multipart/form-data a `/api/ventas/crear.php`
-5. Backend:
-    - Valida sesión del usuario
-    - Valida datos de la venta
-    - Sube imagen a `/uploads/facturas/{asesor_id}/{timestamp}_{filename}`
-    - Inserta registro en tabla `ventas`
-    - Retorna confirmación
-6. Frontend muestra mensaje de éxito
-7. Redirige a lista de ventas
+5. Backend procesa:
+   - Valida sesión del asesor
+   - Verifica que número de factura no esté duplicado
+   - Valida datos de la venta
+   - Sube archivo a `/uploads/facturas/{asesor_id}/{timestamp}_{filename}`
+   - Inserta registro en tabla `ventas`
+   - Registra acción en auditoría
+6. Frontend muestra confirmación
+7. Redirige a historial de ventas
 
-**Validaciones:**
+**Validaciones Backend:**
 
-- N° Factura: único por asesor (no puede repetirse)
-- Foto: Max 5MB, formatos JPG/PNG/PDF
-- Producto: Debe existir en catálogo
-- N° Serie: Formato alfanumérico
-- Fecha: No puede ser futura
+```php
+// Validación de número de factura único por asesor
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM ventas 
+    WHERE asesor_id = ? AND numero_factura = ?
+");
+$stmt->execute([$asesorId, $numeroFactura]);
+
+if ($stmt->fetchColumn() > 0) {
+    throw new Exception("Ya has registrado una venta con este número de factura");
+}
+
+// Validación de archivo
+$allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+$fileType = mime_content_type($_FILES['foto']['tmp_name']);
+
+if (!in_array($fileType, $allowed)) {
+    throw new Exception("Formato de archivo no permitido");
+}
+
+if ($_FILES['foto']['size'] > 5 * 1024 * 1024) {
+    throw new Exception("El archivo excede el tamaño máximo de 5MB");
+}
+
+// Validación de número de serie (formato alfanumérico)
+if (!preg_match('/^[A-Z0-9\-]+$/i', $numeroSerie)) {
+    throw new Exception("Número de serie con formato inválido");
+}
+
+// Validación de fecha (no puede ser futura)
+$fechaVenta = new DateTime($fechaVentaInput);
+$hoy = new DateTime();
+
+if ($fechaVenta > $hoy) {
+    throw new Exception("La fecha de venta no puede ser futura");
+}
+```
 
 ### 4.5 Dashboard de Administrador
 
 **Página:** `/dashboard/admin`
 
-**Secciones:**
-
-**A. Resumen General**
-
 ```
-┌──────────────────────────────────────────────────────┐
-│  Estadísticas del Sistema                            │
-├──────────────┬──────────────┬──────────────────────┤
-│ Total        │ Ventas       │ Ventas              │
-│ Asesores     │ Hoy          │ Este Mes            │
-│    127       │    45        │     1,234           │
-└──────────────┴──────────────┴──────────────────────┘
-
+┌─────────────────────────────────────────────────────────────────┐
+│  🏠 Dashboard Administrador              [Cerrar Sesión]        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ESTADÍSTICAS DEL SISTEMA                                       │
+│  ┌──────────────┬──────────────┬──────────────┬──────────────┐ │
+│  │   Total      │    Ventas    │    Ventas    │   Ventas     │ │
+│  │  Asesores    │     Hoy      │   Este Mes   │   Totales    │ │
+│  │     127      │      45      │    1,234     │   12,456     │ │
+│  └──────────────┴──────────────┴──────────────┴──────────────┘ │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  PANEL DE FILTROS Y BÚSQUEDA                                │
+│  ├─────────────────────────────────────────────────────────────┤
+│  │                                                             │
+│  │  Buscar por: [_____________________________] 🔍            │
+│  │  (Asesor, N° Factura, N° Serie, Producto...)               │
+│  │                                                             │
+│  │  Rango de Fechas:                                           │
+│  │  Desde: [📅 __/__/____] Hasta: [📅 __/__/____]             │
+│  │                                                             │
+│  │  Asesor: [▼ Todos los asesores]                            │
+│  │  Distribuidor: [▼ Todos los distribuidores]                │
+│  │  Ciudad: [▼ Todas las ciudades]                             │
+│  │  Producto: [▼ Todos los productos]                          │
+│  │  Estado: [▼ Todos los estados]                              │
+│  │                                                             │
+│  │  [Limpiar Filtros]  [Aplicar]                              │
+│  │                                                             │
+│  │  ───────────────────────────────────────────────────────── │
+│  │                                                             │
+│  │  EXPORTAR RESULTADOS:                                       │
+│  │  [📊 Exportar SVG] [📗 Exportar Excel] [📄 Exportar PDF]   │
+│  │                                                             │
+│  └─────────────────────────────────────────────────────────────┘
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  HISTORIAL DE VENTAS (TODAS)                                │
+│  ├─────────────────────────────────────────────────────────────┤
+│  │                                                             │
+│  │  [Gestionar Usuarios] [Ver Auditoría]                      │
+│  │                                                             │
+│  ├──┬────────┬─────────┬──────────────┬───────────┬──────────┤
+│  │# │ Fecha  │ Asesor  │ Distribuidor │  Factura  │ Acciones │
+│  ├──┼────────┼─────────┼──────────────┼───────────┼──────────┤
+│  │1 │15/12/24│Juan P.  │JLC Pasto     │F-12345    │[Ver][📷]│
+│  │2 │15/12/24│María G. │JLC Bogotá    │F-12346    │[Ver][📷]│
+│  │3 │14/12/24│Carlos R.│JLC Cali      │F-12344    │[Ver][📷]│
+│  │  │        │         │              │           │          │
+│  │  │  (Tabla extendida con más columnas al hacer scroll)    │
+│  │  │  - Cédula - Ciudad - WhatsApp - Producto - Serie       │
+│  │  │                                                         │
+│  └──┴────────┴─────────┴──────────────┴───────────┴──────────┘
+│                                                                 │
+│  Mostrando 1-50 de 12,456 registros  [1] [2] [3] ... [249]    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**B. Panel de Filtros**
+**Funcionalidades Exclusivas de Administrador:**
 
-```
-┌─────────────────────────────────────────┐
-│  Filtrar Reportes                       │
-├─────────────────────────────────────────┤
-│  Rango de Fechas:                      │
-│  Desde: [📅] Hasta: [📅]               │
-│                                         │
-│  Asesor: [▼ Todos / Seleccionar]       │
-│                                         │
-│  Distribuidor: [▼ Todos / Filtrar]     │
-│                                         │
-│  Ciudad: [▼ Todas / Filtrar]           │
-│                                         │
-│  Producto: [▼ Todos / Filtrar]         │
-│                                         │
-│  [Limpiar]  [Aplicar Filtros]          │
-│                                         │
-│  [📥 Descargar Excel]                   │
-└─────────────────────────────────────────┘
+1. **Vista Global de Ventas:**
+   - Acceso a todas las ventas de todos los asesores
+   - Filtros avanzados por múltiples criterios
+   - Búsqueda en tiempo real
 
-```
+2. **Gestión de Usuarios:**
+   - Ver lista completa de asesores
+   - Activar/desactivar cuentas
+   - Ver estadísticas por asesor
+   - Acceso a información completa de contacto
 
-**C. Tabla de Ventas**
+3. **Reportes Completos:**
+   - Exportación con todos los datos
+   - Reportes por distribuidor
+   - Reportes por ciudad/región
+   - Reportes por producto
 
-```
-Vista completa de todas las ventas con columnas:
-- ID Venta
-- Fecha
-- Asesor (nombre completo)
-- Cédula
-- Distribuidor
-- Ciudad
-- N° Factura
-- Producto
-- N° Serie
-- Acciones [Ver detalle] [Ver foto]
-
-Paginación: 50 registros por página
-Ordenamiento: Por fecha DESC (más recientes primero)
-
-```
-
-**D. Gestión de Usuarios**
-
-```
-Acceso a: /admin/usuarios
-
-Lista de todos los asesores con:
-- Datos personales completos
-- Estado (activo/inactivo)
-- Total de ventas
-- Última actividad
-- Acciones: [Ver perfil] [Editar] [Desactivar]
-
-```
+4. **Auditoría:**
+   - Ver registro de acciones del sistema
+   - Rastrear cambios en ventas
+   - Monitorear actividad de usuarios
 
 ### 4.6 Generación de Reportes Excel
 
@@ -632,47 +857,226 @@ Lista de todos los asesores con:
 &distribuidor=JLC+Pasto
 &ciudad=Pasto
 &producto_id=5
-
+&estado=aprobada
 ```
 
-**Proceso:**
+**Proceso de Generación:**
 
-1. Admin selecciona filtros y presiona "Descargar Excel"
-2. Frontend construye URL con parámetros
-3. Backend recibe request
-4. Valida que usuario sea admin
-5. Construye query SQL con filtros aplicados
-6. Utiliza biblioteca PHPSpreadsheet
-7. Genera archivo Excel con columnas especificadas:
+1. Usuario (admin o asesor) aplica filtros deseados
+2. Presiona botón "Exportar Excel"
+3. Frontend construye URL con parámetros
+4. Backend recibe request:
+   - Valida autenticación
+   - Si es asesor: filtra solo sus ventas
+   - Si es admin: aplica filtros solicitados
+5. Construye query SQL con filtros
+6. Utiliza PHPSpreadsheet para generar Excel
+7. Retorna archivo para descarga
+
+**Estructura del Excel:**
+
+**Para Administrador (reporte completo):**
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  REPORTE DE VENTAS JLC                                         │
+│  Período: 01/01/2024 - 31/12/2024                             │
+│  Generado: 17/12/2024 14:30                                    │
+├──┬──────┬────────┬─────────┬──────────┬────────┬──────────────┤
+│A │  B   │   C    │    D    │    E     │   F    │      G       │
+├──┼──────┼────────┼─────────┼──────────┼────────┼──────────────┤
+│ID│N° Doc│ Nombre │Apellido │  Ciudad  │WhatsApp│    Correo    │
+├──┼──────┼────────┼─────────┼──────────┼────────┼──────────────┤
+│  │      │        │         │Residencia│        │              │
+├──┴──────┴────────┴─────────┴──────────┴────────┴──────────────┤
+
+┌──────────────┬─────────────┬────────────┬──────────┬──────────┐
+│      H       │      I      │     J      │    K     │    L     │
+├──────────────┼─────────────┼────────────┼──────────┼──────────┤
+│ Distribuidor │   Ciudad    │Llave BRE-B │N° Factura│ Producto │
+├──────────────┼─────────────┼────────────┼──────────┼──────────┤
+│              │Punto Venta  │            │          │          │
+├──────────────┴─────────────┴────────────┴──────────┴──────────┤
+
+┌───────────┬─────────────┬──────────┐
+│     M     │      N      │    O     │
+├───────────┼─────────────┼──────────┤
+│ N° Serie  │ Fecha Venta │  Estado  │
+├───────────┼─────────────┼──────────┤
+│           │             │          │
+└───────────┴─────────────┴──────────┘
+```
 
 **Columnas del Excel:**
 
+- **A:** ID Asesor (Número de Documento)
+- **B:** Número de Documento
+- **C:** Nombre
+- **D:** Apellido
+- **E:** Ciudad Residencia
+- **F:** WhatsApp
+- **G:** Correo
+- **H:** Nombre Distribuidor
+- **I:** Ciudad Punto de Venta
+- **J:** Llave BRE-B
+- **K:** N° Factura
+- **L:** Producto
+- **M:** N° Serie
+- **N:** Fecha Venta
+- **O:** Estado
+
+**Formato del Archivo:**
+
+```php
+// Configuración del Excel
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+
+// Título del reporte
+$sheet->setCellValue('A1', 'REPORTE DE VENTAS JLC');
+$sheet->mergeCells('A1:O1');
+$sheet->getStyle('A1')->applyFromArray([
+    'font' => ['bold' => true, 'size' => 16],
+    'alignment' => ['horizontal' => 'center']
+]);
+
+// Información del período
+$sheet->setCellValue('A2', "Período: $fechaDesde - $fechaHasta");
+$sheet->setCellValue('A3', "Generado: " . date('d/m/Y H:i'));
+
+// Headers (fila 5)
+$headers = [
+    'ID Asesor', 'N° Documento', 'Nombre', 'Apellido', 
+    'Ciudad Residencia', 'WhatsApp', 'Correo',
+    'Distribuidor', 'Ciudad Punto Venta', 'Llave BRE-B',
+    'N° Factura', 'Producto', 'N° Serie', 'Fecha Venta', 'Estado'
+];
+
+$col = 'A';
+foreach ($headers as $header) {
+    $sheet->setCellValue($col . '5', $header);
+    $sheet->getStyle($col . '5')->applyFromArray([
+        'font' => ['bold' => true],
+        'fill' => [
+            'fillType' => 'solid',
+            'startColor' => ['rgb' => 'E0E0E0']
+        ]
+    ]);
+    $col++;
+}
+
+// Autoajustar columnas
+foreach (range('A', 'O') as $col) {
+    $sheet->getColumnDimension($col)->setAutoSize(true);
+}
+
+// Habilitar filtros
+$sheet->setAutoFilter('A5:O5');
+
+// Nombre del archivo
+$filename = 'ventas_jlc_' . date('Ymd_His') . '.xlsx';
 ```
-A: ID Asesor (Cédula)
-B: Nombre
-C: Apellido
-D: Ciudad Residencia
-E: WhatsApp
-F: Correo
-G: Distribuidor
-H: Ciudad Punto Venta
-I: Llave BRE-B
-J: N° Factura
-K: Producto
-L: N° Serie
-M: Fecha Venta
+
+**Para Asesor (reporte personal):**
+
+El asesor obtiene un Excel similar pero solo con sus propias ventas, sin información de otros asesores.
+
+### 4.7 Gestión de Usuarios (Administrador)
+
+**Página:** `/admin/usuarios`
 
 ```
+┌─────────────────────────────────────────────────────────────────┐
+│  👥 Gestión de Usuarios                 [← Volver al Dashboard] │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Buscar usuario: [_____________________________] 🔍             │
+│                                                                 │
+│  Filtros:                                                       │
+│  Estado: [▼ Todos] Distribuidor: [▼ Todos] Ciudad: [▼ Todas]  │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │                     LISTA DE ASESORES                        │
+│  ├──┬──────────┬─────────────┬──────────────┬────────┬────────┤
+│  │ID│  Nombre  │Distribuidor │   Contacto   │ Ventas │Acciones│
+│  ├──┼──────────┼─────────────┼──────────────┼────────┼────────┤
+│  │1 │Juan Pérez│JLC Pasto    │3001234567    │  187   │[Ver]   │
+│  │  │CC 1234567│Pasto        │juan@email.com│        │[Editar]│
+│  │  │          │             │              │        │[🟢]    │
+│  ├──┼──────────┼─────────────┼──────────────┼────────┼────────┤
+│  │2 │María G.  │JLC Bogotá   │3009876543    │  245   │[Ver]   │
+│  │  │CC 9876543│Bogotá       │maria@mail.com│        │[Editar]│
+│  │  │          │             │              │        │[🟢]    │
+│  ├──┼──────────┼─────────────┼──────────────┼────────┼────────┤
+│  │3 │Carlos R. │JLC Cali     │3105551234    │   98   │[Ver]   │
+│  │  │CC 5551234│Cali         │carlos@mai.co │        │[Editar]│
+│  │  │          │             │              │        │[🔴]    │
+│  └──┴──────────┴─────────────┴──────────────┴────────┴────────┘
+│                                                                 │
+│  Mostrando 1-20 de 127 usuarios     [1] [2] [3] ... [7]       │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 
-**Formato del archivo:**
+LEYENDA:
+🟢 - Usuario Activo
+🔴 - Usuario Inactivo
+```
 
-- Nombre: `ventas_jlc_{fecha_desde}_{fecha_hasta}.xlsx`
-- Headers con formato (negrita, color de fondo)
-- Filtros Excel habilitados
-- Autoajuste de columnas
-- Total de registros al final
-1. Retorna archivo para descarga
-2. Navegador descarga automáticamente
+**Detalle de Usuario:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Perfil de Usuario: Juan Pérez                    [✏️ Editar]   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  INFORMACIÓN PERSONAL                                           │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│  Nombre Completo: Juan Pérez                                    │
+│  Tipo Doc: CC          N° Documento: 1234567890                │
+│  Fecha Nacimiento: 15/03/1990        Edad: 34 años             │
+│  Ciudad: Pasto, Nariño                                          │
+│  WhatsApp: +57 300 123 4567                                     │
+│  Teléfono: +57 (2) 7231234                                      │
+│  Correo: juan.perez@email.com                                   │
+│                                                                 │
+│  INFORMACIÓN LABORAL                                            │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│  Distribuidor: JLC Pasto                                        │
+│  Ciudad Punto de Venta: Pasto                                   │
+│  Dirección: Calle 18 # 25-45                                    │
+│  Cargo: Asesor Comercial Senior                                 │
+│  Antigüedad: 24 meses                                           │
+│                                                                 │
+│  INFORMACIÓN FINANCIERA                                         │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│  Método de Pago: Nequi                                          │
+│  Llave BRE-B: Juan Pérez  ✓ (Coincide)                         │
+│                                                                 │
+│  ESTADÍSTICAS                                                   │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│  Ventas Totales: 187                                            │
+│  Ventas Este Mes: 24                                            │
+│  Última Venta: 15/12/2024                                       │
+│  Fecha Registro: 10/01/2023                                     │
+│  Último Acceso: 17/12/2024 14:25                                │
+│                                                                 │
+│  ESTADO DE LA CUENTA                                            │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│  Estado: 🟢 Activo                                              │
+│                                                                 │
+│  [Ver Historial de Ventas]  [Desactivar Usuario]               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Acciones del Administrador:**
+
+- Ver perfil completo del asesor
+- Editar información (excepto número de documento)
+- Activar/Desactivar cuenta
+- Ver historial completo de ventas del asesor
+- Resetear contraseña (envío por correo)
+- Exportar datos del asesor
 
 ---
 
@@ -692,277 +1096,281 @@ Estructura del token:
   "exp": 1703030400,
   "data": {
     "usuario_id": 123,
-    "cedula": "1234567890",
+    "numero_documento": "1234567890",
     "rol": "asesor",
     "nombre": "Juan Pérez"
   }
 }
-
 ```
 
-Características:
+**Características:**
+- Algoritmo: HS256 (HMAC-SHA256)
+- Validez: 8 horas
+- Renovación automática al 50% de expiración
+- Almacenamiento: localStorage (frontend)
+- Transmisión: Header `Authorization: Bearer {token}`
 
-- Firmado con HS256
-- Válido por 8 horas
-- Renovable automáticamente
-- Almacenado en localStorage (frontend)
-- Enviado en header: `Authorization: Bearer {token}`
+**Implementación PHP:**
+
+```php
+// jwt.php
+class JWTHandler {
+    private static $secret;
+    
+    public static function generate($userData) {
+        $header = base64_encode(json_encode([
+            'typ' => 'JWT',
+            'alg' => 'HS256'
+        ]));
+        
+        $payload = base64_encode(json_encode([
+            'iss' => 'jlc-ventas',
+            'aud' => 'jlc-users',
+            'iat' => time(),
+            'exp' => time() + (8 * 3600), // 8 horas
+            'data' => $userData
+        ]));
+        
+        $signature = hash_hmac('sha256', 
+            "$header.$payload", 
+            self::getSecret(), 
+            true
+        );
+        $signature = base64_encode($signature);
+        
+        return "$header.$payload.$signature";
+    }
+    
+    public static function validate($token) {
+        list($header, $payload, $signature) = explode('.', $token);
+        
+        $validSignature = hash_hmac('sha256',
+            "$header.$payload",
+            self::getSecret(),
+            true
+        );
+        $validSignature = base64_encode($validSignature);
+        
+        if ($signature !== $validSignature) {
+            throw new Exception('Token inválido');
+        }
+        
+        $payloadData = json_decode(base64_decode($payload), true);
+        
+        if ($payloadData['exp'] < time()) {
+            throw new Exception('Token expirado');
+        }
+        
+        return $payloadData['data'];
+    }
+    
+    private static function getSecret() {
+        if (!self::$secret) {
+            self::$secret = getenv('JWT_SECRET');
+        }
+        return self::$secret;
+    }
+}
+```
 
 **Control de Acceso Basado en Roles (RBAC)**
 
-Roles:
+```php
+// middleware/auth.php
+function requireAuth() {
+    $headers = getallheaders();
+    
+    if (!isset($headers['Authorization'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Token no proporcionado']);
+        exit;
+    }
+    
+    $token = str_replace('Bearer ', '', $headers['Authorization']);
+    
+    try {
+        $userData = JWTHandler::validate($token);
+        return $userData;
+    } catch (Exception $e) {
+        http_response_code(401);
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
+    }
+}
 
-1. **Asesor:**
-    - Puede ver solo sus propias ventas
-    - Puede registrar nuevas ventas
-    - Puede editar su perfil
-    - NO puede ver datos de otros asesores
-2. **Administrador:**
-    - Puede ver todas las ventas
-    - Puede ver todos los asesores
-    - Puede generar reportes completos
-    - Puede gestionar usuarios
-    - Puede ver auditoría del sistema
-
-Middleware de verificación:
-
+// middleware/admin.php
+function requireAdmin() {
+    $userData = requireAuth();
+    
+    if ($userData['rol'] !== 'administrador') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+    
+    return $userData;
+}
 ```
-Para rutas de asesor: requireAuth()
-Para rutas de admin: requireAdmin()
 
-```
+**Matriz de Permisos:**
+
+| Funcionalidad | Asesor | Administrador |
+|---------------|--------|---------------|
+| Ver propias ventas | ✅ | ✅ |
+| Ver todas las ventas | ❌ | ✅ |
+| Registrar venta | ✅ | ✅ |
+| Editar propia venta | ✅* | ✅ |
+| Eliminar venta | ❌ | ✅ |
+| Ver perfil propio | ✅ | ✅ |
+| Editar perfil propio | ✅** | ✅ |
+| Ver otros perfiles | ❌ | ✅ |
+| Gestionar usuarios | ❌ | ✅ |
+| Exportar propias ventas | ✅ | ✅ |
+| Exportar todas las ventas | ❌ | ✅ |
+| Ver auditoría | ❌ | ✅ |
+
+\* Solo dentro de 24 horas de registro  
+\** Excepto número de documento y rol
 
 ### 5.2 Protección de Datos
 
 **Contraseñas:**
 
-- Hash: bcrypt (cost factor 10)
-- Función: `password_hash($password, PASSWORD_BCRYPT)`
-- Verificación: `password_verify($input, $hash)`
-- NUNCA se almacenan en texto plano
-- NUNCA se transmiten en logs
+```php
+// Registro de usuario
+$password = $_POST['password'];
+$hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
 
-**SQL Injection:**
+// Almacenar $hash en base de datos
 
-- 100% prevenido con PDO prepared statements
-- Ejemplo:
-    
-    ```php
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE cedula = :cedula");$stmt->execute(['cedula' => $input]);
-    
-    ```
-    
-- Nunca se concatenan strings en queries
+// Validación en login
+$inputPassword = $_POST['password'];
+$storedHash = $row['password']; // Desde BD
 
-**XSS (Cross-Site Scripting):**
+if (password_verify($inputPassword, $storedHash)) {
+    // Contraseña correcta
+    // Generar JWT
+} else {
+    // Contraseña incorrecta
+    registrarIntentoFallido($numeroDocumento);
+}
+```
 
-- Todos los outputs sanitizados con `htmlspecialchars()`
-- Headers CSP (Content Security Policy)
-- Validación de inputs en frontend Y backend
+**Características:**
+- Algoritmo: bcrypt
+- Cost factor: 10 (1024 iteraciones)
+- Nunca se almacenan en texto plano
+- Nunca se transmiten en logs o respuestas API
+- Rehashing automático si cost factor cambia
 
-**CSRF (Cross-Site Request Forgery):**
+**SQL Injection Prevention:**
 
-- Tokens CSRF en formularios
-- Verificación de origen de requests
-- SameSite cookies
+```php
+// ❌ INCORRECTO - Vulnerable
+$cedula = $_POST['cedula'];
+$query = "SELECT * FROM usuarios WHERE numero_documento = '$cedula'";
+$result = $pdo->query($query);
+
+// ✅ CORRECTO - Seguro
+$cedula = $_POST['cedula'];
+$stmt = $pdo->prepare("SELECT * FROM usuarios WHERE numero_documento = ?");
+$stmt->execute([$cedula]);
+$result = $stmt->fetch();
+
+// ✅ CORRECTO - Named parameters
+$stmt = $pdo->prepare("
+    SELECT * FROM usuarios 
+    WHERE numero_documento = :cedula AND activo = :activo
+");
+$stmt->execute([
+    'cedula' => $cedula,
+    'activo' => true
+]);
+```
+
+**Regla de Oro:** 100% de queries usan prepared statements
+
+**XSS (Cross-Site Scripting) Prevention:**
+
+```php
+// Sanitización de outputs
+function sanitizeOutput($data) {
+    if (is_array($data)) {
+        return array_map('sanitizeOutput', $data);
+    }
+    return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+}
+
+// Uso en respuestas JSON
+$response = [
+    'nombre' => sanitizeOutput($usuario['nombre']),
+    'correo' => sanitizeOutput($usuario['correo'])
+];
+
+echo json_encode($response);
+```
+
+**Content Security Policy (CSP):**
+
+```php
+// Agregar en todas las páginas HTML
+header("Content-Security-Policy: " .
+    "default-src 'self'; " .
+    "script-src 'self' 'unsafe-inline'; " .
+    "style-src 'self' 'unsafe-inline'; " .
+    "img-src 'self' data: https:; " .
+    "font-src 'self'; " .
+    "connect-src 'self';"
+);
+```
+
+**CSRF (Cross-Site Request Forgery) Prevention:**
+
+```php
+// Generar token CSRF
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Incluir en formularios
+<input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
+// Validar en backend
+if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    http_response_code(403);
+    die('Token CSRF inválido');
+}
+```
 
 **File Upload Security:**
 
-- Validación de extensión (whitelist)
-- Validación de MIME type real
-- Renombrado de archivos
-- Almacenamiento fuera de webroot cuando posible
-- Límite de tamaño (5MB)
-- Protección con .htaccess en carpeta uploads
-
-### 5.3 Validación de Datos
-
-**Frontend (JavaScript):**
-
-- Validación en tiempo real (UX)
-- Mensajes de error claros
-- Prevención de envíos inválidos
-
-**Backend (PHP):**
-
-- RE-validación de TODOS los datos
-- No confía en validación de frontend
-- Sanitización de inputs
-- Type checking estricto
-
-Ejemplo de validación de cédula:
-
 ```php
-function validarCedula($cedula) {
-    // Solo números
-    if (!ctype_digit($cedula)) return false;
-
-    // Longitud 6-10
-    $len = strlen($cedula);
-    if ($len < 6 || $len > 10) return false;
-
-    // No existe ya en BD
-    return !existeCedulaEnBD($cedula);
-}
-
-```
-
-### 5.4 Auditoría y Logs
-
-**Eventos Registrados:**
-
-- Login exitoso/fallido
-- Creación de usuarios
-- Registro de ventas
-- Modificación de datos
-- Descargas de reportes
-- Cambios de rol
-
-**Información Capturada:**
-
-- Usuario que realizó la acción
-- Timestamp
-- Tipo de acción
-- Datos antes/después (JSON)
-- IP del cliente
-- User Agent
-
-**Propósito:**
-
-- Debugging de problemas
-- Investigación de incidentes
-- Cumplimiento legal (GDPR, LOPD)
-- Análisis de uso
-
----
-
-## 6. DESPLIEGUE Y OPERACIONES
-
-### 6.1 Proceso de Deploy Automático
-
-**Trigger:** Push a rama `main` en GitHub
-
-**Pasos:**
-
-1. GitHub Actions detecta push
-2. Ejecuta workflow definido en `.github/workflows/deploy.yml`
-3. Instala dependencias Node.js
-4. Compila Astro (`npm run build`)
-5. Deploy frontend vía FTP a `/public_html/`
-6. Deploy backend PHP vía FTP a `/api/`
-7. Deploy carpeta uploads vía FTP a `/uploads/`
-8. Notifica resultado (éxito/error)
-
-**Tiempo estimado:** 2-3 minutos
-
-**Rollback:**
-
-- Revertir commit en GitHub
-- Push automático redespliega versión anterior
-
-### 6.2 Configuración de Hostinger
-
-**Requerimientos:**
-
-- PHP 8.0 o superior
-- MySQL 8.0
-- Extensiones PHP: PDO, pdo_mysql, gd, mbstring, json
-- mod_rewrite habilitado
-- HTTPS habilitado (certificado SSL incluido)
-
-**Estructura en servidor:**
-
-```
-/home/usuario/
-├── public_html/          # Frontend (acceso público)
-│   ├── index.html
-│   ├── assets/
-│   └── ...
-├── api/                  # Backend PHP
-│   ├── config/
-│   ├── controllers/
-│   └── ...
-├── uploads/              # Archivos subidos
-│   └── facturas/
-└── .env                  # Variables de entorno (NO en public_html)
-
-```
-
-**Permisos:**
-
-- public_html/: 755
-- api/: 755 (no directamente accesible vía web, usa .htaccess)
-- uploads/: 755 con .htaccess para proteger acceso directo
-- .env: 600 (solo lectura para owner)
-
-### 6.3 Variables de Entorno
-
-Archivo: `.env` (NO versionar en Git)
-
-```
-DB_HOST=localhost
-DB_NAME=nombre_base_datos
-DB_USER=usuario_mysql
-DB_PASS=contraseña_segura
-
-JWT_SECRET=clave_aleatoria_muy_larga_y_segura_cambiar_en_produccion
-
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://tudominio.com
-
-```
-
-**Gestión:**
-
-- Valores diferentes para desarrollo/producción
-- Actualizar via FTP/SSH cuando sea necesario
-- Nunca exponer en código fuente
-
-### 
-
-<function_calls>
-<invoke name="artifacts">
-<parameter name="command">update</parameter>
-<parameter name="id">jlc-php-structure</parameter>
-<parameter name="old_str">### </parameter>
-<parameter name="new_str">### 6.4 Monitoreo y Mantenimiento
-
-**Métricas a Vigilar:**
-
-- Tiempo de respuesta de API (objetivo: <500ms)
-- Tasa de errores (objetivo: <0.5%)
-- Uso de disco (uploads)
-- Conexiones activas a BD
-- Intentos de login fallidos
-
-**Herramientas:**
-
-- Logs de Hostinger (cPanel)
-- Google Analytics (frontend)
-- Logs personalizados PHP (error_log)
-
-**Tareas de Mantenimiento:**
-
-```
-Diarias:
-- Revisar logs de errores
-- Backup automático de BD (configurar en Hostinger)
-
-Semanales:
-- Revisar métricas de uso
-- Verificar espacio en disco
-
-Mensuales:
-- Limpiar archivos antiguos
-- Actualizar dependencias PHP/Composer
-- Revisar auditoría de seguridad
-
-```
-
-**Plan de Backup:**
-
-- Base de datos: Backup diario automático (Hostinger)
-- Archivos uploads: Backup semanal
-- Código: Versionado en GitHub (backup implícito)
-- Retención: 30 días
+function validarArchivoFactura($file) {
+    // 1. Validar que el archivo existe
+    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('Error al subir archivo');
+    }
+    
+    // 2. Validar tamaño (5MB máximo)
+    if ($file['size'] > 5 * 1024 * 1024) {
+        throw new Exception('El archivo excede el tamaño máximo de 5MB');
+    }
+    
+    // 3. Validar MIME type real (no confiar en extensión)
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
+    $allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'application/pdf'
+    ];
+    
+    if (!in_array($mimeType, $allowedTypes)) {
+        throw new Exception('Formato de archivo no permitido');
+    }
+    
+    // 4. Validar extensión (doble verificación)
+    $extension = strtolower(pathinfo($

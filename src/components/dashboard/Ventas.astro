@@ -64,6 +64,7 @@ import Button from "../Button.astro";
           <th>Producto</th>
           <th>N° Serie</th>
           <th>Estado</th>
+          <th>Foto</th>
         </tr>
       </thead>
       <tbody id="sales-tbody">
@@ -206,6 +207,24 @@ import Button from "../Button.astro";
     background-color: rgba(229, 62, 62, 0.2);
     color: #fc8181;
   }
+
+  /* Photo button */
+  .btn-view-photo {
+    background: none;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .btn-view-photo:hover {
+    background: rgba(66, 153, 225, 0.1);
+  }
 </style>
 
 <script is:inline>
@@ -330,14 +349,35 @@ import Button from "../Button.astro";
 
       sales.forEach((sale) => {
         const row = document.createElement("tr");
+
+        // Columna de foto
+        const photoBtn = sale.foto_factura
+          ? `<button class="btn-view-photo" data-photo="${sale.foto_factura}" title="Ver foto">
+               <svg viewBox="0 0 20 20" fill="currentColor" style="width:1.25rem;height:1.25rem">
+                 <path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909-.48-.48a.75.75 0 00-1.06 0l-5.18 5.182H2.5v-3.578l3.22-3.22a.75.75 0 011.06 0l1.47 1.47 1.91-1.909a.75.75 0 011.06 0l2.97 2.97zM10 8a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+               </svg>
+             </button>`
+          : `<span style="color:var(--color-text-secondary);font-size:0.875rem">Sin foto</span>`;
+
         row.innerHTML = `
                 <td>${sale.fecha_venta || "N/A"}</td>
                 <td>${sale.numero_factura || "N/A"}</td>
                 <td>${sale.modelo_producto || sale.desc_producto || "N/A"}</td>
                 <td>${sale.numero_serie || "N/A"}</td>
                 <td><span class="status-badge status-${(sale.estado || "pendiente").toLowerCase()}">${sale.estado || "Pendiente"}</span></td>
+                <td>${photoBtn}</td>
             `;
         salesTbody.appendChild(row);
+      });
+
+      // Event listeners para botones de fotos
+      document.querySelectorAll(".btn-view-photo").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const photoUrl = this.getAttribute("data-photo");
+          if (photoUrl) {
+            window.open("http://localhost:8000" + photoUrl, "_blank");
+          }
+        });
       });
 
       showTable();

@@ -11,7 +11,7 @@ try {
     $conn = $db->getConnection();
 
     // Consulta - Obtener ventas del usuario autenticado
-    $sql = "SELECT v.id, v.numero_factura, v.fecha_venta, v.estado, v.numero_serie, v.producto_id,
+    $sql = "SELECT v.id, v.numero_factura, v.fecha_venta, v.estado, v.numero_serie, v.producto_id, v.foto_factura,
                    p.modelo as modelo_producto, p.descripcion as desc_producto
             FROM ventas v
             JOIN productos_jlc p ON v.producto_id = p.id

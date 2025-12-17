@@ -4,7 +4,7 @@ import Button from "../Button.astro";
 ---
 
 <Card title="Registrar Nueva Venta">
-  <form class="sale-form">
+  <form class="sale-form" id="sale-form">
     <div class="form-grid">
       <div class="form-group">
         <label for="numero_factura" class="form-label">N° de Factura</label>
@@ -14,6 +14,7 @@ import Button from "../Button.astro";
           name="numero_factura"
           class="form-input"
           placeholder="Ej: FCT-001234"
+          required
         />
       </div>
       <div class="form-group">
@@ -23,9 +24,26 @@ import Button from "../Button.astro";
           id="foto_factura"
           name="foto_factura"
           class="form-input file-input"
-          accept=".jpg, .png, .pdf"
+          accept=".jpg,.jpeg,.png,.pdf"
         />
         <p class="form-helper-text">Formatos: JPG, PNG, PDF (Máx 5MB)</p>
+        <div id="file-preview" class="file-preview" style="display: none;">
+          <img id="preview-image" src="" alt="Preview" style="display: none;" />
+          <p id="preview-filename"></p>
+          <button type="button" id="remove-file" class="btn-remove"
+            >✕ Eliminar</button
+          >
+        </div>
+        <div
+          id="upload-progress"
+          class="upload-progress"
+          style="display: none;"
+        >
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <p id="progress-text">Subiendo...</p>
+        </div>
       </div>
       <div class="form-group">
         <label for="producto_jlc" class="form-label">Producto JLC</label>
@@ -53,6 +71,7 @@ import Button from "../Button.astro";
           name="numero_serie"
           class="form-input"
           placeholder="Ej: SN-XYZ-7890"
+          required
         />
         <p class="form-helper-text warning-text">
           El número de serie debe ingresarse exactamente como aparece en el
@@ -66,12 +85,15 @@ import Button from "../Button.astro";
           id="fecha_venta"
           name="fecha_venta"
           class="form-input"
+          required
         />
       </div>
     </div>
     <div class="form-actions">
       <Button type="reset" variant="outline">Cancelar</Button>
-      <Button type="submit" variant="primary">Registrar Venta</Button>
+      <Button type="submit" variant="primary" id="submit-btn"
+        >Registrar Venta</Button
+      >
     </div>
   </form>
 </Card>
@@ -109,7 +131,7 @@ import Button from "../Button.astro";
 
   /* File input specific styles */
   .file-input {
-    padding-top: 0.75rem; /* Adjust padding for file input */
+    padding-top: 0.75rem;
     padding-bottom: 0.75rem;
   }
 
@@ -120,7 +142,7 @@ import Button from "../Button.astro";
   }
 
   .warning-text {
-    color: #f6ad55; /* A subtle orange/yellow for warnings */
+    color: #f6ad55;
     font-weight: 500;
   }
 
@@ -128,15 +150,96 @@ import Button from "../Button.astro";
     color: #e57373;
     font-weight: 500;
   }
+
+  /* File Preview */
+  .file-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-card);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  #preview-image {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+  }
+
+  #preview-filename {
+    flex-grow: 1;
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-main);
+  }
+
+  .btn-remove {
+    background: none;
+    border: 1px solid #e57373;
+    color: #e57373;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .btn-remove:hover {
+    background: rgba(229, 115, 115, 0.1);
+  }
+
+  /* Upload Progress */
+  .upload-progress {
+    margin-top: 1rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  #progress-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
 </style>
 
 <script is:inline>
-  // Cargar productos dinámicamente
   (function () {
+    const API_BASE = "http://localhost:8000";
     const productSelect = document.getElementById("producto_jlc");
     const productError = document.getElementById("product-error");
+    const form = document.getElementById("sale-form");
+    const fileInput = document.getElementById("foto_factura");
+    const filePreview = document.getElementById("file-preview");
+    const previewImage = document.getElementById("preview-image");
+    const previewFilename = document.getElementById("preview-filename");
+    const removeFileBtn = document.getElementById("remove-file");
+    const uploadProgress = document.getElementById("upload-progress");
+    const progressFill = document.getElementById("progress-fill");
+    const progressText = document.getElementById("progress-text");
+    const submitBtn = form.querySelector('button[type="submit"]');
 
-    fetch("http://localhost:8000/products/list.php")
+    let uploadedFileUrl = "";
+    let selectedFile = null;
+
+    // Cargar productos
+    fetch(`${API_BASE}/products/list.php`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200 && data.data) {
@@ -158,30 +261,97 @@ import Button from "../Button.astro";
         productError.style.display = "block";
       });
 
+    // Preview de archivo
+    fileInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      selectedFile = file;
+      const isPDF = file.type === "application/pdf";
+
+      previewFilename.textContent = file.name;
+
+      if (isPDF) {
+        previewImage.style.display = "none";
+      } else {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+          previewImage.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      filePreview.style.display = "flex";
+      uploadedFileUrl = ""; // Reset URL
+    });
+
+    // Eliminar archivo
+    removeFileBtn.addEventListener("click", function () {
+      fileInput.value = "";
+      selectedFile = null;
+      uploadedFileUrl = "";
+      filePreview.style.display = "none";
+      previewImage.src = "";
+    });
+
     // Manejar envío del formulario
-    const form = document.querySelector(".sale-form");
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const formData = new FormData(form);
       const token = localStorage.getItem("token");
-
       if (!token) {
         alert("Sesión expirada. Por favor inicia sesión nuevamente.");
         window.location.href = "/login";
         return;
       }
 
-      const data = {
-        numero_factura: formData.get("numero_factura"),
-        producto_id: formData.get("producto_jlc"),
-        numero_serie: formData.get("numero_serie"),
-        fecha_venta: formData.get("fecha_venta"),
-        foto_factura: "", // TODO: Implementar upload de archivos
-      };
+      const formData = new FormData(form);
+      let fotoUrl = uploadedFileUrl;
 
       try {
-        const response = await fetch("http://localhost:8000/sales/create.php", {
+        // Paso 1: Subir archivo si hay uno seleccionado y aún no se ha subido
+        if (selectedFile && !uploadedFileUrl) {
+          submitBtn.disabled = true;
+          uploadProgress.style.display = "block";
+          progressText.textContent = "Subiendo archivo...";
+          progressFill.style.width = "50%";
+
+          const fileData = new FormData();
+          fileData.append("file", selectedFile);
+
+          const uploadResponse = await fetch(`${API_BASE}/uploads/upload.php`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: fileData,
+          });
+
+          const uploadResult = await uploadResponse.json();
+
+          if (uploadResult.status === 200) {
+            fotoUrl = uploadResult.data.url;
+            uploadedFileUrl = fotoUrl;
+            progressFill.style.width = "100%";
+            progressText.textContent = "Archivo subido correctamente";
+          } else {
+            throw new Error(uploadResult.message || "Error al subir archivo");
+          }
+        }
+
+        // Paso 2: Registrar venta con URL del archivo
+        progressText.textContent = "Registrando venta...";
+
+        const data = {
+          numero_factura: formData.get("numero_factura"),
+          producto_id: formData.get("producto_jlc"),
+          numero_serie: formData.get("numero_serie"),
+          fecha_venta: formData.get("fecha_venta"),
+          foto_factura: fotoUrl || "",
+        };
+
+        const response = await fetch(`${API_BASE}/sales/create.php`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -195,14 +365,21 @@ import Button from "../Button.astro";
         if (result.status === 201) {
           alert("¡Venta registrada exitosamente!");
           form.reset();
-          // Opcional: redirigir a historial
+          filePreview.style.display = "none";
+          uploadProgress.style.display = "none";
+          uploadedFileUrl = "";
+          selectedFile = null;
           // window.location.href = '/dashboard/ventas';
         } else {
-          alert(result.message || "Error al registrar la venta");
+          throw new Error(result.message || "Error al registrar la venta");
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("Error de conexión. Intenta nuevamente.");
+        alert(error.message || "Error de conexión. Intenta nuevamente.");
+      } finally {
+        submitBtn.disabled = false;
+        uploadProgress.style.display = "none";
+        progressFill.style.width = "0%";
       }
     });
   })();

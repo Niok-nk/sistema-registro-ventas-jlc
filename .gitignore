@@ -30,3 +30,9 @@ database/*.sqlite
 # Documentation / Agents
 agente-*.md
 brain/
+
+# Uploads (facturas)
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
+
