@@ -373,9 +373,16 @@ import Button from "../Button.astro";
       // Event listeners para botones de fotos
       document.querySelectorAll(".btn-view-photo").forEach((btn) => {
         btn.addEventListener("click", function () {
-          const photoUrl = this.getAttribute("data-photo");
-          if (photoUrl) {
-            window.open("http://localhost:8000" + photoUrl, "_blank");
+          const photoPath = this.getAttribute("data-photo");
+          if (photoPath) {
+            // Extraer solo el nombre del archivo de la ruta /uploads/facturas/nombre.jpg
+            const filename = photoPath.split("/").pop();
+            const token = localStorage.getItem("token");
+            // Abrir visor seguro
+            window.open(
+              `http://localhost:8000/sales/view_receipt.php?file=${filename}&token=${token}`,
+              "_blank",
+            );
           }
         });
       });

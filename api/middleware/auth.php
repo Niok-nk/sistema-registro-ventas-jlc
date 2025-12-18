@@ -14,6 +14,9 @@ function requireAuth() {
         if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
             $token = $matches[1];
         }
+    } elseif (isset($_GET['token'])) {
+        // Permitir token por URL para visualización de archivos (window.open)
+        $token = $_GET['token'];
     }
 
     if (!$token) {
