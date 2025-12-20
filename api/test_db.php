@@ -2,7 +2,7 @@
 /**
  * Test de Conexión a Base de Datos
  * Sistema JLC
- * 
+ *
  * Verificar en:
  * - Local: http://localhost:8000/test_db.php
  * - Producción: https://ventas.jlc-electronics.com/api/test_db.php
@@ -21,7 +21,7 @@ try {
     if (!extension_loaded('pdo') || !extension_loaded('pdo_mysql')) {
          throw new Exception('PDO o PDO_MySQL extension no está disponible');
     }
-    
+
     $database = Database::getInstance();
 
     $response = [
@@ -50,32 +50,32 @@ try {
             'connection_test' => false
         ]
     ];
-    
+
     // ===================================
     // PASO 3: Test de conexión básico
     // ===================================
     $connection_test = $database->testConnection();
     $response['database']['connection_test'] = $connection_test;
-    
+
     if (!$connection_test) {
         throw new Exception('La conexión a la base de datos falló en el test básico');
     }
-    
+
     // ===================================
     // PASO 4: Obtener conexión PDO
     // ===================================
     $conn = $database->getConnection();
-    
+
     if (!$conn) {
         throw new Exception('No se pudo obtener la conexión PDO');
     }
-    
+
     // ===================================
     // PASO 5: Obtener info de la BD
     // ===================================
     $db_info = $database->getDatabaseInfo();
     $response['database']['info'] = $db_info;
-    
+
     // ===================================
     // PASO 6: Verificar versión MySQL
     // ===================================
@@ -84,16 +84,16 @@ try {
     // ===================================
     $db_driver = $conn->getAttribute(PDO::ATTR_DRIVER_NAME);
     $response['database']['driver'] = $db_driver;
-    
+
     if ($db_driver === 'sqlite') {
         $stmt = $conn->query("SELECT sqlite_version() as version");
     } else {
         $stmt = $conn->query("SELECT VERSION() as version");
     }
-    
+
     $version_info = $stmt->fetch();
     $response['database']['version'] = $version_info['version'];
-    
+
     // ===================================
     // PASO 7: Listar tablas existentes
     // ===================================
@@ -108,25 +108,25 @@ try {
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
     $response['database']['tables'] = $tables;
     $response['database']['table_count'] = count($tables);
-    
+
     // ===================================
     // PASO 8: Verificar tablas esperadas
     // ===================================
     $expected_tables = ['usuarios', 'ventas', 'productos_jlc', 'sesiones'];
     $missing_tables = [];
-    
+
     foreach ($expected_tables as $table) {
         if (!in_array($table, $tables)) {
             $missing_tables[] = $table;
         }
     }
-    
+
     if (!empty($missing_tables)) {
         $response['database']['warning'] = 'Faltan algunas tablas esperadas';
         $response['database']['missing_tables'] = $missing_tables;
         $response['database']['note'] = 'Necesitas ejecutar database/schema.sql';
     }
-    
+
     // ===================================
     // PASO 9: Contar registros (si existen tablas)
     // ===================================
@@ -138,11 +138,11 @@ try {
             $counts[$table] = (int)$count['count'];
         }
     }
-    
+
     if (!empty($counts)) {
         $response['database']['record_counts'] = $counts;
     }
-    
+
     // ===================================
     // PASO 10: Test de escritura (opcional)
     // ===================================
@@ -153,58 +153,58 @@ try {
     } catch (PDOException $e) {
         $response['database']['write_test'] = '❌ FAILED: ' . $e->getMessage();
     }
-    
+
     // ===================================
     // TODO OK
     // ===================================
     $response['status'] = 'success';
     $response['database']['status'] = '✅ connected';
     $response['message'] = 'Conexión a base de datos exitosa';
-    
+
     http_response_code(200);
-    
+
 } catch (Exception $e) {
     // ===================================
     // MANEJO DE ERRORES
     // ===================================
     http_response_code(500);
-    
+
     $response['status'] = 'error';
     $response['error'] = [
         'message' => $e->getMessage(),
         'file' => basename($e->getFile()),
         'line' => $e->getLine()
     ];
-    
+
     // Sugerencias según el error
     $error_msg = strtolower($e->getMessage());
     $suggestions = [];
-    
+
     if (strpos($error_msg, 'access denied') !== false) {
         $suggestions[] = 'Verifica DB_USER y DB_PASS en tu archivo .env';
         $suggestions[] = 'Asegúrate que el usuario tenga permisos en la base de datos';
     }
-    
+
     if (strpos($error_msg, 'unknown database') !== false) {
         $suggestions[] = 'La base de datos no existe. Créala en phpMyAdmin';
         $suggestions[] = 'Verifica que DB_NAME en .env sea correcto';
     }
-    
+
     if (strpos($error_msg, 'connection') !== false) {
         $suggestions[] = 'Verifica que MySQL esté corriendo';
         $suggestions[] = 'Verifica DB_HOST en .env (debería ser "localhost")';
     }
-    
+
     if (strpos($error_msg, '.env') !== false) {
         $suggestions[] = 'Archivo .env no encontrado o no se puede leer';
         $suggestions[] = 'Crea .env en la raíz del proyecto usando .env.example como plantilla';
         $suggestions[] = 'Verifica los permisos del archivo .env (chmod 600)';
     }
-    
+
     if (!empty($suggestions)) {
         $response['suggestions'] = $suggestions;
     }
-    
+
     // Log del error
     error_log("DATABASE TEST FAILED: " . $e->getMessage());
 }
@@ -227,16 +227,16 @@ if ($response['status'] === 'success') {
         $response['help']['next_steps'][] = '3. Importa database/seeds/productos_jlc.sql';
     } else if (isset($response['database']['record_counts'])) {
         $user_count = $response['database']['record_counts']['usuarios'] ?? 0;
-        
+
         if ($user_count === 0) {
             $response['help']['next_steps'][] = 'Base de datos vacía. Importa las migraciones y seeds.';
         } else {
             $response['help']['next_steps'][] = '✅ Todo listo! Puedes empezar a desarrollar.';
             $response['help']['credentials'] = [
                 'admin' => [
-                    'cedula' => '1234567890',
-                    'password' => 'Admin2024!',
-                    'note' => '⚠️ Cambiar después del primer login'
+                    'cedula' => '*',
+                    'password' => '*',
+                    'note' => '*'
                 ]
             ];
         }

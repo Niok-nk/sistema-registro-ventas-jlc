@@ -1,5 +1,6 @@
 ---
 import Bg_animado from "../components/Bg-animado.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 import '../styles/index.css';
 
 interface Props {
@@ -23,6 +24,9 @@ const { title } = Astro.props;
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 	</head>
 	<body>
+		<div class="theme-toggle-container">
+			<ThemeToggle />
+		</div>
 		<div class="app-container">
 			<slot />
       <Bg_animado></Bg_animado>
@@ -37,4 +41,10 @@ const { title } = Astro.props;
 		flex-direction: column;
     justify-content: center
 	}
+	.theme-toggle-container {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+  }
 </style>

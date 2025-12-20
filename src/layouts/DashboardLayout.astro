@@ -1,7 +1,6 @@
 ---
 import Sidebar from "../components/dashboard/Sidebar.astro";
-import Dark from "../components/icons/Dark.astro";
-import Light from "../components/icons/Light.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 import "../styles/index.css";
 
 interface Props {
@@ -33,14 +32,7 @@ const { title } = Astro.props;
       <main class="dashboard-content">
         <header class="dashboard-header">
           <h1 class="page-title">{title}</h1>
-          <button
-            id="theme-toggle"
-            class="theme-toggle-btn"
-            title="Toggle theme"
-          >
-            <Dark />
-            <Light />
-          </button>
+          <ThemeToggle />
         </header>
         <slot />
       </main>
@@ -72,26 +64,6 @@ const { title } = Astro.props;
     font-size: 1.875rem;
     font-weight: 700;
     color: var(--color-text-main);
-  }
-  .theme-toggle-btn {
-    background-color: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 9999px;
-    padding: 0.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-secondary);
-    transition: all 0.3s ease;
-  }
-  .theme-toggle-btn:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
-  .toggle-icon {
-    width: 1.25rem;
-    height: 1.25rem;
   }
 
   @media (max-width: 768px) {
@@ -131,52 +103,4 @@ const { title } = Astro.props;
       window.location.href = "/login";
     }
   })();
-</script>
-
-<script is:inline>
-  function themeSetup() {
-    const themeToggleBtn = document.getElementById("theme-toggle");
-    if (!themeToggleBtn) return;
-
-    const darkIcon = document.getElementById("theme-toggle-dark-icon");
-    const lightIcon = document.getElementById("theme-toggle-light-icon");
-    const docElement = document.documentElement;
-
-    const applyTheme = (theme) => {
-      if (theme === "light") {
-        docElement.setAttribute("data-theme", "light");
-        if (darkIcon) darkIcon.style.display = "block";
-        if (lightIcon) lightIcon.style.display = "none";
-      } else {
-        docElement.removeAttribute("data-theme");
-        if (darkIcon) darkIcon.style.display = "none";
-        if (lightIcon) lightIcon.style.display = "block";
-      }
-    };
-
-    const toggleTheme = () => {
-      const currentThemeIsLight = docElement.hasAttribute("data-theme");
-      const newTheme = currentThemeIsLight ? "dark" : "light";
-      localStorage.setItem("theme", newTheme);
-      applyTheme(newTheme);
-    };
-
-    themeToggleBtn.addEventListener("click", toggleTheme);
-
-    // Initial load
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    if (savedTheme) {
-      applyTheme(savedTheme);
-    } else {
-      applyTheme(prefersDark ? "dark" : "light");
-    }
-  }
-
-  document.addEventListener("astro:page-load", themeSetup);
-  // astro:page-load is usually sufficient, but running it directly helps with initial view transitions.
-  themeSetup();
 </script>
