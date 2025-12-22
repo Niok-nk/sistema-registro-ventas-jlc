@@ -1,0 +1,85 @@
+---
+import Dark from "./icons/Dark.astro";
+import Light from "./icons/Light.astro";
+---
+
+<button id="theme-toggle" class="theme-toggle-btn" title="Toggle theme">
+  <Dark />
+  <Light />
+</button>
+
+<style>
+  .theme-toggle-btn {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    transition: all 0.3s ease;
+  }
+  .theme-toggle-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  :global(.toggle-icon) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+</style>
+
+<script is:inline>
+  function themeSetup() {
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    if (!themeToggleBtn) return;
+
+    // These IDs are on the SVG elements inside the icons
+    const darkIcon = document.getElementById("theme-toggle-dark-icon");
+    const lightIcon = document.getElementById("theme-toggle-light-icon");
+    const docElement = document.documentElement;
+
+    const applyTheme = (theme) => {
+      if (theme === "light") {
+        docElement.setAttribute("data-theme", "light");
+        if (darkIcon) darkIcon.style.display = "block";
+        if (lightIcon) lightIcon.style.display = "none";
+      } else {
+        docElement.removeAttribute("data-theme");
+        if (darkIcon) darkIcon.style.display = "none";
+        if (lightIcon) lightIcon.style.display = "block";
+      }
+    };
+
+    const toggleTheme = () => {
+      const currentThemeIsLight = docElement.hasAttribute("data-theme");
+      const newTheme = currentThemeIsLight ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      applyTheme(newTheme);
+    };
+
+    themeToggleBtn.addEventListener("click", toggleTheme);
+
+    // Initial load
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (savedTheme) {
+      applyTheme(savedTheme);
+    } else {
+      applyTheme(prefersDark ? "dark" : "light");
+    }
+  }
+
+  // Use a flag to run setup only once to avoid duplicate event listeners
+  // on client-side navigation.
+  if (!window.themeSetupDone) {
+    document.addEventListener("astro:page-load", themeSetup);
+    themeSetup();
+    window.themeSetupDone = true;
+  }
+</script>
