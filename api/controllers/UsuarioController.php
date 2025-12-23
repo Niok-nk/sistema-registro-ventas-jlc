@@ -31,20 +31,29 @@ class UsuarioController {
             // 3. Hash de la contraseña
             $password_hash = password_hash($data['password'], PASSWORD_BCRYPT);
 
-            // 4. Insertar usuario en la base de datos
+            // 4. Insertar usuario en la base de datos (con 8 declaraciones legales)
             $sql = "INSERT INTO usuarios (
                         nombre, apellido, tipo_documento, numero_documento, cedula, fecha_nacimiento,
                         ciudad_residencia, departamento, whatsapp, telefono, correo,
                         nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta,
                         cargo, antiguedad_meses, metodo_pago_preferido, llave_breb,
                         password, acepta_tratamiento_datos, acepta_contacto_comercial,
-                        declara_info_verdadera, rol, activo, estado_aprobacion
+                        declara_info_verdadera,
+                        declara_naturaleza_comercial, reconoce_no_salario,
+                        declara_no_subordinacion, declara_relacion_autonoma,
+                        acepta_liberalidades, asume_obligaciones_tributarias,
+                        declara_no_contrato, acepta_terminos_programa,
+                        rol, activo, estado_aprobacion
                     ) VALUES (
                         :nombre, :apellido, :tipo_documento, :numero_documento, :cedula, :fecha_nacimiento,
                         :ciudad_residencia, :departamento, :whatsapp, :telefono, :correo,
                         :nombre_distribuidor, :ciudad_punto_venta, :direccion_punto_venta,
                         :cargo, :antiguedad_meses, :metodo_pago, :llave_breb,
                         :password, :acepta_datos, :acepta_contacto, :declara_verdad,
+                        :declara_naturaleza, :reconoce_salario,
+                        :declara_subordinacion, :declara_relacion,
+                        :acepta_liberal, :asume_tributarias,
+                        :declara_contrato, :acepta_terminos,
                         'asesor', 0, 'pendiente'
                     )";
 
@@ -71,7 +80,16 @@ class UsuarioController {
                 ':password' => $password_hash,
                 ':acepta_datos' => $data['acepta_tratamiento_datos'] ? 1 : 0,
                 ':acepta_contacto' => $data['acepta_contacto_comercial'] ? 1 : 0,
-                ':declara_verdad' => $data['declara_info_verdadera'] ? 1 : 0
+                ':declara_verdad' => $data['declara_info_verdadera'] ? 1 : 0,
+                // 8 nuevas declaraciones legales
+                ':declara_naturaleza' => $data['declara_naturaleza_comercial'] ? 1 : 0,
+                ':reconoce_salario' => $data['reconoce_no_salario'] ? 1 : 0,
+                ':declara_subordinacion' => $data['declara_no_subordinacion'] ? 1 : 0,
+                ':declara_relacion' => $data['declara_relacion_autonoma'] ? 1 : 0,
+                ':acepta_liberal' => $data['acepta_liberalidades'] ? 1 : 0,
+                ':asume_tributarias' => $data['asume_obligaciones_tributarias'] ? 1 : 0,
+                ':declara_contrato' => $data['declara_no_contrato'] ? 1 : 0,
+                ':acepta_terminos' => $data['acepta_terminos_programa'] ? 1 : 0
             ]);
 
             $new_user_id = $this->conn->lastInsertId();
@@ -124,9 +142,23 @@ class UsuarioController {
             return "Debe ser mayor de 18 años para registrarse.";
         }
 
-        // Validar checkboxes de políticas
+        // Validar checkboxes de políticas originales
         if (empty($data['acepta_tratamiento_datos']) || empty($data['acepta_contacto_comercial']) || empty($data['declara_info_verdadera'])) {
             return "Debe aceptar todas las políticas para continuar.";
+        }
+
+        // Validar 8 declaraciones legales del Programa de Incentivos
+        $declaraciones_legales = [
+            'declara_naturaleza_comercial', 'reconoce_no_salario',
+            'declara_no_subordinacion', 'declara_relacion_autonoma',
+            'acepta_liberalidades', 'asume_obligaciones_tributarias',
+            'declara_no_contrato', 'acepta_terminos_programa'
+        ];
+        
+        foreach ($declaraciones_legales as $declaracion) {
+            if (empty($data[$declaracion])) {
+                return "Debe aceptar todas las declaraciones legales del Programa de Incentivos.";
+            }
         }
 
         return true;
