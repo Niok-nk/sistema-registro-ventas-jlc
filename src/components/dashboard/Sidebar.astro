@@ -224,14 +224,17 @@ import Logo from "../Logo.astro";
       justify-content: space-between;
     }
     .sidebar-header,
-    .user-profile,
-    .sidebar-footer {
+    .user-profile {
       display: none; /* Hide for a simpler mobile view */
     }
     .sidebar-nav {
       flex-direction: row;
       flex-grow: 0;
       gap: 0.5rem;
+    }
+    .sidebar-footer{
+      padding-top: 0;
+      border-top: 0;
     }
     .nav-link span {
       display: none; /* Hide text on mobile */
