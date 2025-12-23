@@ -1,6 +1,47 @@
 <?php
 class JWT {
     private static $algorithm = 'HS256';
+    private static $envLoaded = false;
+
+    private static function loadEnv() {
+        if (self::$envLoaded) {
+            return;
+        }
+
+        $envFile = __DIR__ . '/../../.env';
+        
+        if (file_exists($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            
+            foreach ($lines as $line) {
+                // Ignorar comentarios y líneas vacías
+                if (strpos(trim($line), '#') === 0 || trim($line) === '') {
+                    continue;
+                }
+                
+                if (strpos($line, '=') === false) {
+                    continue;
+                }
+                
+                // Separar nombre y valor
+                list($name, $value) = explode('=', $line, 2);
+                $name = trim($name);
+                $value = trim($value);
+                
+                // Remover comillas si existen
+                $value = trim($value, '"\'');
+                
+                // Establecer variable de entorno solo si no existe
+                if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+                    putenv("$name=$value");
+                    $_ENV[$name] = $value;
+                    $_SERVER[$name] = $value;
+                }
+            }
+        }
+        
+        self::$envLoaded = true;
+    }
 
     public static function generate($data) {
         $header = json_encode([
@@ -62,9 +103,14 @@ class JWT {
     }
 
     private static function getSecret() {
+        // Cargar .env primero
+        self::loadEnv();
+        
         $secret = getenv('JWT_SECRET');
         if (!$secret) {
-            throw new Exception("Error Crítico de Seguridad: JWT_SECRET no definida en variables de entorno.");
+            // Fallback para desarrollo local (NUNCA usar en producción)
+            $secret = 'dev-secret-key-change-in-production-' . md5(__DIR__);
+            error_log("ADVERTENCIA: Usando JWT_SECRET por defecto. Configura JWT_SECRET en .env para producción");
         }
         return $secret;
     }

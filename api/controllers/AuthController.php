@@ -22,7 +22,7 @@ class AuthController {
 
         try {
             // Buscar usuario
-            $query = "SELECT id, cedula, password, rol, nombre, apellido, activo FROM usuarios WHERE cedula = :cedula LIMIT 1";
+            $query = "SELECT id, cedula, password, rol, nombre, apellido, activo, estado_aprobacion FROM usuarios WHERE cedula = :cedula LIMIT 1";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':cedula', $cedula);
             $stmt->execute();
@@ -44,6 +44,17 @@ class AuthController {
                 if ($password_valid) {
                     if ($user['activo'] == 0) {
                          return ['status' => 403, 'message' => 'Usuario inactivo. Contacte al administrador.'];
+                    }
+                    
+                    // Verificar que el usuario esté aprobado
+                    if ($user['estado_aprobacion'] !== 'aprobado') {
+                        $mensaje = '';
+                        if ($user['estado_aprobacion'] === 'pendiente') {
+                            $mensaje = 'Tu cuenta está pendiente de aprobación por un administrador.';
+                        } else if ($user['estado_aprobacion'] === 'rechazado') {
+                            $mensaje = 'Tu solicitud de registro fue rechazada. Contacta al administrador.';
+                        }
+                        return ['status' => 403, 'message' => $mensaje];
                     }
 
                     // Generar Token

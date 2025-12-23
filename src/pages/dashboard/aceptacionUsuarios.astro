@@ -1,0 +1,39 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import Card from "../../components/Card.astro";
+import UserApprovalList from "../../components/dashboard/UserApprovalList.astro";
+---
+
+<DashboardLayout title="Gestión de Usuarios">
+  <Card title="Administrar Usuarios">
+    <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+      Activar o desactivar usuarios del sistema. Los usuarios inactivos no
+      podrán iniciar sesión.
+    </p>
+    <UserApprovalList />
+  </Card>
+</DashboardLayout>
+
+<script is:inline>
+  // Verificar que el usuario sea administrador
+  (function () {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) {
+        console.warn("No user data found, redirecting to login");
+        window.location.href = "/login";
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      if (user.rol !== "administrador") {
+        console.warn("User is not admin, redirecting to dashboard");
+        alert("Acceso denegado. Esta página es solo para administradores.");
+        window.location.href = "/dashboard";
+      }
+    } catch (e) {
+      console.error("Error checking admin role:", e);
+      window.location.href = "/login";
+    }
+  })();
+</script>

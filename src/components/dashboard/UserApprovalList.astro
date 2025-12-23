@@ -1,0 +1,525 @@
+---
+interface Props {}
+---
+
+<div id="user-approval-container">
+  <!-- Loading State -->
+  <div id="approval-loading" class="state-message">
+    <div class="spinner"></div>
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <!-- Error State -->
+  <div id="approval-error" class="state-message" style="display: none;">
+    <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+      <path
+        fill-rule="evenodd"
+        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+        clip-rule="evenodd"></path>
+    </svg>
+    <p id="error-message">Error al cargar los usuarios</p>
+    <button id="retry-approval-btn" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <!-- Empty State -->
+  <div id="approval-empty" class="state-message" style="display: none;">
+    <svg class="empty-icon" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+    </svg>
+    <p>No hay usuarios pendientes de aprobación</p>
+  </div>
+
+  <!-- Users List -->
+  <div id="users-list" class="users-list" style="display: none;">
+    <!-- Dynamic content -->
+  </div>
+</div>
+
+<style>
+  .state-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
+
+  .state-message p {
+    margin: 1rem 0;
+    font-size: 1.125rem;
+  }
+
+  .spinner {
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .error-icon,
+  .empty-icon {
+    width: 3rem;
+    height: 3rem;
+    color: var(--color-text-secondary);
+  }
+
+  .users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .user-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: all 0.2s;
+  }
+
+  .user-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .user-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.125rem;
+    color: var(--color-text-main);
+  }
+
+  .user-info .user-email {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .user-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .meta-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.05em;
+  }
+
+  .meta-value {
+    color: var(--color-text-main);
+    font-weight: 500;
+  }
+
+  .user-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .user-date {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Toggle Switch */
+  .approval-toggle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .toggle-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .toggle-label.activo {
+    color: #68d391; /* Verde para activo */
+  }
+
+  .toggle-label.inactivo {
+    color: #a0aec0; /* Gris para inactivo */
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 28px;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e0; /* Gris por defecto */
+    transition: 0.3s;
+    border-radius: 34px;
+  }
+
+  .toggle-slider.active,
+  input:checked + .toggle-slider {
+    background-color: #68d391; /* Verde cuando activo */
+  }
+
+  input:disabled + .toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    background-color: rgba(66, 153, 225, 0.2);
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 768px) {
+    .user-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .user-footer {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const API_BASE = "http://localhost:8000";
+
+    // Estado
+    let allUsers = [];
+    let currentFilter = "todos"; // todos, activos, inactivos
+
+    // Elementos DOM
+    const loadingState = document.getElementById("approval-loading");
+    const errorState = document.getElementById("approval-error");
+    const emptyState = document.getElementById("approval-empty");
+    const usersList = document.getElementById("users-list");
+    const retryBtn = document.getElementById("retry-approval-btn");
+    const errorMessage = document.getElementById("error-message");
+
+    // Funciones de estado
+    function showLoading() {
+      loadingState.style.display = "flex";
+      errorState.style.display = "none";
+      emptyState.style.display = "none";
+      usersList.style.display = "none";
+    }
+
+    function showError(message = "Error al cargar los usuarios") {
+      errorMessage.textContent = message;
+      loadingState.style.display = "none";
+      errorState.style.display = "flex";
+      emptyState.style.display = "none";
+      usersList.style.display = "none";
+    }
+
+    function showEmpty() {
+      loadingState.style.display = "none";
+      errorState.style.display = "none";
+      emptyState.style.display = "flex";
+      usersList.style.display = "none";
+    }
+
+    function showList() {
+      loadingState.style.display = "none";
+      errorState.style.display = "none";
+      emptyState.style.display = "none";
+      usersList.style.display = "flex";
+    }
+
+    // Cargar usuarios
+    async function loadUsers() {
+      showLoading();
+      const token = localStorage.getItem("token");
+      const user = localStorage.getItem("user");
+
+      // DEBUG: Mostrar información del token
+      console.log("=== DEBUG: User Approval - Load Users ===");
+      console.log("Token exists:", !!token);
+      console.log(
+        "Token value:",
+        token ? token.substring(0, 50) + "..." : "NULL",
+      );
+      console.log("User data:", user);
+
+      if (!token) {
+        console.error("No token found, redirecting to login");
+        window.location.href = "/login";
+        return;
+      }
+
+      try {
+        const url = `${API_BASE}/users/pending.php?estado=${currentFilter}`;
+        console.log("Fetching:", url);
+        console.log(
+          "Authorization header:",
+          `Bearer ${token.substring(0, 20)}...`,
+        );
+
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Response status:", response.status);
+        console.log("Response headers:", [...response.headers.entries()]);
+
+        const data = await response.json();
+        console.log("Response data:", data);
+
+        if (response.status === 401 || response.status === 403) {
+          console.error("Authentication failed with status:", response.status);
+          console.error("Response message:", data.message);
+          alert(
+            `Autenticación fallida: ${data.message || "Token inválido"}. Serás redirigido al login.`,
+          );
+          localStorage.clear();
+          window.location.href = "/login";
+          return;
+        }
+
+        if (data.status === 200 && data.data) {
+          allUsers = data.data;
+          renderUsers(allUsers);
+        } else {
+          throw new Error(data.message || "Error desconocido");
+        }
+      } catch (error) {
+        console.error("Error cargando usuarios:", error);
+        showError(error.message);
+      }
+    }
+
+    // Renderizar usuarios
+    function renderUsers(users) {
+      if (!users || users.length === 0) {
+        showEmpty();
+        return;
+      }
+
+      usersList.innerHTML = "";
+
+      users.forEach((user) => {
+        const card = document.createElement("div");
+        card.className = "user-card";
+
+        const fechaRegistro = new Date(user.created_at);
+        const tiempoTranscurrido = getTimeAgo(fechaRegistro);
+
+        const isActive = user.activo === 1;
+
+        card.innerHTML = `
+          <div class="user-header">
+            <div class="user-info">
+              <h3>${user.nombre} ${user.apellido}</h3>
+              <p class="user-email">${user.correo}</p>  
+            </div>
+            <span class="role-badge">${user.rol === "administrador" ? "Admin" : "Asesor"}</span>
+          </div>
+          
+          <div class="user-meta">
+            <div class="meta-item">
+              <span class="meta-label">Distribuidor</span>
+              <span class="meta-value">${user.nombre_distribuidor || "N/A"}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Ciudad</span>
+              <span class="meta-value">${user.ciudad_punto_venta || "N/A"}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Cargo</span>
+              <span class="meta-value">${user.cargo || "N/A"}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Cédula</span>
+              <span class="meta-value">${user.cedula || "N/A"}</span>
+            </div>
+          </div>
+          
+          <div class="user-footer">
+            <div class="user-date">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="width:1rem;height:1rem">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+              </svg>
+              ${tiempoTranscurrido}
+            </div>
+            
+            <div class="approval-toggle">
+              <span class="toggle-label ${isActive ? "activo" : "inactivo"}">${isActive ? "Activo" : "Inactivo"}</span>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  ${isActive ? "checked" : ""}
+                  data-user-id="${user.id}"
+                  data-current-state="${isActive ? "1" : "0"}"
+                />
+                <span class="toggle-slider ${isActive ? "active" : ""}"</span>
+              </label>
+            </div>
+          </div>
+        `;
+
+        // Event listener para el toggle
+        const toggle = card.querySelector('input[type="checkbox"]');
+        toggle.addEventListener("change", (e) => {
+          handleToggle(e.target);
+        });
+
+        usersList.appendChild(card);
+      });
+
+      showList();
+    }
+
+    // Manejar cambio de toggle
+    async function handleToggle(toggleElement) {
+      const userId = parseInt(toggleElement.getAttribute("data-user-id"));
+      const currentState = parseInt(
+        toggleElement.getAttribute("data-current-state"),
+      );
+      const newState = toggleElement.checked ? 1 : 0;
+
+      // Deshabilitar toggle mientras se procesa
+      toggleElement.disabled = true;
+
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await fetch(`${API_BASE}/users/toggle_active.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            activo: newState === 1,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200) {
+          // Actualizar estado en el array local
+          const userIndex = allUsers.findIndex((u) => u.id === userId);
+          if (userIndex !== -1) {
+            allUsers[userIndex].activo = newState;
+          }
+
+          // Actualizar UI del toggle
+          toggleElement.setAttribute("data-current-state", newState);
+
+          // Actualizar label
+          const label = toggleElement
+            .closest(".approval-toggle")
+            .querySelector(".toggle-label");
+          const estadoTexto = newState === 1 ? "Activo" : "Inactivo";
+          label.textContent = estadoTexto;
+          label.className = `toggle-label ${newState === 1 ? "activo" : "inactivo"}`;
+
+          // Actualizar color del toggle
+          const slider = toggleElement.nextElementSibling;
+          if (newState === 1) {
+            slider.classList.add("active");
+          } else {
+            slider.classList.remove("active");
+          }
+
+          console.log(`✅ Usuario ${userId} ${estadoTexto.toLowerCase()}`);
+        } else {
+          // Revertir toggle si falla
+          toggleElement.checked = currentState === 1;
+          alert(data.message || "Error al cambiar estado del usuario");
+        }
+      } catch (error) {
+        console.error("Error al cambiar estado:", error);
+        // Revertir toggle si falla
+        toggleElement.checked = currentState === 1;
+        alert("Error al procesar la solicitud");
+      } finally {
+        toggleElement.disabled = false;
+      }
+    }
+
+    // Utilidades
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function getTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 60)
+        return `Hace ${diffMins} minuto${diffMins !== 1 ? "s" : ""}`;
+      if (diffHours < 24)
+        return `Hace ${diffHours} hora${diffHours !== 1 ? "s" : ""}`;
+      if (diffDays < 30)
+        return `Hace ${diffDays} día${diffDays !== 1 ? "s" : ""}`;
+      return date.toLocaleDateString();
+    }
+
+    // Event listeners
+    if (retryBtn) {
+      retryBtn.addEventListener("click", loadUsers);
+    }
+
+    // Inicializar
+    loadUsers();
+  })();
+</script>
