@@ -36,3 +36,7 @@ uploads/*
 !uploads/.gitkeep
 !uploads/.htaccess
 
+# Testing files - NUNCA en producción
+api/test_*.php
+api/inspect_*.php
+database/migrations/run_*.php
