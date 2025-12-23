@@ -98,15 +98,20 @@ try {
     // Convertir a entero para SQL
     $activoInt = $activo ? 1 : 0;
     
-    // Actualizar estado activo
-    $stmt = $db->prepare("UPDATE usuarios SET activo = :activo WHERE id = :id");
+    // Determinar estado_aprobacion basado en activo
+    // Si se activa → aprobado, si se desactiva → pendiente
+    $estadoAprobacion = $activoInt ? 'aprobado' : 'pendiente';
+    
+    // Actualizar estado activo Y estado_aprobacion simultáneamente
+    $stmt = $db->prepare("UPDATE usuarios SET activo = :activo, estado_aprobacion = :estado_aprobacion WHERE id = :id");
     $stmt->bindParam(':activo', $activoInt, PDO::PARAM_INT);
+    $stmt->bindParam(':estado_aprobacion', $estadoAprobacion, PDO::PARAM_STR);
     $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
     $stmt->execute();
     
     // Registrar en auditoría (si existe la tabla)
     try {
-        $accion = "Cambió estado activo a: " . ($activoInt ? 'activo' : 'inactivo');
+        $accion = "Cambió estado: activo=" . ($activoInt ? 'SI' : 'NO') . ", aprobación=" . $estadoAprobacion;
         $adminId = $decoded['user_id'] ?? null;
         $stmtAudit = $db->prepare("INSERT INTO auditoria (usuario_id, accion, tabla_afectada, registro_id) VALUES (:admin_id, :accion, 'usuarios', :user_id)");
         $stmtAudit->bindParam(':admin_id', $adminId, PDO::PARAM_INT);
@@ -118,7 +123,7 @@ try {
         error_log("Advertencia: No se pudo registrar en auditoría: " . $e->getMessage());
     }
     
-    $estadoTexto = $activoInt ? 'activado' : 'desactivado';
+    $estadoTexto = $activoInt ? 'activado y aprobado' : 'desactivado';
     $mensaje = "Usuario {$user['nombre']} {$user['apellido']} $estadoTexto exitosamente";
     
     http_response_code(200);
@@ -127,7 +132,8 @@ try {
         'message' => $mensaje,
         'data' => [
             'userId' => $userId,
-            'activo' => $activoInt
+            'activo' => $activoInt,
+            'estado_aprobacion' => $estadoAprobacion
         ]
     ]);
     

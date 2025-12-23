@@ -14,7 +14,8 @@ try {
     // Admin ve todas las ventas, Asesor solo ve las suyas
     $sql = "SELECT v.id, v.numero_factura, v.fecha_venta, v.estado, v.numero_serie, v.producto_id, v.foto_factura,
                    p.modelo as modelo_producto, p.descripcion as desc_producto,
-                   u.nombre as nombre_asesor, u.apellido as apellido_asesor, u.cedula as cedula_asesor, u.nombre_distribuidor
+                   u.nombre as nombre_asesor, u.apellido as apellido_asesor, u.cedula as cedula_asesor, 
+                   u.nombre_distribuidor, u.llave_breb
             FROM ventas v
             JOIN productos_jlc p ON v.producto_id = p.id
             JOIN usuarios u ON v.asesor_id = u.id";
@@ -31,6 +32,32 @@ try {
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);
     $ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Obtener el token JWT del header para construir URLs seguras
+    $headers = apache_request_headers();
+    $token = null;
+    if (isset($headers['Authorization'])) {
+        $matches = [];
+        if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+            $token = $matches[1];
+        }
+    }
+    
+    // Agregar URL completa de foto a cada venta
+    foreach ($ventas as &$venta) {
+        if (!empty($venta['foto_factura']) && $token) {
+            // Construir URL segura con endpoint view_receipt.php
+            $baseUrl = getenv('API_URL') ?: 'http://localhost:8000';
+            // Remover /api del final si existe
+            $baseUrl = rtrim(str_replace('/api', '', $baseUrl), '/');
+            
+            // Formato: /sales/view_receipt.php?file=NOMBRE&token=JWT
+            $venta['foto_url'] = $baseUrl . '/sales/view_receipt.php?file=' . urlencode($venta['foto_factura']) . '&token=' . $token;
+        } else {
+            $venta['foto_url'] = null;
+        }
+    }
+    unset($venta); // Romper referencia
 
     http_response_code(200);
     echo json_encode(['status' => 200, 'data' => $ventas]);
