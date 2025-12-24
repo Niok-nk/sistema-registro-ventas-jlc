@@ -26,7 +26,7 @@ import UserApprovalList from "../../components/dashboard/UserApprovalList.astro"
       }
 
       const user = JSON.parse(userStr);
-      if (user.rol !== "administrador") {
+      if (user.rol !== "admin" && user.rol !== "administrador") {
         console.warn("User is not admin, redirecting to dashboard");
         alert("Acceso denegado. Esta página es solo para administradores.");
         window.location.href = "/dashboard";

@@ -376,6 +376,7 @@ import VentasTable from "./ventas/VentasTable.astro";
           "Llave BRE-B",
           "Distribuidor",
           "Estado",
+          "Link Foto",
         ],
 
         // Datos
@@ -389,6 +390,7 @@ import VentasTable from "./ventas/VentasTable.astro";
           sale.llave_breb || "",
           sale.nombre_distribuidor || "",
           sale.estado || "",
+          sale.foto_url || "",
         ]),
       ];
       // 2. Crear worksheet
@@ -402,9 +404,10 @@ import VentasTable from "./ventas/VentasTable.astro";
         { wch: 15 }, // N° Serie
         { wch: 25 }, // Asesor
         { wch: 12 }, // Cédula
-        { wch: 15 }, // Llave BRE-B
+        { wch: 20 }, // Llave BRE-B
         { wch: 25 }, // Distribuidor
         { wch: 12 }, // Estado
+        { wch: 50 }, // Link Foto (más ancho para URLs)
       ];
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Ventas");

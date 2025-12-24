@@ -1,0 +1,104 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import Card from "../../components/Card.astro";
+import ProductForm from "../../components/dashboard/productos/ProductForm.astro";
+import ProductList from "../../components/dashboard/productos/ProductList.astro";
+import ProductsManager from "../../components/dashboard/productos/ProductsManager.astro";
+---
+
+<DashboardLayout title="Gestión de Productos - JLC">
+  <div class="productos-page">
+    <!-- Encabezado -->
+    <div class="page-header">
+      <h1>Gestión de Productos JLC</h1>
+      <p class="subtitle">
+        Administra el catálogo de productos disponibles para el registro de
+        ventas
+      </p>
+    </div>
+
+    <!-- Formulario de agregar producto -->
+    <Card title="Agregar Nuevo Producto">
+      <ProductForm />
+    </Card>
+
+    <!-- Lista de productos existentes -->
+    <Card title="Catálogo de Productos">
+      <ProductList />
+    </Card>
+  </div>
+
+  <!-- Lógica de manejo de productos -->
+  <ProductsManager />
+
+  <script is:inline>
+    // Verificar que el usuario sea administrador
+    (function () {
+      try {
+        const userStr = localStorage.getItem("user");
+        if (!userStr) {
+          console.warn("No user data found, redirecting to login");
+          window.location.href = "/login";
+          return;
+        }
+
+        const user = JSON.parse(userStr);
+        if (user.rol !== "admin" && user.rol !== "administrador") {
+          console.warn("User is not admin, redirecting to dashboard");
+          alert("Acceso denegado. Esta página es solo para administradores.");
+          window.location.href = "/dashboard";
+        }
+      } catch (e) {
+        console.error("Error checking admin role:", e);
+        window.location.href = "/login";
+      }
+    })();
+
+    // Inicializar el manager cuando cargue la página
+    // Detectar entorno: si estamos en localhost usa puerto 8000, si no usa /api relativo
+    const API_BASE =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : window.location.origin + "/api";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.ProductsManager) {
+        window.ProductsManager.init(API_BASE);
+      }
+    });
+  </script>
+</DashboardLayout>
+
+<style>
+  .productos-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    color: var(--color-text-main);
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .productos-page {
+      padding: 1rem 0.5rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.5rem;
+    }
+  }
+</style>

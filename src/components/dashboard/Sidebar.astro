@@ -42,7 +42,11 @@ import Logo from "../Logo.astro";
       >
       <span>Mi Perfil</span>
     </a>
-    <a href="/dashboard/aceptacionUsuarios" class="nav-link">
+    <a
+      href="/dashboard/aceptacionUsuarios"
+      class="nav-link admin-only"
+      style="display: none;"
+    >
       <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"
         ><path
           fill-rule="evenodd"
@@ -50,6 +54,19 @@ import Logo from "../Logo.astro";
           clip-rule="evenodd"></path></svg
       >
       <span>Aceptar Usuarios</span>
+    </a>
+    <a
+      href="/dashboard/productos"
+      class="nav-link admin-only"
+      style="display: none;"
+    >
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"
+        ><path
+          fill-rule="evenodd"
+          d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+          clip-rule="evenodd"></path></svg
+      >
+      <span>Productos</span>
     </a>
   </nav>
 
@@ -100,15 +117,15 @@ import Logo from "../Logo.astro";
       });
     }
 
-    // Ocultar "Aceptar Usuarios" si no es administrador
+    // Mostrar links de admin solo para administradores
     try {
-      const acceptUsersLink = document.querySelector(
-        'a[href="/dashboard/aceptacionUsuarios"]',
-      );
-      if (acceptUsersLink && userStr) {
+      const adminLinks = document.querySelectorAll(".admin-only");
+      if (adminLinks.length > 0 && userStr) {
         const user = JSON.parse(userStr);
-        if (user.rol !== "administrador") {
-          acceptUsersLink.style.display = "none";
+        if (user.rol === "admin" || user.rol === "administrador") {
+          adminLinks.forEach((link) => {
+            link.style.display = "flex";
+          });
         }
       }
     } catch (e) {
@@ -224,14 +241,17 @@ import Logo from "../Logo.astro";
       justify-content: space-between;
     }
     .sidebar-header,
-    .user-profile,
-    .sidebar-footer {
+    .user-profile {
       display: none; /* Hide for a simpler mobile view */
     }
     .sidebar-nav {
       flex-direction: row;
       flex-grow: 0;
       gap: 0.5rem;
+    }
+    .sidebar-footer {
+      padding-top: 0;
+      border-top: 0;
     }
     .nav-link span {
       display: none; /* Hide text on mobile */

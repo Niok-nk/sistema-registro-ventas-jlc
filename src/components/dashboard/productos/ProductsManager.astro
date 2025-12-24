@@ -1,0 +1,252 @@
+---
+// Script de manejo de productos (lógica separada)
+---
+
+<script is:inline>
+  window.ProductsManager = {
+    API_BASE: null,
+    allProducts: [],
+    filteredProducts: [],
+
+    init(apiBase) {
+      this.API_BASE = apiBase;
+      this.attachEventListeners();
+      this.loadProducts();
+    },
+
+    getToken() {
+      return localStorage.getItem("token");
+    },
+
+    attachEventListeners() {
+      // Formulario de agregar producto
+      const form = document.getElementById("product-form");
+      if (form) {
+        form.addEventListener("submit", (e) => this.handleSubmit(e));
+      }
+
+      // Filtros
+      const searchInput = document.getElementById("search-input");
+      if (searchInput) {
+        searchInput.addEventListener("input", () => this.filterProducts());
+      }
+
+      const statusFilter = document.getElementById("status-filter");
+      if (statusFilter) {
+        statusFilter.addEventListener("change", () => this.filterProducts());
+      }
+    },
+
+    async loadProducts() {
+      const container = document.getElementById("products-container");
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+      `;
+
+      try {
+        const token = this.getToken();
+        const response = await fetch(`${this.API_BASE}/products/list.php`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+          this.allProducts = result.data || [];
+          this.filterProducts();
+        } else {
+          throw new Error(result.message || "Error al cargar productos");
+        }
+      } catch (error) {
+        container.innerHTML = `
+          <div class="error-state">
+            <p>❌ Error al cargar productos: ${error.message}</p>
+            <button onclick="ProductsManager.loadProducts()" class="btn-primary" style="margin-top: 1rem;">
+              Reintentar
+            </button>
+          </div>
+        `;
+      }
+    },
+
+    filterProducts() {
+      const searchInput = document.getElementById("search-input");
+      const statusFilter = document.getElementById("status-filter");
+
+      const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+      const statusValue = statusFilter ? statusFilter.value : "all";
+
+      this.filteredProducts = this.allProducts.filter((product) => {
+        const matchesSearch =
+          product.modelo.toLowerCase().includes(searchTerm) ||
+          product.descripcion.toLowerCase().includes(searchTerm);
+
+        const matchesStatus =
+          statusValue === "all" || product.activo.toString() === statusValue;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      this.renderProducts();
+    },
+
+    renderProducts() {
+      const container = document.getElementById("products-container");
+      if (!container) return;
+
+      if (this.filteredProducts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>📦 No se encontraron productos</p>
+          </div>
+        `;
+        return;
+      }
+
+      const tableHTML = `
+        <div class="products-cards">
+          ${this.filteredProducts
+            .map(
+              (product) => `
+            <div class="product-card">
+              <div class="product-card-header">
+                <div class="product-card-title">${product.modelo}</div>
+                <span class="status-badge ${product.activo == 1 ? "active" : "inactive"}">
+                  ${product.activo == 1 ? "Activo" : "Inactivo"}
+                </span>
+              </div>
+              <div class="product-card-body">
+                <div class="product-card-row">
+                  <span class="product-card-label">ID:</span>
+                  <span class="product-card-value">${product.id}</span>
+                </div>
+                <div class="product-card-row">
+                  <span class="product-card-label">Descripción:</span>
+                  <span class="product-card-value">${product.descripcion}</span>
+                </div>
+              </div>
+              <div class="product-card-actions">
+                <button class="btn-icon" onclick="ProductsManager.toggleStatus(${product.id}, ${product.activo})">
+                  ${product.activo == 1 ? "🚫 Desactivar" : "✅ Activar"}
+                </button>
+                <button class="btn-icon" onclick="ProductsManager.editProduct(${product.id})">
+                  ✏️ Editar
+                </button>
+              </div>
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
+      `;
+
+      container.innerHTML = tableHTML;
+    },
+
+    async handleSubmit(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submit-btn");
+      const btnText = document.getElementById("btn-text");
+      const btnLoading = document.getElementById("btn-loading");
+      const messageDiv = document.getElementById("form-message");
+
+      submitBtn.disabled = true;
+      btnText.style.display = "none";
+      btnLoading.style.display = "inline";
+
+      const formData = new FormData(e.target);
+      const data = {
+        modelo: formData.get("modelo"),
+        descripcion: formData.get("descripcion"),
+        activo: formData.get("activo"),
+      };
+
+      try {
+        const token = this.getToken();
+        const response = await fetch(`${this.API_BASE}/products/create.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.status === 201 || result.status === 200) {
+          messageDiv.className = "form-message success";
+          messageDiv.textContent = "✅ Producto agregado exitosamente";
+          messageDiv.style.display = "block";
+
+          e.target.reset();
+          this.loadProducts();
+
+          setTimeout(() => {
+            messageDiv.style.display = "none";
+          }, 3000);
+        } else {
+          throw new Error(result.message || "Error al agregar producto");
+        }
+      } catch (error) {
+        messageDiv.className = "form-message error";
+        messageDiv.textContent = "❌ " + error.message;
+        messageDiv.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        btnText.style.display = "inline";
+        btnLoading.style.display = "none";
+      }
+    },
+
+    async toggleStatus(id, currentStatus) {
+      if (!confirm("¿Estás seguro de cambiar el estado de este producto?")) {
+        return;
+      }
+
+      try {
+        const token = this.getToken();
+        const response = await fetch(`${this.API_BASE}/products/toggle.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            id: id,
+            activo: currentStatus == 1 ? 0 : 1,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+          this.loadProducts();
+        } else {
+          alert("Error: " + result.message);
+        }
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    },
+
+    editProduct(id) {
+      const product = this.allProducts.find((p) => p.id === id);
+      if (product) {
+        document.getElementById("modelo").value = product.modelo;
+        document.getElementById("descripcion").value = product.descripcion;
+        document.getElementById("activo").value = product.activo;
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+  };
+</script>

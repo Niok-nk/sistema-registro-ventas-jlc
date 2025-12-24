@@ -1,8 +1,59 @@
-# Migración: Agregar Estado de Aprobación de Usuarios
+# Migraciones de Base de Datos
 
-## 📋 Descripción
+Este directorio contiene las migraciones necesarias para actualizar la base de datos con nuevas funcionalidades.
 
-Esta migración agrega el campo `estado_aprobacion` a la tabla `usuarios` para implementar un sistema de aprobación de usuarios por parte de administradores.
+## Orden de Ejecución
+
+Las migraciones deben ejecutarse en el siguiente orden:
+
+### 1. Migración: Declaraciones Legales del Programa (2025-12-23) ⭐ NUEVO
+
+Agrega 8 campos booleanos para registrar la aceptación de declaraciones legales del Programa de Incentivos JLC.
+
+#### MySQL (Hostinger/Producción)
+
+```bash
+mysql -u usuario -p nombre_base_datos < add_declaraciones_legales.sql
+```
+
+O via phpMyAdmin:
+1. Seleccionar base de datos
+2. Ir a pestaña "SQL"
+3. Copiar y pegar contenido de `add_declaraciones_legales.sql`
+4. Ejecutar
+
+#### SQLite (Desarrollo Local)
+
+```bash
+sqlite3 database/database.sqlite < add_declaraciones_legales_sqlite.sql
+```
+
+O via PHP:
+```bash
+php run_declaraciones_migration.php
+```
+
+#### Verificación
+
+```sql
+-- Ver estructura actualizada
+DESCRIBE usuarios;  -- MySQL
+.schema usuarios    -- SQLite
+
+-- Verificar que se agregaron los 8 campos:
+-- declara_naturaleza_comercial
+-- reconoce_no_salario
+-- declara_no_subordinacion
+-- declara_relacion_autonoma
+-- acepta_liberalidades
+-- asume_obligaciones_tributarias
+-- declara_no_contrato
+-- acepta_terminos_programa
+```
+
+---
+
+### 2. Migración: Campo `estado_aprobacion` a la tabla `usuarios` para implementar un sistema de aprobación de usuarios por parte de administradores.
 
 ## 🔧 Cómo ejecutar
 

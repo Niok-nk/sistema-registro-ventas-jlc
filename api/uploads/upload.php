@@ -59,11 +59,28 @@ if ($file['size'] > $maxSize) {
     exit;
 }
 
-// Nota: Validación de MIME type deshabilitada porque requiere extensión fileinfo de PHP
-// La validación de extensión + .htaccess que bloquea ejecución es suficiente para seguridad básica
-// En producción (Hostinger), se puede habilitar fileinfo en php.ini si es necesario
+// Validar MIME type real (no confiar en extensión)
+// Esto previene que archivos PHP/maliciosos sean disfrazados como JPG
+if (function_exists('finfo_open')) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $realMimeType = finfo_file($finfo, $file['tmp_name']);
+    // finfo_close() removido - deprecated en PHP 8.5, se libera automáticamente
+    
+    if (!in_array($realMimeType, $allowedTypes)) {
+        http_response_code(400);
+        echo json_encode([
+            'status' => 400,
+            'message' => "Tipo de archivo no permitido. Solo JPG, PNG y PDF",
+            'detected' => $realMimeType
+        ]);
+        exit;
+    }
+} else {
+    // Fallback si fileinfo no está disponible
+    error_log('WARNING: fileinfo no disponible, validación MIME deshabilitada');
+}
 
-// Validar extensión
+// Validar extensión (segunda capa de validación)
 $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 if (!in_array($extension, $allowedExtensions)) {
     http_response_code(400);

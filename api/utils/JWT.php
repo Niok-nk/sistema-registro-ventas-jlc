@@ -43,7 +43,51 @@ class JWT {
         self::$envLoaded = true;
     }
 
+    /**
+     * Valida que JWT_SECRET sea seguro
+     * Previene uso de valores por defecto o débiles
+     */
+    private static function validateSecret() {
+        self::loadEnv();
+        
+        $secret = getenv('JWT_SECRET');
+        
+        // Lista de secretos inseguros prohibidos
+        $unsafeSecrets = [
+            'cambiar_esto_por_una_clave_segura_base64',
+            'secret',
+            'test',
+            '123456',
+            'password',
+            ''
+        ];
+        
+        if (in_array($secret, $unsafeSecrets)) {
+            error_log('CRITICAL SECURITY: JWT_SECRET inseguro detectado');
+            http_response_code(500);
+            die(json_encode([
+                'status' => 500,
+                'message' => 'Configuración de seguridad incorrecta',
+                'hint' => 'Genera un JWT_SECRET único con: php -r "echo base64_encode(random_bytes(32));"'
+            ]));
+        }
+        
+        // El secret debe tener al menos 32 caracteres
+        if ($secret && strlen($secret) < 32) {
+            error_log('CRITICAL SECURITY: JWT_SECRET demasiado corto (' . strlen($secret) . ' caracteres)');
+            http_response_code(500);
+            die(json_encode([
+                'status' => 500,
+                'message' => 'Configuración de seguridad incorrecta',
+                'hint' => 'JWT_SECRET debe tener al menos 32 caracteres'
+            ]));
+        }
+    }
+
     public static function generate($data) {
+        // Validar que el secret sea seguro antes de generar tokens
+        self::validateSecret();
+        
         $header = json_encode([
             'typ' => 'JWT',
             'alg' => self::$algorithm

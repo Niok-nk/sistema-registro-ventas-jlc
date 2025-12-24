@@ -7,8 +7,8 @@ try {
     $db = Database::getInstance();
     $conn = $db->getConnection();
     
-    // Obtener solo productos activos
-    $sql = "SELECT id, modelo, descripcion FROM productos_jlc WHERE activo = 1 ORDER BY modelo ASC";
+    // Obtener todos los productos (el filtro se hace en el cliente)
+    $sql = "SELECT id, modelo, descripcion, activo FROM productos_jlc ORDER BY modelo ASC";
     $stmt = $conn->query($sql);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
