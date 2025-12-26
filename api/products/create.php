@@ -20,16 +20,17 @@ try {
     // Obtener datos del request
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (!isset($data['modelo']) || !isset($data['descripcion'])) {
+    if (!isset($data['modelo']) || !isset($data['codigo']) || !isset($data['descripcion'])) {
         http_response_code(400);
         echo json_encode([
             'status' => 400,
-            'message' => 'Faltan campos requeridos: modelo y descripcion'
+            'message' => 'Faltan campos requeridos: modelo, codigo y descripcion'
         ]);
         exit;
     }
     
     $modelo = trim($data['modelo']);
+    $codigo = trim($data['codigo']);
     $descripcion = trim($data['descripcion']);
     $activo = isset($data['activo']) ? (int)$data['activo'] : 1;
     
@@ -39,6 +40,15 @@ try {
         echo json_encode([
             'status' => 400,
             'message' => 'El modelo no puede estar vacío'
+        ]);
+        exit;
+    }
+    
+    if (empty($codigo)) {
+        http_response_code(400);
+        echo json_encode([
+            'status' => 400,
+            'message' => 'El código no puede estar vacío'
         ]);
         exit;
     }
@@ -61,10 +71,11 @@ try {
     }
     
     // Insertar nuevo producto
-    $sql = "INSERT INTO productos_jlc (modelo, descripcion, activo) VALUES (:modelo, :descripcion, :activo)";
+    $sql = "INSERT INTO productos_jlc (modelo, codigo, descripcion, activo) VALUES (:modelo, :codigo, :descripcion, :activo)";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
         'modelo' => $modelo,
+        'codigo' => $codigo,
         'descripcion' => $descripcion,
         'activo' => $activo
     ]);
@@ -76,6 +87,7 @@ try {
         'data' => [
             'id' => $conn->lastInsertId(),
             'modelo' => $modelo,
+            'codigo' => $codigo,
             'descripcion' => $descripcion,
             'activo' => $activo
         ]

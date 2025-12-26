@@ -86,7 +86,8 @@
       this.filteredProducts = this.allProducts.filter((product) => {
         const matchesSearch =
           product.modelo.toLowerCase().includes(searchTerm) ||
-          product.descripcion.toLowerCase().includes(searchTerm);
+          product.descripcion.toLowerCase().includes(searchTerm) ||
+          (product.codigo && product.codigo.toLowerCase().includes(searchTerm));
 
         const matchesStatus =
           statusValue === "all" || product.activo.toString() === statusValue;
@@ -127,6 +128,16 @@
                   <span class="product-card-label">ID:</span>
                   <span class="product-card-value">${product.id}</span>
                 </div>
+                ${
+                  product.codigo
+                    ? `
+                <div class="product-card-row">
+                  <span class="product-card-label">Código:</span>
+                  <span class="product-card-value">${product.codigo}</span>
+                </div>
+                `
+                    : ""
+                }
                 <div class="product-card-row">
                   <span class="product-card-label">Descripción:</span>
                   <span class="product-card-value">${product.descripcion}</span>
@@ -165,6 +176,7 @@
       const formData = new FormData(e.target);
       const data = {
         modelo: formData.get("modelo"),
+        codigo: formData.get("codigo"),
         descripcion: formData.get("descripcion"),
         activo: formData.get("activo"),
       };

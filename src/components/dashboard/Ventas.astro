@@ -96,12 +96,15 @@ import VentasTable from "./ventas/VentasTable.astro";
       const currentValue = productFilter.value;
       productFilter.innerHTML = '<option value="">Todos los productos</option>';
 
-      allProducts.forEach((product) => {
-        const option = document.createElement("option");
-        option.value = product.id;
-        option.textContent = product.modelo;
-        productFilter.appendChild(option);
-      });
+      // Solo mostrar productos activos
+      allProducts
+        .filter((product) => product.activo == 1)
+        .forEach((product) => {
+          const option = document.createElement("option");
+          option.value = product.id;
+          option.textContent = product.modelo;
+          productFilter.appendChild(option);
+        });
 
       productFilter.value = currentValue;
     }
