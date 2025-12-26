@@ -153,6 +153,10 @@ import VentasTable from "./ventas/VentasTable.astro";
 
       salesTbody.innerHTML = "";
 
+      // Verificar si el usuario es administrador
+      const userRole = localStorage.getItem("userRole");
+      const isAdmin = userRole === "admin" || userRole === "administrador";
+
       sales.forEach((sale) => {
         const row = document.createElement("tr");
 
@@ -165,6 +169,15 @@ import VentasTable from "./ventas/VentasTable.astro";
              </button>`
           : `<span style="color:var(--color-text-secondary);font-size:0.875rem">Sin foto</span>`;
 
+        // Estado: Selector para admin, badge para usuarios
+        const estadoHTML = isAdmin
+          ? `<select class="status-selector" data-sale-id="${sale.id}" data-current-status="${sale.estado || "pendiente"}">
+               <option value="pendiente" ${(sale.estado || "pendiente") === "pendiente" ? "selected" : ""}>Pendiente</option>
+               <option value="aprobada" ${sale.estado === "aprobada" ? "selected" : ""}>Aprobada</option>
+               <option value="rechazada" ${sale.estado === "rechazada" ? "selected" : ""}>Rechazada</option>
+             </select>`
+          : `<span class="status-badge status-${(sale.estado || "pendiente").toLowerCase()}">${sale.estado || "Pendiente"}</span>`;
+
         row.innerHTML = `
                 <td>${sale.fecha_venta || "N/A"}</td>
                 <td>${sale.numero_factura || "N/A"}</td>
@@ -175,7 +188,7 @@ import VentasTable from "./ventas/VentasTable.astro";
                   <div style="font-size:0.75rem;color:var(--color-text-secondary)">CC: ${sale.cedula_asesor || "N/A"}</div>
                 </td>
                 <td>${sale.nombre_distribuidor || "N/A"}</td>
-                <td><span class="status-badge status-${(sale.estado || "pendiente").toLowerCase()}">${sale.estado || "Pendiente"}</span></td>
+                <td>${estadoHTML}</td>
                 <td>${photoBtn}</td>
             `;
         salesTbody.appendChild(row);
@@ -198,7 +211,66 @@ import VentasTable from "./ventas/VentasTable.astro";
         });
       });
 
+      // Event listeners para selectores de estado (solo para admin)
+      if (isAdmin) {
+        document.querySelectorAll(".status-selector").forEach((select) => {
+          select.addEventListener("change", async function () {
+            const saleId = this.getAttribute("data-sale-id");
+            const newStatus = this.value;
+            const currentStatus = this.getAttribute("data-current-status");
+
+            if (newStatus === currentStatus) return;
+
+            if (!confirm(`¿Cambiar estado de la venta a "${newStatus}"?`)) {
+              // Restaurar valor anterior
+              this.value = currentStatus;
+              return;
+            }
+
+            await updateSaleStatus(saleId, newStatus, this);
+          });
+        });
+      }
+
       showTable();
+    }
+
+    // Función para actualizar estado de venta
+    async function updateSaleStatus(saleId, newStatus, selectElement) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/sales/update_status.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            id: parseInt(saleId),
+            estado: newStatus,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+          alert("✅ Estado actualizado exitosamente");
+          // Actualizar el atributo data-current-status
+          selectElement.setAttribute("data-current-status", newStatus);
+          // Recargar ventas para reflejar cambios
+          loadSales();
+        } else {
+          alert("❌ Error: " + result.message);
+          // Restaurar valor anterior
+          selectElement.value = selectElement.getAttribute(
+            "data-current-status",
+          );
+        }
+      } catch (error) {
+        alert("❌ Error al actualizar: " + error.message);
+        // Restaurar valor anterior
+        selectElement.value = selectElement.getAttribute("data-current-status");
+      }
     }
 
     // Filtrar ventas
@@ -373,6 +445,7 @@ import VentasTable from "./ventas/VentasTable.astro";
           "Fecha",
           "N° Factura",
           "Producto",
+          "Código Producto",
           "N° Serie",
           "Asesor",
           "Cédula",
@@ -387,6 +460,7 @@ import VentasTable from "./ventas/VentasTable.astro";
           sale.fecha_venta || "",
           sale.numero_factura || "",
           sale.modelo_producto || sale.desc_producto || "",
+          sale.codigo_producto || "",
           sale.numero_serie || "",
           `${sale.nombre_asesor || ""} ${sale.apellido_asesor || ""}`.trim(),
           sale.cedula_asesor || "",
@@ -404,6 +478,7 @@ import VentasTable from "./ventas/VentasTable.astro";
         { wch: 12 }, // Fecha
         { wch: 15 }, // N° Factura
         { wch: 25 }, // Producto
+        { wch: 15 }, // Código Producto
         { wch: 15 }, // N° Serie
         { wch: 25 }, // Asesor
         { wch: 12 }, // Cédula

@@ -164,10 +164,15 @@
     async handleSubmit(e) {
       e.preventDefault();
 
+      const form = e.target;
       const submitBtn = document.getElementById("submit-btn");
       const btnText = document.getElementById("btn-text");
       const btnLoading = document.getElementById("btn-loading");
       const messageDiv = document.getElementById("form-message");
+
+      // Detectar si estamos editando
+      const editingId = form.dataset.editingId;
+      const isEditing = !!editingId;
 
       submitBtn.disabled = true;
       btnText.style.display = "none";
@@ -182,31 +187,54 @@
       };
 
       try {
-        const token = this.getToken();
-        const response = await fetch(`${this.API_BASE}/products/create.php`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-        });
+        let result;
 
-        const result = await response.json();
+        if (isEditing) {
+          // Modo edición
+          result = await this.updateProduct(data, editingId);
 
-        if (result.status === 201 || result.status === 200) {
-          messageDiv.className = "form-message success";
-          messageDiv.textContent = "✅ Producto agregado exitosamente";
-          messageDiv.style.display = "block";
+          if (result.success) {
+            messageDiv.className = "form-message success";
+            messageDiv.textContent = "✅ Producto actualizado exitosamente";
+            messageDiv.style.display = "block";
 
-          e.target.reset();
-          this.loadProducts();
+            this.cancelEdit(); // Limpiar formulario y restaurar botones
+            this.loadProducts();
 
-          setTimeout(() => {
-            messageDiv.style.display = "none";
-          }, 3000);
+            setTimeout(() => {
+              messageDiv.style.display = "none";
+            }, 3000);
+          } else {
+            throw new Error(result.message || "Error al actualizar producto");
+          }
         } else {
-          throw new Error(result.message || "Error al agregar producto");
+          // Modo creación
+          const token = this.getToken();
+          const response = await fetch(`${this.API_BASE}/products/create.php`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+          });
+
+          const apiResult = await response.json();
+
+          if (apiResult.status === 201 || apiResult.status === 200) {
+            messageDiv.className = "form-message success";
+            messageDiv.textContent = "✅ Producto agregado exitosamente";
+            messageDiv.style.display = "block";
+
+            e.target.reset();
+            this.loadProducts();
+
+            setTimeout(() => {
+              messageDiv.style.display = "none";
+            }, 3000);
+          } else {
+            throw new Error(apiResult.message || "Error al agregar producto");
+          }
         }
       } catch (error) {
         messageDiv.className = "form-message error";
@@ -253,11 +281,88 @@
     editProduct(id) {
       const product = this.allProducts.find((p) => p.id === id);
       if (product) {
+        // Cargar datos en el formulario
         document.getElementById("modelo").value = product.modelo;
+        document.getElementById("codigo").value = product.codigo || "";
         document.getElementById("descripcion").value = product.descripcion;
         document.getElementById("activo").value = product.activo;
 
+        // Cambiar UI del formulario a modo edición
+        const submitBtn = document.getElementById("submit-btn");
+        const btnText = document.getElementById("btn-text");
+        const form = document.getElementById("product-form");
+
+        // Guardar ID del producto en el formulario
+        form.dataset.editingId = id;
+
+        // Cambiar texto del botón
+        btnText.textContent = "Actualizar Producto";
+        submitBtn.classList.add("editing");
+
+        // Agregar botón cancelar si no existe
+        let cancelBtn = document.getElementById("cancel-edit-btn");
+        if (!cancelBtn) {
+          cancelBtn = document.createElement("button");
+          cancelBtn.type = "button";
+          cancelBtn.id = "cancel-edit-btn";
+          cancelBtn.className = "btn-secondary";
+          cancelBtn.textContent = "Cancelar";
+          cancelBtn.onclick = () => this.cancelEdit();
+
+          const resetBtn = form.querySelector('button[type="reset"]');
+          resetBtn.parentNode.insertBefore(cancelBtn, resetBtn);
+          resetBtn.style.display = "none";
+        }
+
         window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+
+    cancelEdit() {
+      const form = document.getElementById("product-form");
+      const submitBtn = document.getElementById("submit-btn");
+      const btnText = document.getElementById("btn-text");
+      const cancelBtn = document.getElementById("cancel-edit-btn");
+      const resetBtn = form.querySelector('button[type="reset"]');
+
+      // Limpiar formulario
+      form.reset();
+      delete form.dataset.editingId;
+
+      // Restaurar botón
+      btnText.textContent = "Agregar Producto";
+      submitBtn.classList.remove("editing");
+
+      // Mostrar reset, ocultar cancel
+      if (cancelBtn) {
+        cancelBtn.remove();
+      }
+      if (resetBtn) {
+        resetBtn.style.display = "";
+      }
+    },
+
+    async updateProduct(data, id) {
+      try {
+        const token = this.getToken();
+        const response = await fetch(`${this.API_BASE}/products/update.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ...data, id: parseInt(id) }),
+        });
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+          return { success: true, message: result.message };
+        } else {
+          return { success: false, message: result.message };
+        }
+      } catch (error) {
+        return { success: false, message: error.message };
       }
     },
   };
