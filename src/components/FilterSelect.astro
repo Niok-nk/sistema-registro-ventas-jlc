@@ -1,0 +1,60 @@
+---
+interface Props {
+  label?: string;
+  filterid?: string;
+}
+
+const { label = "Estado", filterid = "status-filter" } = Astro.props;
+---
+
+<div class="filter-group">
+  <label for={filterid} class="filter-label">{label}:</label>
+  <select id={filterid} class="filter-select">
+    <slot>
+      <option value="">Todos</option>
+      <option value="1">Activos</option>
+      <option value="0">Inactivos</option>
+    </slot>
+  </select>
+</div>
+
+<style>
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--color-text-main);
+  }
+
+  .filter-select {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+  }
+
+  .filter-select:hover {
+    border-color: var(--color-accent);
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  }
+</style>

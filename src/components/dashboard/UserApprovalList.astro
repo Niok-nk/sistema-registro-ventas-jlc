@@ -1,8 +1,19 @@
 ---
+import SearchBox from "../SearchBox.astro";
+import FilterSelect from "../FilterSelect.astro";
+
 interface Props {}
 ---
 
 <div id="user-approval-container">
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <SearchBox
+      placeholder="Buscar por cédula, nombre, distribuidor, correo o ciudad..."
+    />
+    <FilterSelect label="Estado" filterid="user-status-filter" />
+  </div>
+
   <!-- Loading State -->
   <div id="approval-loading" class="state-message">
     <div class="spinner"></div>
@@ -26,7 +37,7 @@ interface Props {}
     <svg class="empty-icon" viewBox="0 0 20 20" fill="currentColor">
       <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
     </svg>
-    <p>No hay usuarios pendientes de aprobación</p>
+    <p>No se encontraron usuarios</p>
   </div>
 
   <!-- Users List -->
@@ -36,6 +47,20 @@ interface Props {}
 </div>
 
 <style>
+  .filters-section {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: end;
+  }
+
+  @media (max-width: 768px) {
+    .filters-section {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .state-message {
     display: flex;
     flex-direction: column;
@@ -514,7 +539,47 @@ interface Props {}
       return date.toLocaleDateString();
     }
 
+    // Función de filtrado
+    function filterUsers() {
+      const searchTerm =
+        document.getElementById("search-input")?.value.toLowerCase() || "";
+      const statusFilter =
+        document.getElementById("user-status-filter")?.value || "";
+
+      let filtered = allUsers.filter((user) => {
+        // Filtro de búsqueda (cédula, nombre, distribuidor, correo, ciudad)
+        const matchesSearch =
+          !searchTerm ||
+          (user.cedula && user.cedula.toLowerCase().includes(searchTerm)) ||
+          (user.nombre && user.nombre.toLowerCase().includes(searchTerm)) ||
+          (user.apellido && user.apellido.toLowerCase().includes(searchTerm)) ||
+          (user.nombre_distribuidor &&
+            user.nombre_distribuidor.toLowerCase().includes(searchTerm)) ||
+          (user.correo && user.correo.toLowerCase().includes(searchTerm)) ||
+          (user.ciudad && user.ciudad.toLowerCase().includes(searchTerm));
+
+        // Filtro de estado
+        const matchesStatus =
+          !statusFilter || user.activo.toString() === statusFilter;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      renderUsers(filtered);
+    }
+
     // Event listeners
+    const searchInput = document.getElementById("search-input");
+    const statusFilterEl = document.getElementById("user-status-filter");
+
+    if (searchInput) {
+      searchInput.addEventListener("input", filterUsers);
+    }
+
+    if (statusFilterEl) {
+      statusFilterEl.addEventListener("change", filterUsers);
+    }
+
     if (retryBtn) {
       retryBtn.addEventListener("click", loadUsers);
     }

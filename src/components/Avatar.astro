@@ -1,0 +1,104 @@
+---
+interface Props {
+  size?: "sm" | "md" | "lg";
+}
+
+const { size = "md" } = Astro.props;
+---
+
+<div class={`avatar avatar-${size}`} id="user-avatar">
+  <span class="avatar-initials" id="avatar-initials">--</span>
+</div>
+
+<style>
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent) 0%, #163A65 100%);
+    color: white;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+      135deg,
+      var(--color-accent),
+      #163A65,
+      var(--color-accent)
+    );
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .avatar:hover::before {
+    opacity: 0.3;
+  }
+
+  .avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .avatar-md {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .avatar-lg {
+    width: 64px;
+    height: 64px;
+    font-size: 1.25rem;
+  }
+
+  .avatar-initials {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+</style>
+
+<script>
+  // Función para obtener las iniciales del usuario
+  function updateAvatarInitials() {
+    const userStr = localStorage.getItem("user");
+    const avatarInitials = document.getElementById("avatar-initials");
+
+    if (userStr && avatarInitials) {
+      try {
+        const user = JSON.parse(userStr);
+        const nombre = user.nombre || "";
+        const apellido = user.apellido || "";
+
+        const inicial1 = nombre.charAt(0).toUpperCase();
+        const inicial2 = apellido.charAt(0).toUpperCase();
+
+        avatarInitials.textContent = inicial1 + inicial2 || "U";
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+        avatarInitials.textContent = "U";
+      }
+    }
+  }
+
+  // Actualizar cuando el DOM esté listo
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", updateAvatarInitials);
+  } else {
+    updateAvatarInitials();
+  }
+</script>

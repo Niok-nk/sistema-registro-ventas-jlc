@@ -6,12 +6,12 @@ require_once __DIR__ . '/../middleware/auth.php';
 // Verificar autenticación y rol de administrador
 $user = requireAuth();
 
-// Solo administradores pueden crear productos
+// Solo administradores pueden actualizar productos
 if ($user['rol'] !== 'admin' && $user['rol'] !== 'administrador') {
     http_response_code(403);
     echo json_encode([
         'status' => 403,
-        'message' => 'Acceso denegado. Solo administradores pueden crear productos.'
+        'message' => 'Acceso denegado. Solo administradores pueden actualizar productos.'
     ]);
     exit;
 }
@@ -20,15 +20,16 @@ try {
     // Obtener datos del request
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (!isset($data['modelo']) || !isset($data['codigo']) || !isset($data['descripcion'])) {
+    if (!isset($data['id']) || !isset($data['modelo']) || !isset($data['codigo']) || !isset($data['descripcion'])) {
         http_response_code(400);
         echo json_encode([
             'status' => 400,
-            'message' => 'Faltan campos requeridos: modelo, codigo y descripcion'
+            'message' => 'Faltan campos requeridos: id, modelo, codigo y descripcion'
         ]);
         exit;
     }
     
+    $id = (int)$data['id'];
     $modelo = trim($data['modelo']);
     $codigo = trim($data['codigo']);
     $descripcion = trim($data['descripcion']);
@@ -56,36 +57,51 @@ try {
     $db = Database::getInstance();
     $conn = $db->getConnection();
     
-    // Verificar si el modelo ya existe
-    $checkSql = "SELECT id FROM productos_jlc WHERE modelo = :modelo";
+    // Verificar que el producto existe
+    $checkSql = "SELECT id FROM productos_jlc WHERE id = :id";
     $checkStmt = $conn->prepare($checkSql);
-    $checkStmt->execute(['modelo' => $modelo]);
+    $checkStmt->execute(['id' => $id]);
     
-    if ($checkStmt->fetch()) {
-        http_response_code(409);
+    if (!$checkStmt->fetch()) {
+        http_response_code(404);
         echo json_encode([
-            'status' => 409,
-            'message' => 'Ya existe un producto con ese modelo'
+            'status' => 404,
+            'message' => 'Producto no encontrado'
         ]);
         exit;
     }
     
-    // Insertar nuevo producto
-    $sql = "INSERT INTO productos_jlc (modelo, codigo, descripcion, activo) VALUES (:modelo, :codigo, :descripcion, :activo)";
+    // Verificar si el modelo ya existe en otro producto
+    $checkModelSql = "SELECT id FROM productos_jlc WHERE modelo = :modelo AND id != :id";
+    $checkModelStmt = $conn->prepare($checkModelSql);
+    $checkModelStmt->execute(['modelo' => $modelo, 'id' => $id]);
+    
+    if ($checkModelStmt->fetch()) {
+        http_response_code(409);
+        echo json_encode([
+            'status' => 409,
+            'message' => 'Ya existe otro producto con ese modelo'
+        ]);
+        exit;
+    }
+    
+    // Actualizar producto
+    $sql = "UPDATE productos_jlc SET modelo = :modelo, codigo = :codigo, descripcion = :descripcion, activo = :activo WHERE id = :id";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
+        'id' => $id,
         'modelo' => $modelo,
         'codigo' => $codigo,
         'descripcion' => $descripcion,
         'activo' => $activo
     ]);
     
-    http_response_code(201);
+    http_response_code(200);
     echo json_encode([
-        'status' => 201,
-        'message' => 'Producto creado exitosamente',
+        'status' => 200,
+        'message' => 'Producto actualizado exitosamente',
         'data' => [
-            'id' => $conn->lastInsertId(),
+            'id' => $id,
             'modelo' => $modelo,
             'codigo' => $codigo,
             'descripcion' => $descripcion,
@@ -94,10 +110,10 @@ try {
     ]);
     
 } catch (PDOException $e) {
-    error_log("Error creating product: " . $e->getMessage());
+    error_log("Error updating product: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 500,
-        'message' => 'Error al crear producto'
+        'message' => 'Error al actualizar producto'
     ]);
 }

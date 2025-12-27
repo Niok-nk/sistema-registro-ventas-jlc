@@ -57,10 +57,12 @@ CREATE TABLE `usuarios` (
 CREATE TABLE `productos_jlc` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `modelo` varchar(100) NOT NULL,
+  `codigo` varchar(50) NULL,
   `descripcion` varchar(255) NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `modelo` (`modelo`)
+  UNIQUE KEY `modelo` (`modelo`),
+  KEY `idx_productos_codigo` (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
