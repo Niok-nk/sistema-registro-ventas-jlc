@@ -96,4 +96,27 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
   :global(.btn-view-photo:hover) {
     background: rgba(66, 153, 225, 0.1);
   }
+
+  /* Status Selector for Admin */
+  :global(.status-selector) {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  :global(.status-selector:hover) {
+    border-color: var(--color-accent);
+  }
+
+  :global(.status-selector:focus) {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+  }
 </style>

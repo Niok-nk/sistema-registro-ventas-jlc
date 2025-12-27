@@ -132,6 +132,7 @@ import Button from "../components/Button.astro";
           // Login exitoso
           localStorage.setItem("token", result.token);
           localStorage.setItem("user", JSON.stringify(result.user));
+          localStorage.setItem("userRole", result.user.rol);
 
           // Redireccionar
           window.location.href = "/dashboard";

@@ -1,0 +1,63 @@
+---
+interface Props {
+  placeholder?: string;
+  onSearch?: string;
+}
+
+const { placeholder = "Buscar...", onSearch = "handleSearch" } = Astro.props;
+---
+
+<div class="search-box">
+  <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+    <path
+      fill-rule="evenodd"
+      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+      clip-rule="evenodd"></path>
+  </svg>
+  <input
+    type="text"
+    class="search-input"
+    id="search-input"
+    placeholder={placeholder}
+    autocomplete="off"
+  />
+</div>
+
+<style>
+  .search-box {
+    position: relative;
+    width: 100%;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-text-secondary);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-text-secondary);
+  }
+</style>

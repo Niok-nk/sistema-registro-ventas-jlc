@@ -8,7 +8,7 @@ try {
     $conn = $db->getConnection();
     
     // Obtener todos los productos (el filtro se hace en el cliente)
-    $sql = "SELECT id, modelo, descripcion, activo FROM productos_jlc ORDER BY modelo ASC";
+    $sql = "SELECT id, modelo, codigo, descripcion, activo FROM productos_jlc ORDER BY modelo ASC";
     $stmt = $conn->query($sql);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
