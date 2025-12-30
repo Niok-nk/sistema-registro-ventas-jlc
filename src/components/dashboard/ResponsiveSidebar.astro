@@ -1,0 +1,216 @@
+---
+// src/components/dashboard/ResponsiveSidebar.astro
+import Logo from "../Logo.astro";
+import Avatar from "../Avatar.astro";
+---
+
+<div id="responsive-sidebar-backdrop" class="sidebar-backdrop"></div>
+<aside id="responsive-sidebar" class="responsive-sidebar">
+  <div class="sidebar-header">
+    <Logo width="5em" margin="0.1rem" color="primary" />
+    <button id="close-sidebar" aria-label="Cerrar menú" class="close-button">&times;</button>
+  </div>
+
+  <div class="user-profile">
+    <a href="/dashboard/perfil" class="avatar-link">
+      <Avatar size="md" />
+    </a>
+    <a href="/dashboard/perfil" class="user-info">
+      <span class="user-name">Nombre Prueba</span>
+      <span class="user-role">Asesor</span>
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-link">
+      <svg class="nav-icon" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h168q13-36 43.5-58t68.5-22q38 0 68.5 22t43.5 58h168q33 0 56.5 23.5T840-760v268q-19-9-39-15.5t-41-9.5v-243H200v560h242q3 22 9.5 42t15.5 38H200Zm0-120v40-560 243-3 280Zm80-40h163q3-21 9.5-41t14.5-39H280v80Zm0-160h244q32-30 71.5-50t84.5-27v-3H280v80Zm0-160h400v-80H280v80Zm200-190q13 0 21.5-8.5T510-820q0-13-8.5-21.5T480-850q-13 0-21.5 8.5T450-820q0 13 8.5 21.5T480-790ZM720-40q-83 0-141.5-58.5T520-240q0-83 58.5-141.5T720-440q83 0 141.5 58.5T920-240q0 83-58.5 141.5T720-40Zm-20-80h40v-100h100v-40H740v-100h-40v100H600v40h100v100Z"/></svg>
+      <span>Registra tu Venta</span>
+    </a>
+    <a href="/dashboard/ventas" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3.75 3A2.75 2.75 0 001 5.75v12.5A2.75 2.75 0 003.75 21h16.5A2.75 2.75 0 0023 18.25V5.75A2.75 2.75 0 0020.25 3H3.75zm.75 9.75a.75.75 0 01.75-.75h13.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75zm0 4.5a.75.75 0 01.75-.75h13.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75zM5.25 6a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clip-rule="evenodd"></path></svg>
+      <span>Ver Ventas</span>
+    </a>
+    <a href="/dashboard/aceptacionUsuarios" class="nav-link admin-only" style="display: none;">
+      <svg class="nav-icon" fill="currentColor" viewBox="0 -960 960 960"><path d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z"/></svg>
+      <span>Aceptar Usuarios</span>
+    </a>
+    <a href="/dashboard/productos" class="nav-link admin-only" style="display: none;">
+      <svg class="nav-icon" fill="currentColor" viewBox="0 -960 960 960"><path d="M320-640v-120h80v120h-80Zm0 360v-200h80v200h-80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm0-80h480v-360H240v360Zm0-440h480v-200H240v200Z"/></svg>
+      <span>Productos</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="/" class="nav-link logout">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9a.75.75 0 01-1.5 0V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z" clip-rule="evenodd"></path></svg>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
+</aside>
+
+<script is:inline>
+  // Script copiado de Sidebar.astro para mantener la funcionalidad
+  (function () {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const userNameEl = document.querySelector("#responsive-sidebar .user-name");
+        const userRoleEl = document.querySelector("#responsive-sidebar .user-role");
+
+        if (userNameEl) userNameEl.textContent = `${user.nombre} ${user.apellido || ""}`.trim();
+        if (userRoleEl) userRoleEl.textContent = user.rol === "administrador" ? "Administrador" : "Asesor";
+
+      } catch (e) {
+        console.error("Error loading user data in responsive sidebar:", e);
+      }
+    }
+
+    const logoutBtn = document.querySelector("#responsive-sidebar .logout");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      });
+    }
+
+    try {
+      const adminLinks = document.querySelectorAll("#responsive-sidebar .admin-only");
+      if (adminLinks.length > 0 && userStr) {
+        const user = JSON.parse(userStr);
+        if (user.rol === "admin" || user.rol === "administrador") {
+          adminLinks.forEach((link) => {
+            link.style.display = "flex";
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Error checking admin role in responsive sidebar:", e);
+    }
+  })();
+</script>
+
+<style>
+  .responsive-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 280px;
+    background-color: var(--color-bg-main);
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .responsive-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1199;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  }
+
+  .sidebar-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    color: var(--color-text-main);
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  /* Estilos copiados y adaptados de Sidebar.astro */
+  .sidebar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+    position: relative;
+  }
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-lg);
+  }
+  .avatar-link {
+    display: flex;
+  }
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    flex: 1;
+  }
+  .user-name {
+    font-weight: 600;
+    color: var(--color-text-main);
+  }
+  .user-role {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+  .sidebar-nav {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    gap: 0.875rem;
+  }
+   .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-main);
+    text-decoration: none;
+  }
+  .nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+   .logout {
+    color: #e57373;
+  }
+  .logout:hover {
+    background-color: rgba(229, 115, 115, 0.1);
+    color: #ef9a9a;
+  }
+</style>

@@ -1,6 +1,9 @@
 ---
 import Sidebar from "../components/dashboard/Sidebar.astro";
+import HamburgerMenu from "../components/dashboard/HamburgerMenu.astro";
+import ResponsiveSidebar from "../components/dashboard/ResponsiveSidebar.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
+import Logo from "../components/Logo.astro";
 import "../styles/index.css";
 
 interface Props {
@@ -26,14 +29,26 @@ const { title } = Astro.props;
       rel="stylesheet"
     />
     <!-- SheetJS for Excel export -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script
+      src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"
+    ></script>
   </head>
   <body>
     <div class="dashboard-layout">
-      <Sidebar />
+      <!-- Sidebar principal (visible en desktop) -->
+      <div class="sidebar-container">
+        <Sidebar />
+      </div>
+
+      <!-- Sidebar para móviles -->
+      <ResponsiveSidebar />
+
       <main class="dashboard-content">
         <header class="dashboard-header">
-          <h1 class="page-title">{title}</h1>
+          <div class="header-left">
+            <HamburgerMenu />
+            <h1 class="page-title">{title}</h1>
+          </div>
           <ThemeToggle />
         </header>
         <slot />
@@ -50,9 +65,13 @@ const { title } = Astro.props;
     transition: background-color 0.3s ease;
   }
 
+  .sidebar-container {
+    display: none; /* Oculto en móvil por defecto */
+  }
+
   .dashboard-content {
     flex-grow: 1;
-    padding: 2rem;
+    padding: 1rem; /* Padding móvil por defecto */
     overflow-y: auto;
   }
 
@@ -62,21 +81,29 @@ const { title } = Astro.props;
     align-items: center;
     margin-bottom: 2rem;
   }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
   .page-title {
-    font-size: 1.875rem;
+    font-size: 1.5rem; /* Título móvil por defecto */
     font-weight: 700;
     color: var(--color-text-main);
   }
 
-  @media (max-width: 768px) {
-    .dashboard-layout {
-      flex-direction: column;
+  /* Estilos para Desktop */
+  @media (min-width: 769px) {
+    .sidebar-container {
+      display: flex; /* Visible en desktop */
     }
     .dashboard-content {
-      padding: 1rem;
+      padding: 2rem;
     }
     .page-title {
-      font-size: 1.5rem;
+      font-size: 1.875rem;
     }
   }
 </style>
@@ -105,4 +132,39 @@ const { title } = Astro.props;
       window.location.href = "/login";
     }
   })();
+  // --- Lógica del Menú Responsive ---
+  document.addEventListener("DOMContentLoaded", () => {
+    const hamburger = document.getElementById("hamburger-menu");
+    const responsiveSidebar = document.getElementById("responsive-sidebar");
+    const backdrop = document.getElementById("responsive-sidebar-backdrop");
+    const closeButton = document.getElementById("close-sidebar");
+
+    const openMenu = () => {
+      responsiveSidebar.classList.add("is-open");
+      backdrop.classList.add("is-open");
+      hamburger.setAttribute("aria-expanded", "true");
+    };
+
+    const closeMenu = () => {
+      responsiveSidebar.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+      hamburger.setAttribute("aria-expanded", "false");
+    };
+
+    if (hamburger && responsiveSidebar && backdrop && closeButton) {
+      hamburger.addEventListener("click", openMenu);
+      closeButton.addEventListener("click", closeMenu);
+      backdrop.addEventListener("click", closeMenu);
+    }
+
+    // Cerrar con la tecla Escape
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "Escape" &&
+        responsiveSidebar.classList.contains("is-open")
+      ) {
+        closeMenu();
+      }
+    });
+  });
 </script>
