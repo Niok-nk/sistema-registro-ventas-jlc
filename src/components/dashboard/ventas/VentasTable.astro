@@ -36,7 +36,7 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
 
   .sales-table th,
   .sales-table td {
-    padding: 0.875rem 1.25rem;
+    padding: 0.875rem 0.4rem;
     border-bottom: 1px solid var(--color-border);
   }
 
@@ -54,6 +54,11 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
 
   .sales-table tbody tr:hover {
     background-color: var(--color-bg-card);
+  }
+
+  #sales-tbody td{
+    padding: 0rem 0.4rem;
+    font-size: 0.65rem;
   }
 
   /* Status Badge */

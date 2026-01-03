@@ -49,21 +49,30 @@ import Button from "../Button.astro";
         </div>
       </div>
       <div class="form-group">
-        <label for="producto_jlc" class="form-label">Producto JLC</label>
-        <select
-          id="producto_jlc"
-          name="producto_jlc"
-          class="form-input"
-          required
-        >
-          <option value="">Cargando productos...</option>
-        </select>
+        <label for="producto_jlc_search" class="form-label">Producto JLC</label>
+        <div class="autocomplete-container">
+          <input
+            type="text"
+            id="producto_jlc_search"
+            name="producto_jlc_search"
+            class="form-input"
+            placeholder="Escribe para buscar por modelo o descripción..."
+            required
+            autocomplete="off"
+          />
+          <input type="hidden" id="producto_jlc" name="producto_jlc" />
+          <div
+            id="product-results"
+            class="autocomplete-results"
+            style="display: none;"
+          ></div>
+        </div>
         <p
           class="form-helper-text error-text"
           id="product-error"
           style="display: none;"
         >
-          Error cargando lista de productos
+          Error cargando lista de productos o no se encontraron coincidencias.
         </p>
       </div>
       <div class="form-group">
@@ -130,6 +139,53 @@ import Button from "../Button.astro";
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
     padding-right: 2.5rem;
+  }
+  .form-input{
+    height: 3rem;
+  }
+
+  /* Autocomplete styles */
+  .autocomplete-container {
+    position: relative;
+  }
+
+  .autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border: 1px solid var(--color-border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    background: var(--color-bg-card);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .autocomplete-item:hover {
+    background-color: var(--color-bg-hover);
+  }
+
+  .autocomplete-item:last-child {
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+  }
+
+  .autocomplete-item p {
+    margin: 0;
+    color: var(--color-text-main);
+  }
+
+  .autocomplete-item .item-description {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
   }
 
   /* File input specific styles */
@@ -227,7 +283,9 @@ import Button from "../Button.astro";
 <script is:inline>
   (function () {
     const API_BASE = "/api";
-    const productSelect = document.getElementById("producto_jlc");
+    const productSearchInput = document.getElementById("producto_jlc_search");
+    const productHiddenInput = document.getElementById("producto_jlc");
+    const productResultsContainer = document.getElementById("product-results");
     const productError = document.getElementById("product-error");
     const form = document.getElementById("sale-form");
     const fileInput = document.getElementById("foto_factura");
@@ -242,32 +300,80 @@ import Button from "../Button.astro";
 
     let uploadedFileUrl = "";
     let selectedFile = null;
+    let allProducts = []; // Almacenar todos los productos
 
-    // Cargar productos
+    // Cargar productos al iniciar
     fetch(`${API_BASE}/products/list.php`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200 && data.data) {
-          productSelect.innerHTML =
-            '<option value="">Seleccionar Producto</option>';
-          // Solo mostrar productos activos
-          data.data
-            .filter((product) => product.activo == 1)
-            .forEach((product) => {
-              const option = document.createElement("option");
-              option.value = product.id;
-              option.textContent = `${product.modelo} - ${product.descripcion}`;
-              productSelect.appendChild(option);
-            });
+          // Guardar solo productos activos
+          allProducts = data.data.filter((product) => product.activo == 1);
+          productSearchInput.placeholder = "Buscar por modelo o descripción...";
         } else {
-          throw new Error("Error en respuesta");
+          throw new Error("Error en respuesta del servidor");
         }
       })
       .catch((err) => {
         console.error("Error cargando productos:", err);
-        productSelect.innerHTML = '<option value="">Error al cargar</option>';
+        productSearchInput.placeholder = "Error al cargar productos";
         productError.style.display = "block";
       });
+
+    // Lógica de autocompletado
+    productSearchInput.addEventListener("input", () => {
+      const query = productSearchInput.value.toLowerCase();
+      productHiddenInput.value = ""; // Limpiar ID si el usuario modifica la búsqueda
+
+      if (query.length < 2) {
+        productResultsContainer.innerHTML = "";
+        productResultsContainer.style.display = "none";
+        return;
+      }
+
+      const filteredProducts = allProducts.filter(
+        (p) =>
+          p.modelo.toLowerCase().includes(query) ||
+          p.descripcion.toLowerCase().includes(query)
+      );
+
+      displayResults(filteredProducts);
+    });
+
+    // Función para mostrar los resultados
+    function displayResults(products) {
+      productResultsContainer.innerHTML = "";
+      if (products.length === 0) {
+        productResultsContainer.style.display = "none";
+        return;
+      }
+
+      products.forEach((product) => {
+        const item = document.createElement("div");
+        item.classList.add("autocomplete-item");
+        item.dataset.id = product.id;
+        item.innerHTML = `
+          <p>${product.modelo}</p>
+          <p class="item-description">${product.descripcion}</p>
+        `;
+        item.addEventListener("click", () => {
+          productSearchInput.value = `${product.modelo} - ${product.descripcion}`;
+          productHiddenInput.value = product.id;
+          productResultsContainer.innerHTML = "";
+          productResultsContainer.style.display = "none";
+        });
+        productResultsContainer.appendChild(item);
+      });
+
+      productResultsContainer.style.display = "block";
+    }
+
+    // Cerrar resultados si se hace clic fuera
+    document.addEventListener("click", (e) => {
+      if (!productSearchInput.contains(e.target)) {
+        productResultsContainer.style.display = "none";
+      }
+    });
 
     // Preview de archivo
     fileInput.addEventListener("change", function (e) {
@@ -306,6 +412,11 @@ import Button from "../Button.astro";
     // Manejar envío del formulario
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      if (!productHiddenInput.value) {
+        alert("Por favor, selecciona un producto válido de la lista.");
+        return;
+      }
 
       const token = localStorage.getItem("token");
       if (!token) {
@@ -353,7 +464,7 @@ import Button from "../Button.astro";
 
         const data = {
           numero_factura: formData.get("numero_factura"),
-          producto_id: formData.get("producto_jlc"),
+          producto_id: formData.get("producto_jlc"), // Ya tenemos el ID del input hidden
           numero_serie: formData.get("numero_serie"),
           fecha_venta: formData.get("fecha_venta"),
           foto_factura: fotoUrl || "",
@@ -373,6 +484,7 @@ import Button from "../Button.astro";
         if (result.status === 201) {
           alert("¡Venta registrada exitosamente!");
           form.reset();
+          productSearchInput.value = ""; // Limpiar campo de búsqueda
           filePreview.style.display = "none";
           uploadProgress.style.display = "none";
           uploadedFileUrl = "";

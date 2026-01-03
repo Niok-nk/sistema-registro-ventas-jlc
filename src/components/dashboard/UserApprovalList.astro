@@ -378,7 +378,7 @@ interface Props {}
 
       users.forEach((user) => {
         const card = document.createElement("div");
-        card.className = "user-card";
+        card.className = "user-card card";
 
         const fechaRegistro = new Date(user.created_at);
         const tiempoTranscurrido = getTimeAgo(fechaRegistro);
@@ -389,11 +389,11 @@ interface Props {}
           <div class="user-header">
             <div class="user-info">
               <h3>${user.nombre} ${user.apellido}</h3>
-              <p class="user-email">${user.correo}</p>  
+              <p class="user-email">${user.correo}</p>
             </div>
             <span class="role-badge">${user.rol === "administrador" ? "Admin" : "Asesor"}</span>
           </div>
-          
+
           <div class="user-meta">
             <div class="meta-item">
               <span class="meta-label">Distribuidor</span>
@@ -412,7 +412,7 @@ interface Props {}
               <span class="meta-value">${user.cedula || "N/A"}</span>
             </div>
           </div>
-          
+
           <div class="user-footer">
             <div class="user-date">
               <svg viewBox="0 0 20 20" fill="currentColor" style="width:1rem;height:1rem">
@@ -420,12 +420,12 @@ interface Props {}
               </svg>
               ${tiempoTranscurrido}
             </div>
-            
+
             <div class="approval-toggle">
               <span class="toggle-label ${isActive ? "activo" : "inactivo"}">${isActive ? "Activo" : "Inactivo"}</span>
               <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   ${isActive ? "checked" : ""}
                   data-user-id="${user.id}"
                   data-current-state="${isActive ? "1" : "0"}"
