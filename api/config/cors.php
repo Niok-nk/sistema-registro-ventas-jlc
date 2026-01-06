@@ -8,43 +8,34 @@ header_remove("Access-Control-Allow-Origin");
 header_remove("Access-Control-Allow-Methods");
 header_remove("Access-Control-Allow-Headers");
 
-// Aplicar Headers CORS con validación de origen
+
 // Lista blanca de orígenes permitidos
 $allowedOrigins = [
     'http://localhost:4321',
     'http://127.0.0.1:4321',
     'http://localhost:3000',
+    'http://localhost:8000',
     // Producción
     'https://ventas.jlc-electronics.com',
     'https://www.ventas.jlc-electronics.com',
 ];
 
 $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$environment = getenv('ENVIRONMENT') ?: 'development';
 
-// En desarrollo: permitir localhost y orígenes de la lista
-// En producción: solo dominios específicos de la lista
-if ($environment === 'development') {
-    // Modo permisivo para desarrollo local
-    if (strpos($requestOrigin, 'localhost') !== false || 
-        strpos($requestOrigin, '127.0.0.1') !== false ||
-        in_array($requestOrigin, $allowedOrigins)) {
-        header("Access-Control-Allow-Origin: $requestOrigin");
-    } else {
-        // Desarrollo: permitir cualquier origen como fallback (menos seguro pero práctico)
-        header("Access-Control-Allow-Origin: *");
-    }
+// Verificar si el origin está en la lista blanca
+if (in_array($requestOrigin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $requestOrigin");
+    header("Access-Control-Allow-Credentials: true");
+} elseif (strpos($requestOrigin, 'localhost') !== false || 
+          strpos($requestOrigin, '127.0.0.1') !== false) {
+    // Permitir cualquier localhost en desarrollo
+    header("Access-Control-Allow-Origin: $requestOrigin");
+    header("Access-Control-Allow-Credentials: true");
 } else {
-    // Producción: estricto - solo orígenes en lista blanca
-    if (in_array($requestOrigin, $allowedOrigins)) {
-        header("Access-Control-Allow-Origin: $requestOrigin");
-    } else {
-        error_log("CORS: Origin no permitido en producción: $requestOrigin");
-        // En producción, rechazar orígenes no autorizados
-        http_response_code(403);
-        echo json_encode(['status' => 403, 'message' => 'Origin not allowed']);
-        exit;
-    }
+    // Log del origen rechazado
+    error_log("CORS: Origin no permitido: $requestOrigin");
+    // NO rechazar, solo no enviar header CORS (el navegador lo manejará)
+    // Esto evita errores 403 confusos
 }
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
