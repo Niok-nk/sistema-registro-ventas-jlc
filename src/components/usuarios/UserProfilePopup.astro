@@ -1,0 +1,604 @@
+---
+// Componente: Popup Modal de Perfil de Usuario
+// Muestra información completa del usuario en un modal
+---
+
+<!-- Popup Overlay -->
+<div id="user-profile-popup" class="popup-overlay">
+  <div class="popup-container">
+    <div class="popup-content">
+      <!-- Close Button -->
+      <button class="popup-close" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <!-- Loading State -->
+      <div id="popup-loading" class="popup-state">
+        <div class="spinner"></div>
+        <p>Cargando información del usuario...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="popup-error" class="popup-state" style="display: none;">
+        <svg class="error-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+          ></path>
+        </svg>
+        <p class="error-text">Error al cargar el perfil del usuario</p>
+        <button class="btn-secondary" onclick="window.UserProfilePopup.hide()"
+          >Cerrar</button
+        >
+      </div>
+
+      <!-- Profile Content -->
+      <div
+        id="popup-profile-content"
+        class="popup-profile"
+        style="display: none;"
+      >
+        <!-- Header -->
+        <div class="popup-header">
+          <h2>Perfil de Usuario</h2>
+          <p class="popup-subtitle">Información completa del usuario</p>
+        </div>
+
+        <div class="profile-grid">
+          <!-- Información Personal -->
+          <div class="profile-card">
+            <h3 class="card-title">Información Personal</h3>
+            <div class="info-grid">
+              <div class="info-field">
+                <span class="field-label">Nombre Completo</span>
+                <p id="popup-nombre-completo">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Tipo de Documento</span>
+                <p id="popup-tipo-documento">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Número de Documento</span>
+                <p id="popup-numero-documento">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Cédula</span>
+                <p id="popup-cedula">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Fecha de Nacimiento</span>
+                <p id="popup-fecha-nacimiento">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Ciudad de Residencia</span>
+                <p id="popup-ciudad-residencia">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Departamento</span>
+                <p id="popup-departamento">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Contacto -->
+          <div class="profile-card">
+            <h3 class="card-title">Información de Contacto</h3>
+            <div class="info-grid">
+              <div class="info-field">
+                <span class="field-label">Correo Electrónico</span>
+                <p id="popup-correo">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">WhatsApp</span>
+                <p id="popup-whatsapp">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Teléfono</span>
+                <p id="popup-telefono">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información Laboral -->
+          <div class="profile-card">
+            <h3 class="card-title">Información Laboral</h3>
+            <div class="info-grid">
+              <div class="info-field">
+                <span class="field-label">Distribuidor</span>
+                <p id="popup-nombre-distribuidor">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Ciudad del Punto de Venta</span>
+                <p id="popup-ciudad-punto-venta">-</p>
+              </div>
+              <div class="info-field full-width">
+                <span class="field-label">Dirección del Punto de Venta</span>
+                <p id="popup-direccion-punto-venta">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Cargo</span>
+                <p id="popup-cargo">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Antigüedad</span>
+                <p id="popup-antiguedad">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos de Cuenta -->
+          <div class="profile-card">
+            <h3 class="card-title">Datos de Cuenta</h3>
+            <div class="info-grid">
+              <div class="info-field">
+                <span class="field-label">Rol</span>
+                <p id="popup-rol" class="badge">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Estado de Cuenta</span>
+                <p id="popup-estado-cuenta" class="badge">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Método de Pago Preferido</span>
+                <p id="popup-metodo-pago">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Llave BREB</span>
+                <p id="popup-llave-breb">-</p>
+              </div>
+              <div class="info-field">
+                <span class="field-label">Fecha de Registro</span>
+                <p id="popup-fecha-registro">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* Popup Overlay */
+  .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: none;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .popup-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Popup Container */
+  .popup-container {
+    max-width: 1200px;
+    width: 100%;
+    max-height: 90vh;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Popup Content */
+  .popup-content {
+    background-color: var(--color-bg-main);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow-y: auto;
+    max-height: 90vh;
+  }
+
+  /* Close Button */
+  .popup-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--color-bg-card);
+    color: var(--color-text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+
+  .popup-close:hover {
+    background-color: var(--color-border);
+    transform: rotate(90deg);
+  }
+
+  .popup-close svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* States */
+  .popup-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .popup-state .spinner {
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  .popup-state .error-icon {
+    width: 3rem;
+    height: 3rem;
+    color: #e57373;
+    margin-bottom: 1rem;
+  }
+
+  .popup-state .error-text {
+    color: #e57373;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Popup Header */
+  .popup-header {
+    padding: 2rem 2rem 1rem 2rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .popup-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .popup-subtitle {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  /* Popup Profile */
+  .popup-profile {
+    padding: 2rem;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem;
+  }
+
+  .profile-card {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .info-field.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .field-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+  }
+
+  .info-field p {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-text-main);
+    margin: 0;
+  }
+
+  /* Badges */
+  .info-field .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    width: fit-content;
+  }
+
+  .badge.active {
+    background-color: rgba(56, 161, 105, 0.2);
+    color: #68d391;
+  }
+
+  .badge.inactive {
+    background-color: rgba(229, 62, 62, 0.2);
+    color: #fc8181;
+  }
+
+  .badge.admin {
+    background-color: rgba(159, 122, 234, 0.2);
+    color: #b794f6;
+  }
+
+  .badge.asesor {
+    background-color: rgba(66, 153, 225, 0.2);
+    color: #63b3ed;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .popup-container {
+      max-height: 100vh;
+    }
+
+    .popup-content {
+      border-radius: 0;
+      max-height: 100vh;
+    }
+
+    .profile-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .popup-header {
+      padding: 1.5rem 1rem 1rem 1rem;
+    }
+
+    .popup-profile {
+      padding: 1rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  // User Profile Popup Manager
+  window.UserProfilePopup = {
+    overlay: null,
+    currentUserId: null,
+
+    init() {
+      this.overlay = document.getElementById("user-profile-popup");
+      const closeBtn = this.overlay.querySelector(".popup-close");
+
+      // Close on button click
+      closeBtn?.addEventListener("click", () => this.hide());
+
+      // Close on overlay click (but not on content click)
+      this.overlay.addEventListener("click", (e) => {
+        if (
+          e.target === this.overlay ||
+          e.target.classList.contains("popup-container")
+        ) {
+          this.hide();
+        }
+      });
+
+      // Close on ESC key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && this.overlay.classList.contains("show")) {
+          this.hide();
+        }
+      });
+    },
+
+    async show(userId) {
+      if (!this.overlay) this.init();
+
+      this.currentUserId = userId;
+      this.overlay.classList.add("show");
+      document.body.style.overflow = "hidden"; // Prevent body scroll
+
+      // Show loading state
+      this.showLoading();
+
+      // Fetch user data
+      await this.fetchUserData(userId);
+    },
+
+    hide() {
+      if (!this.overlay) return;
+      this.overlay.classList.remove("show");
+      document.body.style.overflow = ""; // Restore body scroll
+      this.resetContent();
+    },
+
+    showLoading() {
+      document.getElementById("popup-loading").style.display = "flex";
+      document.getElementById("popup-error").style.display = "none";
+      document.getElementById("popup-profile-content").style.display = "none";
+    },
+
+    showError() {
+      document.getElementById("popup-loading").style.display = "none";
+      document.getElementById("popup-error").style.display = "flex";
+      document.getElementById("popup-profile-content").style.display = "none";
+    },
+
+    showProfile() {
+      document.getElementById("popup-loading").style.display = "none";
+      document.getElementById("popup-error").style.display = "none";
+      document.getElementById("popup-profile-content").style.display = "block";
+    },
+
+    async fetchUserData(userId) {
+      const token = localStorage.getItem("token");
+      const API_BASE =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+          ? "http://localhost:8000"
+          : window.location.origin + "/api";
+
+      try {
+        const response = await fetch(`${API_BASE}/users/get.php?id=${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.status === 200 && data.data) {
+          this.displayProfile(data.data);
+        } else {
+          throw new Error(data.message || "Error al cargar usuario");
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        this.showError();
+      }
+    },
+
+    displayProfile(user) {
+      // Información Personal
+      document.getElementById("popup-nombre-completo").textContent =
+        `${user.nombre || ""} ${user.apellido || ""}`.trim() || "-";
+      document.getElementById("popup-tipo-documento").textContent =
+        user.tipo_documento || "-";
+      document.getElementById("popup-numero-documento").textContent =
+        user.numero_documento || "-";
+      document.getElementById("popup-cedula").textContent = user.cedula || "-";
+      document.getElementById("popup-fecha-nacimiento").textContent =
+        user.fecha_nacimiento
+          ? new Date(user.fecha_nacimiento).toLocaleDateString("es-CO")
+          : "-";
+      document.getElementById("popup-ciudad-residencia").textContent =
+        user.ciudad_residencia || "-";
+      document.getElementById("popup-departamento").textContent =
+        user.departamento || "-";
+
+      // Información de Contacto
+      document.getElementById("popup-correo").textContent = user.correo || "-";
+      document.getElementById("popup-whatsapp").textContent =
+        user.whatsapp || "-";
+      document.getElementById("popup-telefono").textContent =
+        user.telefono || "-";
+
+      // Información Laboral
+      document.getElementById("popup-nombre-distribuidor").textContent =
+        user.nombre_distribuidor || "-";
+      document.getElementById("popup-ciudad-punto-venta").textContent =
+        user.ciudad_punto_venta || "-";
+      document.getElementById("popup-direccion-punto-venta").textContent =
+        user.direccion_punto_venta || "-";
+      document.getElementById("popup-cargo").textContent = user.cargo || "-";
+      document.getElementById("popup-antiguedad").textContent =
+        user.antiguedad_meses ? `${user.antiguedad_meses} meses` : "-";
+
+      // Datos de Cuenta
+      const rolEl = document.getElementById("popup-rol");
+      rolEl.textContent = user.rol || "-";
+      rolEl.className = "badge";
+      if (user.rol) {
+        rolEl.classList.add(user.rol === "admin" ? "admin" : "asesor");
+      }
+
+      const estadoEl = document.getElementById("popup-estado-cuenta");
+      estadoEl.textContent = user.activo ? "Activa" : "Inactiva";
+      estadoEl.className = "badge";
+      estadoEl.classList.add(user.activo ? "active" : "inactive");
+
+      document.getElementById("popup-metodo-pago").textContent =
+        user.metodo_pago_preferido || "-";
+      document.getElementById("popup-llave-breb").textContent =
+        user.llave_breb || "-";
+      document.getElementById("popup-fecha-registro").textContent =
+        user.created_at
+          ? new Date(user.created_at).toLocaleDateString("es-CO")
+          : "-";
+
+      this.showProfile();
+    },
+
+    resetContent() {
+      // Reset all fields to "-"
+      const fields = this.overlay.querySelectorAll(".info-field p");
+      fields.forEach((field) => {
+        field.textContent = "-";
+        field.className = field.classList.contains("badge") ? "badge" : "";
+      });
+    },
+  };
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () =>
+      window.UserProfilePopup.init(),
+    );
+  } else {
+    window.UserProfilePopup.init();
+  }
+</script>

@@ -13,6 +13,7 @@ try {
     // Consulta - Obtener ventas según el rol del usuario
     // Admin ve todas las ventas, Asesor solo ve las suyas
     $sql = "SELECT v.id, v.numero_factura, v.fecha_venta, v.estado, v.numero_serie, v.producto_id, v.foto_factura,
+                   v.asesor_id as usuario_id,
                    p.modelo as modelo_producto, p.codigo as codigo_producto, p.descripcion as desc_producto,
                    u.nombre as nombre_asesor, u.apellido as apellido_asesor, u.cedula as cedula_asesor,
                    u.nombre_distribuidor, u.llave_breb

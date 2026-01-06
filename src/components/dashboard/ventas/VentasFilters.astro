@@ -1,6 +1,7 @@
 ---
 import Button from "../../Button.astro";
 import ExportButton from "./ExportButton.astro";
+import ImportCSVButton from "./ImportCSVButton.astro";
 
 interface Props {
   searchId?: string;
@@ -59,12 +60,34 @@ const {
         placeholder="Fecha hasta"
       />
     </div>
+    <Button variant="outline" id={filterBtnId} class="filter-btn">Filtrar</Button>
+    <ExportButton />
+    <!-- Import CSV Button (solo admin) -->
+    <div id="import-csv-container" style="display: none;">
+      <ImportCSVButton />
+    </div>
   </div>
-
-  <Button variant="outline" id={filterBtnId}>Filtrar</Button>
-
-  <ExportButton />
 </div>
+
+<script is:inline>
+  // Mostrar botón de import solo si es admin
+  (function () {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.rol === "admin" || user.rol === "administrador") {
+          const container = document.getElementById("import-csv-container");
+          if (container) {
+            container.style.display = "block";
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error checking admin status:", e);
+    }
+  })();
+</script>
 
 <style>
   .filters-container {

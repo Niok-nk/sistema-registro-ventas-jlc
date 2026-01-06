@@ -56,7 +56,7 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
     background-color: var(--color-bg-card);
   }
 
-  #sales-tbody td{
+  :global(#sales-tbody td) {
     padding: 0rem 0.4rem;
     font-size: 0.65rem;
   }
@@ -124,5 +124,28 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
     outline: none;
     border-color: var(--color-accent);
     box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+  }
+
+  /* Clickable User Cells */
+  :global(.asesor-cell) {
+    padding: 0.2rem 0.4rem !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.clickable-user) {
+    cursor: pointer;
+    color: var(--color-accent);
+    transition: all 0.2s;
+    padding: 0.25rem 0;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+  }
+
+  :global(.clickable-user:hover) {
+    text-decoration: underline;
+    color: var(--color-accent-hover);
+    background-color: rgba(66, 153, 225, 0.05);
+    padding: 0.25rem 0.5rem;
   }
 </style>

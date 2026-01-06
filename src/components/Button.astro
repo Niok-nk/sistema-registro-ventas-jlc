@@ -4,6 +4,7 @@ interface Props {
   variant?: "primary" | "outline" | "ghost";
   class?: string;
   type?: "button" | "submit" | "reset";
+  id?: string;
 }
 
 const {
@@ -11,7 +12,7 @@ const {
   variant = "primary",
   class: className,
   type = "button",
-  ...rest
+  id,
 } = Astro.props;
 
 const Element = href ? "a" : "button";
@@ -21,7 +22,7 @@ const Element = href ? "a" : "button";
   href={href}
   type={!href ? type : undefined}
   class:list={["btn", `btn-${variant}`, className]}
-  {...rest}
+  id={id}
 >
   <slot />
 </Element>
@@ -79,5 +80,9 @@ const Element = href ? "a" : "button";
   .btn-ghost:hover {
     color: var(--color-text-main);
     background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .filter-btn {
+    width: 100%;;
   }
 </style>

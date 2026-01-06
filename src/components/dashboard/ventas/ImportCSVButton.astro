@@ -1,0 +1,506 @@
+---
+// Componente: Botón de Importación CSV
+// Solo visible para administradores
+// Permite actualización masiva de estados de facturas
+---
+
+<!-- Botón de Importación -->
+<button
+  id="import-csv-btn"
+  class="btn-secondary import-btn"
+  title="Importar CSV"
+>
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    style="width: 1.25rem; height: 1.25rem;"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+    ></path>
+  </svg>
+  <span>Importar CSV</span>
+</button>
+
+<!-- Input oculto para archivo -->
+<input type="file" id="csv-file-input" accept=".csv" style="display: none;" />
+
+<!-- Modal de Resultados -->
+<div id="import-modal" class="import-modal">
+  <div class="modal-content">
+    <button class="modal-close" id="close-import-modal">×</button>
+
+    <!-- Loading State -->
+    <div id="import-loading" class="import-state">
+      <div class="spinner"></div>
+      <p>Procesando archivo CSV...</p>
+    </div>
+
+    <!-- Results State -->
+    <div id="import-results" class="import-state" style="display: none;">
+      <h3>Resultados de Importación</h3>
+
+      <div class="results-summary">
+        <div class="summary-item success">
+          <strong id="updated-count">0</strong>
+          <span>Actualizadas</span>
+        </div>
+        <div class="summary-item error">
+          <strong id="error-count">0</strong>
+          <span>Errores</span>
+        </div>
+        <div class="summary-item total">
+          <strong id="total-count">0</strong>
+          <span>Total</span>
+        </div>
+      </div>
+
+      <!-- Success Section -->
+      <div id="successes-section" style="display: none;">
+        <h4 class="section-title success">✓ Actualizadas Exitosamente:</h4>
+        <div id="successes-list" class="items-list success-list"></div>
+      </div>
+
+      <!-- Errors Section -->
+      <div id="errors-section" style="display: none;">
+        <h4 class="section-title error">✗ Errores Encontrados:</h4>
+        <div id="errors-list" class="items-list errors-list"></div>
+      </div>
+
+      <button class="btn-primary" id="close-results-btn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .import-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Modal */
+  .import-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .import-modal.show {
+    display: flex;
+  }
+
+  .modal-content {
+    background-color: var(--color-bg-main);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--color-bg-card);
+    color: var(--color-text-main);
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover {
+    background-color: var(--color-border);
+    transform: rotate(90deg);
+  }
+
+  .import-state {
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  .spinner {
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  #import-results h3 {
+    color: var(--color-text-main);
+    margin-bottom: 1.5rem;
+  }
+
+  .results-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .summary-item {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .summary-item.success {
+    background-color: rgba(56, 161, 105, 0.1);
+    border: 1px solid rgba(56, 161, 105, 0.3);
+  }
+
+  .summary-item.error {
+    background-color: rgba(229, 62, 62, 0.1);
+    border: 1px solid rgba(229, 62, 62, 0.3);
+  }
+
+  .summary-item.total {
+    background-color: rgba(66, 153, 225, 0.1);
+    border: 1px solid rgba(66, 153, 225, 0.3);
+  }
+
+  .summary-item strong {
+    display: block;
+    font-size: 2rem;
+    color: var(--color-text-main);
+    margin-bottom: 0.25rem;
+  }
+
+  .summary-item span {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #successes-section,
+  #errors-section {
+    margin-top: 1.5rem;
+    text-align: left;
+  }
+
+  .section-title {
+    color: var(--color-text-main);
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-title.success {
+    color: #68d391;
+  }
+
+  .section-title.error {
+    color: #fc8181;
+  }
+
+  .items-list {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .success-list {
+    border-color: rgba(56, 161, 105, 0.3);
+  }
+
+  .errors-list {
+    border-color: rgba(229, 62, 62, 0.3);
+  }
+
+  .list-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.875rem;
+  }
+
+  .list-item:last-child {
+    border-bottom: none;
+  }
+
+  .success-item {
+    color: #68d391;
+  }
+
+  .error-item {
+    color: #fc8181;
+  }
+
+  #close-results-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .results-summary {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const importBtn = document.getElementById("import-csv-btn");
+    const fileInput = document.getElementById("csv-file-input");
+    const modal = document.getElementById("import-modal");
+    const closeModalBtn = document.getElementById("close-import-modal");
+    const closeResultsBtn = document.getElementById("close-results-btn");
+    const loadingState = document.getElementById("import-loading");
+    const resultsState = document.getElementById("import-results");
+
+    const API_BASE =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : window.location.origin + "/api";
+
+    // Abrir selector de archivo
+    importBtn.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    // Procesar archivo cuando se selecciona
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Validar extensión
+      if (!file.name.endsWith(".csv")) {
+        alert("Por favor selecciona un archivo CSV válido");
+        return;
+      }
+
+      // Mostrar modal con loading
+      showModal();
+      showLoading();
+
+      try {
+        // Leer archivo
+        const text = await file.text();
+        const data = parseCSV(text);
+
+        // Validar datos
+        const validatedData = validateData(data);
+
+        if (validatedData.length === 0) {
+          throw new Error("No se encontraron datos válidos en el archivo CSV");
+        }
+
+        // Enviar al backend
+        await importCSV(validatedData);
+      } catch (error) {
+        console.error("Error:", error);
+        hideModal();
+        alert("Error al procesar el archivo: " + error.message);
+      }
+
+      // Limpiar input
+      fileInput.value = "";
+    });
+
+    // Parsear CSV
+    function parseCSV(text) {
+      const lines = text.split("\n").filter((line) => line.trim());
+      if (lines.length < 2) {
+        throw new Error("El archivo CSV está vacío o mal formado");
+      }
+
+      // Parse header (case-insensitive)
+      const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+
+      // Buscar índices de columnas requeridas
+      const idIndex = header.findIndex((h) => h === "id");
+      const facturaIndex = header.findIndex(
+        (h) =>
+          h.includes("factura") || h.includes("n°") || h.includes("numero"),
+      );
+      const estadoIndex = header.findIndex((h) => h === "estado");
+
+      if (idIndex === -1 || facturaIndex === -1 || estadoIndex === -1) {
+        throw new Error(
+          "El CSV debe contener las columnas: ID, N° Factura, Estado",
+        );
+      }
+
+      // Parse datos
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(",").map((v) => v.trim());
+
+        if (values.length < 3) continue; // Saltar líneas vacías
+
+        data.push({
+          id: values[idIndex],
+          numero_factura: values[facturaIndex],
+          estado: values[estadoIndex],
+          row: i + 1, // Para reportar errores
+        });
+      }
+
+      return data;
+    }
+
+    // Validar datos antes de enviar
+    function validateData(data) {
+      const validated = [];
+      const validStates = ["pendiente", "aprobada", "rechazada"];
+
+      data.forEach((row) => {
+        // Validar campos no vacíos
+        if (!row.id || !row.numero_factura || !row.estado) {
+          return; // Saltar
+        }
+
+        // Validar estado válido (case-sensitive)
+        if (!validStates.includes(row.estado)) {
+          return; // Saltar
+        }
+
+        validated.push({
+          id: parseInt(row.id),
+          numero_factura: row.numero_factura,
+          estado: row.estado,
+        });
+      });
+
+      return validated;
+    }
+
+    // Importar CSV
+    async function importCSV(data) {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_BASE}/sales/import_csv.php`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ updates: data }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === 200) {
+        showResults(result.data);
+
+        // Recargar la tabla de ventas automáticamente
+        if (typeof window.reloadSalesTable === "function") {
+          // Dar tiempo para que se vean los resultados antes de recargar
+          setTimeout(() => {
+            window.reloadSalesTable();
+          }, 500);
+        }
+      } else {
+        throw new Error(result.message || "Error al importar CSV");
+      }
+    }
+
+    // Mostrar resultados
+    function showResults(data) {
+      loadingState.style.display = "none";
+      resultsState.style.display = "block";
+
+      document.getElementById("updated-count").textContent = data.updated || 0;
+      document.getElementById("error-count").textContent = data.skipped || 0;
+      document.getElementById("total-count").textContent = data.total || 0;
+
+      // Mostrar éxitos si hay
+      if (data.successes && data.successes.length > 0) {
+        const successesSection = document.getElementById("successes-section");
+        const successesList = document.getElementById("successes-list");
+
+        successesSection.style.display = "block";
+        successesList.innerHTML = data.successes
+          .map(
+            (success) => `<div class="list-item success-item">${success}</div>`,
+          )
+          .join("");
+      } else {
+        document.getElementById("successes-section").style.display = "none";
+      }
+
+      // Mostrar errores si hay
+      if (data.errors && data.errors.length > 0) {
+        const errorsSection = document.getElementById("errors-section");
+        const errorsList = document.getElementById("errors-list");
+
+        errorsSection.style.display = "block";
+        errorsList.innerHTML = data.errors
+          .map((err) => `<div class="list-item error-item">${err}</div>`)
+          .join("");
+      } else {
+        document.getElementById("errors-section").style.display = "none";
+      }
+    }
+
+    // UI helpers
+    function showModal() {
+      modal.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+
+    function hideModal() {
+      modal.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    function showLoading() {
+      loadingState.style.display = "block";
+      resultsState.style.display = "none";
+    }
+
+    // Event listeners para cerrar
+    closeModalBtn.addEventListener("click", hideModal);
+    closeResultsBtn.addEventListener("click", hideModal);
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        hideModal();
+      }
+    });
+
+    // ESC para cerrar
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.classList.contains("show")) {
+        hideModal();
+      }
+    });
+  })();
+</script>

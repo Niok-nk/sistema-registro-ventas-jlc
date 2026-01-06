@@ -3,6 +3,7 @@ import Card from "../Card.astro";
 import VentasFilters from "./ventas/VentasFilters.astro";
 import VentasStates from "./ventas/VentasStates.astro";
 import VentasTable from "./ventas/VentasTable.astro";
+import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
 ---
 
 <Card title="Historial de Ventas">
@@ -13,6 +14,9 @@ import VentasTable from "./ventas/VentasTable.astro";
     <VentasTable />
   </div>
 </Card>
+
+<!-- User Profile Popup -->
+<UserProfilePopup />
 
 <style>
   /* Table Wrapper - único estilo que se queda aquí */
@@ -184,9 +188,9 @@ import VentasTable from "./ventas/VentasTable.astro";
                 <td>${sale.numero_factura || "N/A"}</td>
                 <td>${sale.modelo_producto || sale.desc_producto || "N/A"}</td>
                 <td>${sale.numero_serie || "N/A"}</td>
-                <td>
-                  <div style="font-weight:500">${sale.nombre_asesor || ""} ${sale.apellido_asesor || ""}</div>
-                  <div style="font-size:0.75rem;color:var(--color-text-secondary)">CC: ${sale.cedula_asesor || "N/A"}</div>
+                <td class="asesor-cell">
+                  <div class="clickable-user" data-user-id="${sale.usuario_id}" style="font-weight:500">${sale.nombre_asesor || ""} ${sale.apellido_asesor || ""}</div>
+                  <div class="clickable-user" data-user-id="${sale.usuario_id}" style="font-size:0.75rem;color:var(--color-text-secondary)">CC: ${sale.cedula_asesor || "N/A"}</div>
                 </td>
                 <td>${sale.nombre_distribuidor || "N/A"}</td>
                 <td>${estadoHTML}</td>
@@ -232,6 +236,17 @@ import VentasTable from "./ventas/VentasTable.astro";
           });
         });
       }
+
+      // Event delegation para celdas clickeables (nombre y cédula del asesor)
+      salesTbody.addEventListener("click", (e) => {
+        const clickableElement = e.target.closest(".clickable-user");
+        if (clickableElement && window.UserProfilePopup) {
+          const userId = clickableElement.getAttribute("data-user-id");
+          if (userId) {
+            window.UserProfilePopup.show(parseInt(userId));
+          }
+        }
+      });
 
       showTable();
     }
@@ -548,5 +563,8 @@ import VentasTable from "./ventas/VentasTable.astro";
     // Inicializar
     loadProducts();
     loadSales();
+
+    // Exponer loadSales globalmente para que otros componentes puedan recargar
+    window.reloadSalesTable = loadSales;
   })();
 </script>
