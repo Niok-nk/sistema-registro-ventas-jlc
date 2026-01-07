@@ -249,6 +249,11 @@ import Button from "../Button.astro";
           />
         </div>
       </div>
+      <div class="accept-all-container">
+        <Button type="button" variant="primary" id="accept-all-terms-btn">
+          Aceptar Todos los Términos y Declaraciones
+        </Button>
+      </div>
       <div class="checkbox-group">
         <div class="checkbox-item">
           <input
@@ -301,11 +306,7 @@ import Button from "../Button.astro";
         Es obligatorio leer y aceptar todas las declaraciones legales para
         participar en el Programa de Incentivos:
       </p>
-      <div class="accept-all-container">
-        <Button type="button" variant="outline" id="accept-all-terms-btn">
-          Aceptar Todos los Términos y Declaraciones
-        </Button>
-      </div>
+
       <div class="legal-declarations">
         <div class="checkbox-item legal-item">
           <input
@@ -607,7 +608,7 @@ import Button from "../Button.astro";
   .accept-all-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 1.5rem;
+    margin: 3rem;
   }
 </style>
 
