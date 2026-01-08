@@ -16,7 +16,7 @@ try {
                    v.asesor_id as usuario_id,
                    p.modelo as modelo_producto, p.codigo as codigo_producto, p.descripcion as desc_producto,
                    u.nombre as nombre_asesor, u.apellido as apellido_asesor, u.cedula as cedula_asesor,
-                   u.nombre_distribuidor, u.llave_breb
+                   u.nombre_distribuidor, u.llave_breb, u.ciudad_residencia, u.departamento
             FROM ventas v
             JOIN productos_jlc p ON v.producto_id = p.id
             JOIN usuarios u ON v.asesor_id = u.id";

@@ -356,12 +356,27 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
 
       let filtered = allSales;
 
-      // Filtro por búsqueda (factura o serie)
+      // Filtro por búsqueda (factura, serie, asesor, cédula, ciudad, departamento)
       if (search) {
         filtered = filtered.filter(
           (sale) =>
+            // Número de factura
             (sale.numero_factura || "").toLowerCase().includes(search) ||
-            (sale.numero_serie || "").toLowerCase().includes(search),
+            // Número de serie
+            (sale.numero_serie || "").toLowerCase().includes(search) ||
+            // Nombre completo del asesor
+            `${sale.nombre_asesor || ""} ${sale.apellido_asesor || ""}`
+              .trim()
+              .toLowerCase()
+              .includes(search) ||
+            // Cédula del asesor
+            (sale.cedula_asesor || "").toLowerCase().includes(search) ||
+            // Ciudad del asesor (ciudad de residencia)
+            (sale.ciudad_residencia || "").toLowerCase().includes(search) ||
+            // Departamento del asesor
+            (sale.departamento || "").toLowerCase().includes(search) ||
+            // Distribuidor (opcional, ya que también es relevante)
+            (sale.nombre_distribuidor || "").toLowerCase().includes(search),
         );
       }
 

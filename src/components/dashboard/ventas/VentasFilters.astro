@@ -33,7 +33,7 @@ const {
         type="text"
         id={searchId}
         class="form-input search-input"
-        placeholder="Buscar por N° factura o serie..."
+        placeholder="Buscar por factura, serie, asesor, cédula, ciudad, departamento..."
       />
     </div>
 
@@ -60,7 +60,9 @@ const {
         placeholder="Fecha hasta"
       />
     </div>
-    <Button variant="outline" id={filterBtnId} class="filter-btn">Filtrar</Button>
+    <Button variant="outline" id={filterBtnId} class="filter-btn"
+      >Filtrar</Button
+    >
     <ExportButton />
     <!-- Import CSV Button (solo admin) -->
     <div id="import-csv-container" style="display: none;">
