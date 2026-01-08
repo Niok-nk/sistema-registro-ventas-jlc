@@ -1,6 +1,7 @@
 ---
 import Card from "../Card.astro";
 import Button from "../Button.astro";
+import colombiaData from "../../data/colombia.json";
 ---
 
 <Card title="Registro de Asesor JLC">
@@ -81,25 +82,33 @@ import Button from "../Button.astro";
         </div>
         <div class="form-group">
           <label for="departamento" class="form-label">Departamento</label>
-          <input
-            type="text"
+          <select
             id="departamento"
             name="departamento"
             class="form-input"
             required
-          />
+          >
+            <option value="">Seleccione departamento</option>
+            {
+              colombiaData.map((item) => (
+                <option value={item.departamento}>{item.departamento}</option>
+              ))
+            }
+          </select>
         </div>
         <div class="form-group">
           <label for="ciudad_residencia" class="form-label"
             >Ciudad de Residencia</label
           >
-          <input
-            type="text"
+          <select
             id="ciudad_residencia"
             name="ciudad_residencia"
             class="form-input"
             required
-          />
+            disabled
+          >
+            <option value="">Primero seleccione departamento</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="whatsapp" class="form-label">WhatsApp</label>
@@ -249,6 +258,11 @@ import Button from "../Button.astro";
           />
         </div>
       </div>
+      <div class="accept-all-container">
+        <Button type="button" variant="primary" id="accept-all-terms-btn">
+          Aceptar Todos los Términos y Declaraciones
+        </Button>
+      </div>
       <div class="checkbox-group">
         <div class="checkbox-item">
           <input
@@ -301,11 +315,7 @@ import Button from "../Button.astro";
         Es obligatorio leer y aceptar todas las declaraciones legales para
         participar en el Programa de Incentivos:
       </p>
-      <div class="accept-all-container">
-        <Button type="button" variant="outline" id="accept-all-terms-btn">
-          Aceptar Todos los Términos y Declaraciones
-        </Button>
-      </div>
+
       <div class="legal-declarations">
         <div class="checkbox-item legal-item">
           <input
@@ -440,6 +450,40 @@ import Button from "../Button.astro";
     </div>
   </form>
 </Card>
+
+<script define:vars={{ colombiaData }}>
+  const departmentSelect = document.getElementById("departamento");
+  const citySelect = document.getElementById("ciudad_residencia");
+
+  if (departmentSelect && citySelect) {
+    departmentSelect.addEventListener("change", (e) => {
+      const selectedDept = e.target.value;
+
+      // Limpiar ciudades
+      citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+      citySelect.disabled = true;
+
+      if (selectedDept) {
+        const deptData = colombiaData.find(
+          (d) => d.departamento === selectedDept,
+        );
+
+        if (deptData && deptData.ciudades) {
+          deptData.ciudades.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+          });
+          citySelect.disabled = false;
+        }
+      } else {
+        citySelect.innerHTML =
+          '<option value="">Primero seleccione departamento</option>';
+      }
+    });
+  }
+</script>
 
 <style>
   .registration-form {
@@ -607,7 +651,7 @@ import Button from "../Button.astro";
   .accept-all-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 1.5rem;
+    margin: 3rem;
   }
 </style>
 

@@ -19,6 +19,7 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
       <th>Distribuidor</th>
       <th>Estado</th>
       <th>Foto</th>
+      <th class="admin-only-column" style="display: none;">Acciones</th>
     </tr>
   </thead>
   <tbody id={tbodyId}>
@@ -147,5 +148,29 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
     color: var(--color-accent-hover);
     background-color: rgba(66, 153, 225, 0.05);
     padding: 0.25rem 0.5rem;
+  }
+
+  /* Delete button */
+  :global(.btn-delete-sale) {
+    background: none;
+    border: 1px solid #e53e3e;
+    color: #e53e3e;
+    padding: 0.4rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  :global(.btn-delete-sale:hover) {
+    background: rgba(229, 62, 62, 0.1);
+    transform: scale(1.05);
+  }
+
+  :global(.admin-only-column) {
+    width: 60px;
+    text-align: center;
   }
 </style>
