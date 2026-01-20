@@ -14,7 +14,7 @@ try {
     $sql = "SELECT id, cedula, rol, nombre, apellido, tipo_documento, numero_documento,
                    fecha_nacimiento, ciudad_residencia, departamento, whatsapp, telefono,
                    correo, nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta,
-                   cargo, antiguedad_meses, metodo_pago_preferido, llave_breb,
+                   cargo, antiguedad_meses, llave_breb,
                    acepta_tratamiento_datos, acepta_contacto_comercial, declara_info_verdadera,
                    activo, created_at, updated_at
             FROM usuarios

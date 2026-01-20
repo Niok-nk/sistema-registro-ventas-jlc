@@ -23,7 +23,6 @@ CREATE TABLE usuarios_new (
   direccion_punto_venta TEXT,
   cargo TEXT NOT NULL,
   antiguedad_meses INTEGER DEFAULT 0,
-  metodo_pago_preferido TEXT,
   llave_breb TEXT,
   acepta_tratamiento_datos INTEGER NOT NULL DEFAULT 0,
   acepta_contacto_comercial INTEGER NOT NULL DEFAULT 0,
@@ -35,18 +34,18 @@ CREATE TABLE usuarios_new (
 );
 
 -- Paso 2: Copiar datos de la tabla antigua a la nueva (usuarios existentes se aprueban automáticamente)
-INSERT INTO usuarios_new 
-  (id, cedula, password, rol, nombre, apellido, tipo_documento, numero_documento, 
+INSERT INTO usuarios_new
+  (id, cedula, password, rol, nombre, apellido, tipo_documento, numero_documento,
    fecha_nacimiento, ciudad_residencia, departamento, whatsapp, telefono, correo,
-   nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta, cargo, 
-   antiguedad_meses, metodo_pago_preferido, llave_breb, acepta_tratamiento_datos,
-   acepta_contacto_comercial, declara_info_verdadera, activo, estado_aprobacion, 
+   nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta, cargo,
+   antiguedad_meses, llave_breb, acepta_tratamiento_datos,
+   acepta_contacto_comercial, declara_info_verdadera, activo, estado_aprobacion,
    created_at, updated_at)
-SELECT 
+SELECT
   id, cedula, password, rol, nombre, apellido, tipo_documento, numero_documento,
   fecha_nacimiento, ciudad_residencia, departamento, whatsapp, telefono, correo,
   nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta, cargo,
-  antiguedad_meses, metodo_pago_preferido, llave_breb, acepta_tratamiento_datos,
+  antiguedad_meses, llave_breb, acepta_tratamiento_datos,
   acepta_contacto_comercial, declara_info_verdadera, activo, 'aprobado',
   created_at, updated_at
 FROM usuarios;
