@@ -35,8 +35,8 @@ class UsuarioController {
             $sql = "INSERT INTO usuarios (
                         nombre, apellido, tipo_documento, numero_documento, cedula, fecha_nacimiento,
                         ciudad_residencia, departamento, whatsapp, telefono, correo,
-                        nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta,
-                        cargo, antiguedad_meses, metodo_pago_preferido, llave_breb,
+                        nombre_distribuidor, ciudad_punto_venta, direccion_punto_venta, cargo,
+                        antiguedad_meses, llave_breb,
                         password, acepta_tratamiento_datos, acepta_contacto_comercial,
                         declara_info_verdadera,
                         declara_naturaleza_comercial, reconoce_no_salario,
@@ -47,8 +47,8 @@ class UsuarioController {
                     ) VALUES (
                         :nombre, :apellido, :tipo_documento, :numero_documento, :cedula, :fecha_nacimiento,
                         :ciudad_residencia, :departamento, :whatsapp, :telefono, :correo,
-                        :nombre_distribuidor, :ciudad_punto_venta, :direccion_punto_venta,
-                        :cargo, :antiguedad_meses, :metodo_pago, :llave_breb,
+                        :nombre_distribuidor, :ciudad_punto_venta, :direccion_punto_venta, :cargo,
+                        :antiguedad_meses, :llave_breb,
                         :password, :acepta_datos, :acepta_contacto, :declara_verdad,
                         :declara_naturaleza, :reconoce_salario,
                         :declara_subordinacion, :declara_relacion,
@@ -75,7 +75,6 @@ class UsuarioController {
                 ':direccion_punto_venta' => $data['direccion_punto_venta'] ?? null,
                 ':cargo' => $data['cargo'],
                 ':antiguedad_meses' => $data['antiguedad_meses'],
-                ':metodo_pago' => $data['metodo_pago'],
                 ':llave_breb' => $data['llave_breb'],
                 ':password' => $password_hash,
                 ':acepta_datos' => $data['acepta_tratamiento_datos'] ? 1 : 0,
@@ -110,8 +109,8 @@ class UsuarioController {
     private function validarDatosRegistro($data) {
         $required_fields = [
             'nombre', 'apellido', 'tipo_documento', 'numero_documento', 'fecha_nacimiento',
-            'ciudad_residencia', 'departamento', 'whatsapp', 'correo', 'nombre_distribuidor',
-            'ciudad_punto_venta', 'cargo', 'antiguedad_meses', 'metodo_pago', 'llave_breb',
+            'ciudad_residencia', 'departamento', 'whatsapp', 'correo', 'nombre_distribuidor', 'ciudad_punto_venta',
+            'cargo', 'antiguedad_meses', 'llave_breb',
             'password', 'password_confirm'
         ];
 
@@ -154,7 +153,7 @@ class UsuarioController {
             'acepta_liberalidades', 'asume_obligaciones_tributarias',
             'declara_no_contrato', 'acepta_terminos_programa'
         ];
-        
+
         foreach ($declaraciones_legales as $declaracion) {
             if (empty($data[$declaracion])) {
                 return "Debe aceptar todas las declaraciones legales del Programa de Incentivos.";

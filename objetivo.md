@@ -237,7 +237,6 @@ CREATE TABLE usuarios (
     antiguedad_meses INT NOT NULL,
     
     -- Información Financiera
-    metodo_pago ENUM('Nequi', 'Daviplata', 'Bancolombia', 'Otro') NOT NULL,
     llave_breb VARCHAR(100) NOT NULL COMMENT 'Debe coincidir con nombre para pago de bonos',
     
     -- Políticas y Permisos

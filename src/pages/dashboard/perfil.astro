@@ -113,10 +113,6 @@ import Card from "../../components/Card.astro";
             <p id="estado-cuenta" class="badge">-</p>
           </div>
           <div class="info-field">
-            <span class="field-label">Método de Pago Preferido</span>
-            <p id="metodo-pago">-</p>
-          </div>
-          <div class="info-field">
             <span class="field-label">Llave BREB</span>
             <p id="llave-breb">-</p>
           </div>
@@ -343,8 +339,6 @@ import Card from "../../components/Card.astro";
       estadoEl.textContent = user.activo ? "Activa" : "Inactiva";
       estadoEl.classList.add(user.activo ? "active" : "inactive");
 
-      document.getElementById("metodo-pago").textContent =
-        user.metodo_pago_preferido || "-";
       document.getElementById("llave-breb").textContent =
         user.llave_breb || "-";
       document.getElementById("fecha-registro").textContent = user.created_at
