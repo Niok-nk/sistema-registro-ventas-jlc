@@ -2,6 +2,9 @@
 import Card from "../Card.astro";
 import Button from "../Button.astro";
 import colombiaData from "../../data/colombia.json";
+
+// Obtener todas las ciudades únicas de todos los departamentos y ordenarlas alfabéticamente
+const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].sort();
 ---
 
 <Card title="Registro de Asesor JLC">
@@ -148,13 +151,17 @@ import colombiaData from "../../data/colombia.json";
           <label for="ciudad_punto_venta" class="form-label"
             >Ciudad del Punto de Venta</label
           >
-          <input
-            type="text"
+          <select
             id="ciudad_punto_venta"
             name="ciudad_punto_venta"
             class="form-input"
             required
-          />
+          >
+            <option value="">Seleccione ciudad</option>
+            {allCities.map((city) => (
+              <option value={city}>{city}</option>
+            ))}
+          </select>
         </div>
         <div class="form-group">
           <label for="direccion_punto_venta" class="form-label"
@@ -564,6 +571,7 @@ import colombiaData from "../../data/colombia.json";
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
     padding-right: 2.5rem;
+    background-color: var(--color-bg-cardb);
   }
 
   .legal-intro {
