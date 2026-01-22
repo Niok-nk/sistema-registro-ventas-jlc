@@ -1,0 +1,204 @@
+---
+import Button from "../../Button.astro";
+import Card from "../../Card.astro";
+
+---
+
+<div class="dashboard-container">
+  <Card title="Gestión de Distribuidores Oficiales">
+    <div class="content-wrapper">
+      <!-- Formulario de Creación -->
+      <section class="form-section">
+        <h3>Añadir Nuevo Distribuidor</h3>
+        <form id="add-distributor-form" class="distributor-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nit" class="form-label">NIT</label>
+              <input
+                type="text"
+                id="nit"
+                name="nit"
+                class="form-input"
+                placeholder="Ej: 900123456"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="nombre" class="form-label">Nombre del Distribuidor</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                class="form-input"
+                placeholder="Ej: Distribuidora JLC S.A.S"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <Button type="submit" variant="primary">Guardar Distribuidor</Button>
+          </div>
+        </form>
+        <div id="feedback-message" class="message" style="display: none;"></div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- Listado de Distribuidores -->
+      <section class="list-section">
+        <h3>Distribuidores Registrados</h3>
+        <div class="table-container">
+          <table class="distributors-table">
+            <thead>
+              <tr>
+                <th>NIT</th>
+                <th>Nombre</th>
+                <th>Fecha Registro</th>
+              </tr>
+            </thead>
+            <tbody id="distributors-list-body">
+              <tr>
+                <td colspan="3" style="text-align: center;">Cargando...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </Card>
+</div>
+
+<style>
+  .dashboard-container {
+    width: 100%;
+  }
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  h3 {
+    color: var(--color-text-main);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-label {
+    font-weight: 500;
+    color: var(--color-text-main);
+  }
+  .form-input {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-input);
+  }
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .divider {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    margin: 1rem 0;
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+  .distributors-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .distributors-table th,
+  .distributors-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .distributors-table th {
+    background-color: rgba(0, 0, 0, 0.02);
+    font-weight: 600;
+  }
+  .message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+  .message.success { background-color: #c6f6d5; color: #22543d; }
+  .message.error { background-color: #fed7d7; color: #822727; }
+</style>
+
+<script>
+  // Lógica del Cliente
+  const API_BASE = window.location.origin + "/api/distribuidores";
+  const form = document.getElementById("add-distributor-form") as HTMLFormElement;
+  const feedback = document.getElementById("feedback-message");
+  const tableBody = document.getElementById("distributors-list-body");
+
+  // Función para cargar la lista
+  async function loadDistributors() {
+    try {
+      const res = await fetch(`${API_BASE}/list.php`);
+      const data = await res.json();
+
+      if (tableBody) {
+        tableBody.innerHTML = data.map((d: any) => `
+          <tr>
+            <td>${d.nit}</td>
+            <td>${d.nombre}</td>
+            <td>${new Date(d.created_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      }
+    } catch (error) {
+      if (tableBody) tableBody.innerHTML = '<tr><td colspan="3">Error al cargar datos</td></tr>';
+    }
+  }
+
+  // Manejo del formulario
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const res = await fetch(`${API_BASE}/create.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+
+        if (feedback) {
+          feedback.style.display = "block";
+          feedback.textContent = result.message;
+          feedback.className = `message ${res.ok ? 'success' : 'error'}`;
+        }
+
+        if (res.ok) {
+          form.reset();
+          loadDistributors(); // Recargar tabla
+          setTimeout(() => { if(feedback) feedback.style.display = 'none'; }, 3000);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+
+  // Cargar al inicio
+  document.addEventListener("DOMContentLoaded", loadDistributors);
+</script>
