@@ -1,0 +1,581 @@
+---
+import Button from "../../Button.astro";
+import Card from "../../Card.astro";
+---
+
+<div id="distributor-manager-container">
+  <Card title="Gestión de Distribuidores">
+    <!-- Header & Controls -->
+    <div class="controls-section">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+        </svg>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Buscar por nombre o NIT..."
+          class="search-input"
+        />
+      </div>
+      <Button id="btn-add-new">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Nuevo Distribuidor
+      </Button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="state-message">
+      <div class="spinner"></div>
+      <p>Cargando distribuidores...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="state-message" style="display: none;">
+      <p>No se encontraron distribuidores</p>
+    </div>
+
+    <!-- Grid List -->
+    <div id="distributors-grid" class="distributors-grid" style="display: none;">
+      <!-- Cards injected via JS -->
+    </div>
+  </Card>
+
+  <!-- Modal Form -->
+  <div id="modal-overlay" class="popup-overlay">
+    <div class="popup-container">
+      <div class="popup-content">
+        <!-- Close Button -->
+        <button id="btn-close-modal" class="popup-close" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <div class="popup-header">
+          <h2 id="modal-title">Nuevo Distribuidor</h2>
+        </div>
+
+        <div class="popup-body">
+          <form id="distributor-form">
+            <input type="hidden" name="id" id="field-id">
+
+            <div class="form-group">
+              <label for="field-nit">NIT</label>
+              <input type="text" id="field-nit" name="nit" required placeholder="Ej: 900123456">
+            </div>
+
+            <div class="form-group">
+              <label for="field-nombre">Nombre del Distribuidor</label>
+              <input type="text" id="field-nombre" name="nombre" required placeholder="Ej: Distribuidora JLC S.A.S">
+            </div>
+
+            <div class="modal-actions">
+              <Button variant="outline" type="button" id="btn-cancel">Cancelar</Button>
+              <Button type="submit">Guardar</Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Layout & Controls */
+  .controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-wrapper {
+    position: relative;
+    flex-grow: 1;
+    max-width: 400px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-text-secondary);
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+  }
+
+  .btn-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Grid Layout */
+  .distributors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Card Styles */
+  :global(.distributor-card) {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  :global(.distributor-card:hover) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent);
+  }
+
+  :global(.card-header) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  :global(.distributor-name) {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin: 0;
+  }
+
+  :global(.distributor-nit) {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-top: 0.25rem;
+  }
+
+  :global(.card-footer) {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  :global(.date-info) {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+
+  :global(.card-actions) {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  :global(.action-btn) {
+    padding: 0.4rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  :global(.action-btn:hover) {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  :global(.action-btn.delete:hover) {
+    color: #e53e3e;
+    border-color: #e53e3e;
+  }
+
+  /* Popup Overlay */
+  .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+    z-index: 9999;
+    display: none;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .popup-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Popup Container */
+  .popup-container {
+    width: 100%;
+    max-width: 500px;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Popup Content */
+  .popup-content {
+    background-color: var(--color-bg-main);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Close Button */
+  .popup-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+
+  .popup-close:hover {
+    background-color: var(--color-border);
+    color: var(--color-text-main);
+    transform: rotate(90deg);
+  }
+
+  .popup-close svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* Popup Header */
+  .popup-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .popup-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+  }
+
+  .popup-body {
+    padding: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-text-main);
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-input);
+    color: var(--color-text-main);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  /* States */
+  .state-message {
+    padding: 3rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
+
+  .spinner {
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+  const API_BASE = window.location.origin + "/api/distribuidores";
+
+  interface Distributor {
+    id: number;
+    nit: string;
+    nombre: string;
+    created_at: string;
+  }
+
+  // State
+  let distributors: Distributor[] = [];
+
+  // Elements
+  const grid = document.getElementById("distributors-grid");
+  const loading = document.getElementById("loading-state");
+  const empty = document.getElementById("empty-state");
+  const searchInput = document.getElementById("search-input") as HTMLInputElement;
+
+  // Modal Elements
+  const modal = document.getElementById("modal-overlay");
+  const form = document.getElementById("distributor-form") as HTMLFormElement;
+  const modalTitle = document.getElementById("modal-title");
+  const btnAdd = document.getElementById("btn-add-new");
+  const btnClose = document.getElementById("btn-close-modal");
+  const btnCancel = document.getElementById("btn-cancel");
+
+  // Load Data
+  async function loadDistributors() {
+    showLoading();
+    try {
+      const res = await fetch(`${API_BASE}/list.php`);
+      const data = await res.json();
+      distributors = Array.isArray(data) ? data : [];
+      renderDistributors(distributors);
+    } catch (error) {
+      console.error("Error loading distributors:", error);
+      if (grid) grid.innerHTML = '<p class="error">Error al cargar datos</p>';
+    }
+  }
+
+  function renderDistributors(list: Distributor[]) {
+    if (!grid || !loading || !empty) return;
+
+    loading.style.display = "none";
+
+    if (list.length === 0) {
+      empty.style.display = "block";
+      grid.style.display = "none";
+      return;
+    }
+
+    empty.style.display = "none";
+    grid.style.display = "grid";
+    grid.innerHTML = "";
+
+    // Sort by name
+    list.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    list.forEach(d => {
+      const card = document.createElement("div");
+      card.className = "distributor-card";
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div>
+            <h4 class="distributor-name">${escapeHtml(d.nombre)}</h4>
+            <p class="distributor-nit">NIT: ${escapeHtml(d.nit)}</p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="date-info">Reg: ${new Date(d.created_at).toLocaleDateString()}</span>
+          <div class="card-actions">
+            <button class="action-btn edit" data-id="${d.id}" title="Editar">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="width:1.25rem;height:1.25rem">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+            </button>
+            <button class="action-btn delete" data-id="${d.id}" title="Eliminar">
+              <svg viewBox="0 0 20 20" fill="currentColor" style="width:1.25rem;height:1.25rem">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Attach events
+      const btnEdit = card.querySelector(".edit");
+      const btnDelete = card.querySelector(".delete");
+
+      btnEdit?.addEventListener("click", () => openModal(d));
+      btnDelete?.addEventListener("click", () => deleteDistributor(d.id));
+
+      grid.appendChild(card);
+    });
+  }
+
+  // CRUD Operations
+  async function deleteDistributor(id: number) {
+    if (!confirm("¿Estás seguro de eliminar este distribuidor?")) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/delete.php`, {
+        method: "POST", // Using POST for safety, or DELETE if supported
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+
+      if (res.ok) {
+        loadDistributors();
+      } else {
+        alert("Error al eliminar");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error de conexión");
+    }
+  }
+
+  // Modal Logic
+  function openModal(data: Distributor | null = null) {
+    if (!modal || !form || !modalTitle) return;
+
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+    form.reset();
+
+    const idField = document.getElementById("field-id") as HTMLInputElement;
+    const nitField = document.getElementById("field-nit") as HTMLInputElement;
+    const nombreField = document.getElementById("field-nombre") as HTMLInputElement;
+
+    if (data) {
+      modalTitle.textContent = "Editar Distribuidor";
+      idField.value = data.id.toString();
+      nitField.value = data.nit;
+      nombreField.value = data.nombre;
+    } else {
+      modalTitle.textContent = "Nuevo Distribuidor";
+      idField.value = "";
+    }
+  }
+
+  function closeModal() {
+    if (modal) {
+      modal.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+  }
+
+  // Form Submit
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      const isEdit = !!data.id;
+      const endpoint = isEdit ? "/update.php" : "/create.php";
+
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+          closeModal();
+          loadDistributors();
+        } else {
+          const result = await res.json();
+          alert(result.message || "Error al guardar");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de conexión");
+      }
+    });
+  }
+
+  // Search Logic
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      const term = (e.target as HTMLInputElement).value.toLowerCase();
+      const filtered = distributors.filter(d =>
+        d.nombre.toLowerCase().includes(term) ||
+        d.nit.toLowerCase().includes(term)
+      );
+      renderDistributors(filtered);
+    });
+  }
+
+  // Helpers
+  function showLoading() {
+    if (loading) loading.style.display = "block";
+    if (grid) grid.style.display = "none";
+    if (empty) empty.style.display = "none";
+  }
+
+  function escapeHtml(text: string) {
+    if (!text) return "";
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Event Listeners
+  btnAdd?.addEventListener("click", () => openModal());
+  btnClose?.addEventListener("click", closeModal);
+  btnCancel?.addEventListener("click", closeModal);
+
+  document.addEventListener("DOMContentLoaded", loadDistributors);
+
+  // Close on overlay click
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal || (e.target as HTMLElement).classList.contains("popup-container")) {
+      closeModal();
+    }
+  });
+
+  // Close on ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal?.classList.contains("show")) {
+      closeModal();
+    }
+  });
+</script>
