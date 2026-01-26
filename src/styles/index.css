@@ -2,6 +2,7 @@
   /* Paleta de Colores - Azul Nocturno Minimalista */
   --color-bg-main: #1A202C;
   --color-bg-card: #2d374846;
+  --color-bg-cardb: #252d3c;
   --color-border: #4a5568;
 
   --color-text-main: #E2E8F0;
@@ -32,6 +33,7 @@
 html[data-theme="light"] {
   --color-bg-main: #f7fafc;
   --color-bg-card: #ffffff;
+  --color-bg-cardb: #ffffff;
   --color-border: #e2e8f0;
 
   --color-text-main: #1A202C;

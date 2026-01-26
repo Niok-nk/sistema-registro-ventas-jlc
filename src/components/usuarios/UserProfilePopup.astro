@@ -144,10 +144,6 @@
                 <p id="popup-estado-cuenta" class="badge">-</p>
               </div>
               <div class="info-field">
-                <span class="field-label">Método de Pago Preferido</span>
-                <p id="popup-metodo-pago">-</p>
-              </div>
-              <div class="info-field">
                 <span class="field-label">Llave BREB</span>
                 <p id="popup-llave-breb">-</p>
               </div>
@@ -572,8 +568,6 @@
       estadoEl.className = "badge";
       estadoEl.classList.add(user.activo ? "active" : "inactive");
 
-      document.getElementById("popup-metodo-pago").textContent =
-        user.metodo_pago_preferido || "-";
       document.getElementById("popup-llave-breb").textContent =
         user.llave_breb || "-";
       document.getElementById("popup-fecha-registro").textContent =

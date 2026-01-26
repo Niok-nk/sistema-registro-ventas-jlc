@@ -1,0 +1,34 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import DistributorManager from "../../components/dashboard/distribuidores/DistributorManager.astro";
+
+
+---
+
+<DashboardLayout title="Gestión de Distribuidores">
+  <DistributorManager />
+</DashboardLayout>
+
+<script is:inline>
+  // Verificar que el usuario sea administrador
+  (function () {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) {
+        console.warn("No user data found, redirecting to login");
+        window.location.href = "/login";
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      if (user.rol !== "admin" && user.rol !== "administrador") {
+        console.warn("User is not admin, redirecting to dashboard");
+        alert("Acceso denegado. Esta página es solo para administradores.");
+        window.location.href = "/dashboard";
+      }
+    } catch (e) {
+      console.error("Error checking admin role:", e);
+      window.location.href = "/login";
+    }
+  })();
+</script>

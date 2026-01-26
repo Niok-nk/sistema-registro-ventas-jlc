@@ -28,7 +28,6 @@ CREATE TABLE `usuarios` (
   `direccion_punto_venta` varchar(255) DEFAULT NULL,
   `cargo` varchar(100) NOT NULL,
   `antiguedad_meses` int(11) DEFAULT 0,
-  `metodo_pago_preferido` varchar(50) DEFAULT NULL,
   `llave_breb` varchar(100) DEFAULT NULL,
   `acepta_tratamiento_datos` tinyint(1) NOT NULL DEFAULT 0,
   `acepta_contacto_comercial` tinyint(1) NOT NULL DEFAULT 0,

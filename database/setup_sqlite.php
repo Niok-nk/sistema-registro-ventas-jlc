@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
   direccion_punto_venta TEXT,
   cargo TEXT NOT NULL,
   antiguedad_meses INTEGER DEFAULT 0,
-  metodo_pago_preferido TEXT,
   llave_breb TEXT,
   acepta_tratamiento_datos INTEGER NOT NULL DEFAULT 0,
   acepta_contacto_comercial INTEGER NOT NULL DEFAULT 0,

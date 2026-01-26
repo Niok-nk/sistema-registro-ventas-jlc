@@ -2,6 +2,9 @@
 import Card from "../Card.astro";
 import Button from "../Button.astro";
 import colombiaData from "../../data/colombia.json";
+
+// Obtener todas las ciudades únicas de todos los departamentos y ordenarlas alfabéticamente
+const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].sort();
 ---
 
 <Card title="Registro de Asesor JLC">
@@ -148,13 +151,17 @@ import colombiaData from "../../data/colombia.json";
           <label for="ciudad_punto_venta" class="form-label"
             >Ciudad del Punto de Venta</label
           >
-          <input
-            type="text"
+          <select
             id="ciudad_punto_venta"
             name="ciudad_punto_venta"
             class="form-input"
             required
-          />
+          >
+            <option value="">Seleccione ciudad</option>
+            {allCities.map((city) => (
+              <option value={city}>{city}</option>
+            ))}
+          </select>
         </div>
         <div class="form-group">
           <label for="direccion_punto_venta" class="form-label"
@@ -197,20 +204,6 @@ import colombiaData from "../../data/colombia.json";
     <fieldset>
       <legend>Información Financiera</legend>
       <div class="form-grid">
-        <div class="form-group">
-          <label for="metodo_pago" class="form-label">Método de Pago</label>
-          <select
-            id="metodo_pago"
-            name="metodo_pago"
-            class="form-input"
-            required
-          >
-            <option value="Nequi">Nequi</option>
-            <option value="Daviplata">Daviplata</option>
-            <option value="Bancolombia">Bancolombia</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
         <div class="form-group">
           <label for="llave_breb" class="form-label">Llave BRE-B</label>
           <input
@@ -578,6 +571,7 @@ import colombiaData from "../../data/colombia.json";
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
     padding-right: 2.5rem;
+    background-color: var(--color-bg-cardb);
   }
 
   .legal-intro {
@@ -763,17 +757,21 @@ import colombiaData from "../../data/colombia.json";
         submitButton.textContent = "Registrando...";
       }
 
+      // Detectar entorno automáticamente
+      const API_BASE =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+          ? "http://localhost:8000"
+          : window.location.origin + "/api";
+
       try {
-        const response = await fetch(
-          "http://localhost:8000/auth/register.php",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
+        const response = await fetch(`${API_BASE}/auth/register.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify(data),
+        });
 
         const result = await response.json();
 

@@ -39,10 +39,10 @@ try {
     // Obtener instancia de la base de datos
     $db = Database::getInstance();
     $conn = $db->getConnection();
-    
+
     // Consulta para obtener TODOS los datos del usuario
     $stmt = $conn->prepare("
-        SELECT 
+        SELECT
             id,
             cedula,
             nombre,
@@ -62,18 +62,17 @@ try {
             antiguedad_meses,
             rol,
             activo,
-            metodo_pago_preferido,
             llave_breb,
             created_at,
             updated_at
-        FROM usuarios 
+        FROM usuarios
         WHERE id = :id
     ");
-    
+
     $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
     $stmt->execute();
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$userData) {
         http_response_code(404);
         echo json_encode([
@@ -82,17 +81,17 @@ try {
         ]);
         exit;
     }
-    
+
     // Convertir activo a booleano
     $userData['activo'] = (bool) $userData['activo'];
-    
+
     http_response_code(200);
     echo json_encode([
         'status' => 200,
         'message' => 'Usuario encontrado',
         'data' => $userData
     ]);
-    
+
 } catch (Exception $e) {
     error_log("Error en users/get.php: " . $e->getMessage());
     http_response_code(500);
