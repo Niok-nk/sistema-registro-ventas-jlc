@@ -316,8 +316,8 @@ interface Props {}
 
 <script is:inline>
   (function () {
-    // ⚠️ SECURITY: Use environment variable instead of hardcoded URL
-    const API_BASE = import.meta.env.PUBLIC_API_URL || "/api";
+    // Use relative API path that works in all environments
+    const API_BASE = "/api";
 
     // Estado
     let allUsers = [];
