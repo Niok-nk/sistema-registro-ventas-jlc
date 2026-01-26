@@ -12,7 +12,7 @@ CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cedula` varchar(20) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `rol` enum('asesor','administrador') NOT NULL DEFAULT 'asesor',
+  `rol` enum('asesor','administrador','auditor') NOT NULL DEFAULT 'asesor',
   `nombre` varchar(100) NOT NULL,
   `apellido` varchar(100) NOT NULL,
   `tipo_documento` enum('CC','CE','TI','Pasaporte') NOT NULL DEFAULT 'CC',

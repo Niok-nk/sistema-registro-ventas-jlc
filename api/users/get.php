@@ -13,12 +13,12 @@ require_once __DIR__ . '/../config/cors.php';
 // Validar autenticación
 $user = requireAuth();
 
-// Verificar que sea admin
-if ($user['rol'] !== 'admin' && $user['rol'] !== 'administrador') {
+// Verificar que sea administrador o auditor
+if ($user['rol'] !== 'administrador' && $user['rol'] !== 'auditor') {
     http_response_code(403);
     echo json_encode([
         'status' => 403,
-        'message' => 'Acceso denegado. Solo administradores pueden ver perfiles de otros usuarios.'
+        'message' => 'Acceso denegado. Solo administradores y auditores pueden ver perfiles de otros usuarios.'
     ]);
     exit;
 }

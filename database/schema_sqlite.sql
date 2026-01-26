@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   cedula TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
-  rol TEXT NOT NULL DEFAULT 'asesor',
+  rol TEXT NOT NULL DEFAULT 'asesor' CHECK(rol IN ('asesor', 'administrador', 'auditor')),
   nombre TEXT NOT NULL,
   apellido TEXT NOT NULL,
   tipo_documento TEXT NOT NULL DEFAULT 'CC',

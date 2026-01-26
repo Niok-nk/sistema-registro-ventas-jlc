@@ -47,11 +47,11 @@ try {
         exit();
     }
     
-    // Verificar que el usuario sea administrador  
+    // Verificar que el usuario sea administrador o auditor
     $rol = $decoded['rol'] ?? null;
-    if ($rol !== 'administrador') {
+    if ($rol !== 'administrador' && $rol !== 'auditor') {
         http_response_code(403);
-        echo json_encode(['status' => 403, 'message' => 'Acceso denegado. Solo administradores']);
+        echo json_encode(['status' => 403, 'message' => 'Acceso denegado. Solo administradores y auditores']);
         exit();
     }
     
@@ -83,8 +83,8 @@ try {
     
     $db = Database::getInstance()->getConnection();
     
-    // Verificar que el usuario existe
-    $stmt = $db->prepare("SELECT id, nombre, apellido, correo, activo FROM usuarios WHERE id = :id");
+    // Verificar que el usuario existe Y obtener su rol
+    $stmt = $db->prepare("SELECT id, nombre, apellido, correo, activo, rol FROM usuarios WHERE id = :id");
     $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -92,6 +92,13 @@ try {
     if (!$user) {
         http_response_code(404);
         echo json_encode(['status' => 404, 'message' => 'Usuario no encontrado']);
+        exit();
+    }
+    
+    // SEGURIDAD CRÍTICA: Los auditores solo pueden modificar asesores
+    if ($rol === 'auditor' && $user['rol'] !== 'asesor') {
+        http_response_code(403);
+        echo json_encode(['status' => 403, 'message' => 'Los auditores solo pueden gestionar usuarios con rol asesor']);
         exit();
     }
     

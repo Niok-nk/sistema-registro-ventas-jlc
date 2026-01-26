@@ -1,24 +1,12 @@
 <?php
 /**
  * API Endpoint: Aprobar o rechazar usuario
- * Solo accesible por administradores
+ * Accesible por administradores y auditores
  */
 
+require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../utils/JWT.php';
-
-// CORS headers - wildcard para desarrollo local
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
-header('Content-Type: application/json');
-
-// Manejar preflight
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
 
 // Solo permitir POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -47,11 +35,11 @@ try {
         exit();
     }
     
-    // Verificar que el usuario sea administrador  
+    // Verificar que el usuario sea administrador o auditor
     $rol = $decoded['rol'] ?? null;
-    if ($rol !== 'administrador') {
+    if ($rol !== 'administrador' && $rol !== 'auditor') {
         http_response_code(403);
-        echo json_encode(['status' => 403, 'message' => 'Acceso denegado. Solo administradores']);
+        echo json_encode(['status' => 403, 'message' => 'Acceso denegado. Solo administradores y auditores']);
         exit();
     }
     

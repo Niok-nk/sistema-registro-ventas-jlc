@@ -1,7 +1,7 @@
 <?php
 /**
  * API Endpoint: Listar usuarios pendientes de aprobación
- * Solo accesible por administradores
+ * Accesible por administradores (ven todos) y auditores (solo ven asesores)
  */
 
 require_once __DIR__ . '/../config/database.php';
@@ -47,12 +47,12 @@ try {
         exit();
     }
     
-    // Verificar que el usuario sea administrador
+    // Verificar que el usuario sea administrador o auditor
     // El token tiene la estructura: user_id, cedula, rol, nombre
     $rol = $decoded['rol'] ?? null;
-    if ($rol !== 'administrador') {
+    if ($rol !== 'administrador' && $rol !== 'auditor') {
         http_response_code(403);
-        echo json_encode(['status' => 403, 'message' => 'Acceso denegado. Solo administradores']);
+        echo json_encode(['status' => 403, 'message' => 'Acceso denegado. Solo administradores y auditores']);
         exit();
     }
     
@@ -68,7 +68,7 @@ try {
         exit();
     }
     
-    // Construir query - Traer TODOS los usuarios
+    // Construir query - Filtrar según el rol del usuario autenticado
     $sql = "SELECT 
                 id,
                 cedula,
@@ -84,6 +84,12 @@ try {
                 created_at
             FROM usuarios
             WHERE 1=1"; // Siempre true para agregar condiciones dinámicamente
+    
+    // Si es auditor, solo mostrar asesores
+    if ($rol === 'auditor') {
+        $sql .= " AND rol = 'asesor'";
+    }
+    // Si es administrador, mostrar todos (no agregar filtro adicional)
     
     // Agregar filtro de activo si no es 'todos'
     if ($filtro === 'activos') {

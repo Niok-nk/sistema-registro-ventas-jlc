@@ -243,8 +243,22 @@ interface Props {}
     font-size: 0.75rem;
     font-weight: 600;
     border-radius: 9999px;
+  }
+
+  /* Role colors */
+  .role-badge.role-asesor {
     background-color: rgba(66, 153, 225, 0.2);
-    color: var(--color-accent);
+    color: #4299e1;
+  }
+
+  .role-badge.role-administrador {
+    background-color: rgba(245, 101, 101, 0.2);
+    color: #f56565;
+  }
+
+  .role-badge.role-auditor {
+    background-color: rgba(156, 39, 176, 0.2);
+    color: #9c27b0;
   }
 
   /* FilterSelect styles (workaround) */
@@ -429,13 +443,19 @@ interface Props {}
 
         const isActive = user.activo === 1;
 
+        // Normalizar el rol para asegurar que coincida con las clases CSS
+        const rolNormalizado = user.rol.toLowerCase().trim();
+        console.log(
+          `Usuario: ${user.nombre}, Rol original: "${user.rol}", Rol normalizado: "${rolNormalizado}"`,
+        );
+
         card.innerHTML = `
           <div class="user-header">
             <div class="user-info">
               <h3>${user.nombre} ${user.apellido}</h3>
               <p class="user-email">${user.correo}</p>
             </div>
-            <span class="role-badge">${user.rol === "administrador" ? "Admin" : "Asesor"}</span>
+            <span class="role-badge role-${rolNormalizado}">${rolNormalizado === "administrador" ? "Admin" : rolNormalizado === "auditor" ? "Auditor" : "Asesor"}</span>
           </div>
 
           <div class="user-meta">
