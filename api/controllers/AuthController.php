@@ -30,16 +30,8 @@ class AuthController {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($user) {
-                // Verificar contraseña
-                // NOTA: Para el primer usuario hardcodeado que no tiene hash, hacemos una excepción temporal durante desarrollo
-                // En producción o con usuarios registrados, SIEMPRE usar password_verify
+                // Verificar contraseña con bcrypt
                 $password_valid = password_verify($password, $user['password']);
-                
-                // Fallback para desarrollo si la contraseña no está hasheada en DB (solo si password coincide texto plano)
-                if (!$password_valid && $password === $user['password']) {
-                   // Advertencia interna, idealmente actualizar hash aquí
-                   $password_valid = true; 
-                }
 
                 if ($password_valid) {
                     if ($user['activo'] == 0) {
