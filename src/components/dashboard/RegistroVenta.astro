@@ -65,7 +65,8 @@ import Button from "../Button.astro";
             id="product-results"
             class="autocomplete-results"
             style="display: none;"
-          ></div>
+          >
+          </div>
         </div>
         <p
           class="form-helper-text error-text"
@@ -82,7 +83,9 @@ import Button from "../Button.astro";
           id="numero_serie"
           name="numero_serie"
           class="form-input"
-          placeholder="Ej: SN-XYZ-7890"
+          placeholder="Ej: SNXYZ7890"
+          pattern="[A-Za-z0-9]+"
+          title="Solo se permiten letras y números (sin espacios ni caracteres especiales)"
           required
         />
         <p class="form-helper-text warning-text">
@@ -140,7 +143,7 @@ import Button from "../Button.astro";
     background-size: 1.5em 1.5em;
     padding-right: 2.5rem;
   }
-  .form-input{
+  .form-input {
     height: 3rem;
   }
 
@@ -334,7 +337,7 @@ import Button from "../Button.astro";
       const filteredProducts = allProducts.filter(
         (p) =>
           p.modelo.toLowerCase().includes(query) ||
-          p.descripcion.toLowerCase().includes(query)
+          p.descripcion.toLowerCase().includes(query),
       );
 
       displayResults(filteredProducts);

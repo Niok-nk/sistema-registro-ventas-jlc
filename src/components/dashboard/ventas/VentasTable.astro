@@ -109,7 +109,7 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
     padding: 0.4rem 0.6rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    background: var(--color-bg-card);
+    background: var(--color-bg-cardb);
     color: var(--color-text-main);
     font-size: 0.75rem;
     font-weight: 600;
@@ -125,6 +125,20 @@ const { tableId = "sales-table", tbodyId = "sales-tbody" } = Astro.props;
     outline: none;
     border-color: var(--color-accent);
     box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+  }
+
+  /* Colores dinámicos según estado */
+
+  :global(.status-selector[data-current-status="aprobada"]) {
+    background-color: rgba(56, 161, 105, 0.15);
+    border-color: rgba(56, 161, 105, 0.4);
+    color: #68d391;
+  }
+
+  :global(.status-selector[data-current-status="rechazada"]) {
+    background-color: rgba(229, 62, 62, 0.15);
+    border-color: rgba(229, 62, 62, 0.4);
+    color: #fc8181;
   }
 
   /* Clickable User Cells */
