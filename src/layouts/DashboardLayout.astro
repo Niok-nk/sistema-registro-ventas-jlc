@@ -4,6 +4,7 @@ import HamburgerMenu from "../components/dashboard/HamburgerMenu.astro";
 import ResponsiveSidebar from "../components/dashboard/ResponsiveSidebar.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import Logo from "../components/Logo.astro";
+import NequiUpdatePopup from "../components/usuarios/NequiUpdatePopup.astro";
 import "../styles/index.css";
 
 interface Props {
@@ -54,6 +55,9 @@ const { title } = Astro.props;
         <slot />
       </main>
     </div>
+
+    <!-- Popup de actualización de Nequi -->
+    <NequiUpdatePopup />
   </body>
 </html>
 

@@ -1,0 +1,454 @@
+---
+// Componente: Popup de Actualización de Nequi
+// Aparece automáticamente al cargar el dashboard si el usuario no lo ha omitido en la sesión.
+---
+
+<!-- Nequi Update Popup Overlay -->
+<div id="nequi-update-popup" class="nequi-overlay">
+  <div class="nequi-container">
+    <div class="nequi-content">
+      <!-- Ícono y Encabezado -->
+      <div class="nequi-header">
+        <div class="nequi-icon-wrapper">
+          <!-- Ícono Nequi / pago -->
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            class="nequi-icon"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            ></path>
+          </svg>
+        </div>
+        <h2 class="nequi-title">¡Actualiza tu método de pago!</h2>
+        <p class="nequi-subtitle">
+          Ahora los bonos se pagan directamente a <strong>Nequi</strong>.<br />
+          Ingresa tu número para recibir tus pagos sin inconvenientes.
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <div class="nequi-form-section">
+        <label for="nequi-input" class="nequi-label">
+          Número de Nequi
+          <span class="nequi-hint">(10 dígitos, ej: 3001234567)</span>
+        </label>
+        <div class="nequi-input-wrapper">
+          <span class="nequi-prefix">🇨🇴 +57</span>
+          <input
+            type="tel"
+            id="nequi-input"
+            class="nequi-input"
+            placeholder="3001234567"
+            maxlength="10"
+            pattern="\d{10}"
+            inputmode="numeric"
+          />
+        </div>
+        <p id="nequi-error-msg" class="nequi-error" style="display:none;"></p>
+        <p id="nequi-success-msg" class="nequi-success" style="display:none;">
+        ¡Número actualizado correctamente!
+        </p>
+      </div>
+
+      <!-- Botones -->
+      <div class="nequi-actions">
+        <button id="nequi-submit-btn" class="nequi-btn-primary">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+          Actualizar Nequi
+        </button>
+        <button id="nequi-skip-btn" class="nequi-btn-secondary">
+          Ya lo actualicé / Omitir por ahora
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* ===================== Overlay ===================== */
+  .nequi-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(6px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: nequiFadeIn 0.25s ease-out;
+  }
+
+  .nequi-overlay.show {
+    display: flex;
+  }
+
+  @keyframes nequiFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ===================== Container ===================== */
+  .nequi-container {
+    width: 100%;
+    max-width: 480px;
+    animation: nequiSlideUp 0.3s ease-out;
+  }
+
+  @keyframes nequiSlideUp {
+    from {
+      transform: translateY(24px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* ===================== Content ===================== */
+  .nequi-content {
+    background-color: var(--color-bg-main);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  /* ===================== Header ===================== */
+  .nequi-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .nequi-icon-wrapper {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nequi-icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-accent-text);
+  }
+
+  .nequi-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin: 0;
+  }
+
+  .nequi-subtitle {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .nequi-subtitle strong {
+    color: var(--color-text-main);
+  }
+
+  /* ===================== Form ===================== */
+  .nequi-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nequi-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nequi-hint {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    opacity: 0.7;
+  }
+
+  .nequi-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-card);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .nequi-input-wrapper:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .nequi-prefix {
+    padding: 0 0.875rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-cardb);
+    border-right: 1px solid var(--color-border);
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .nequi-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 1rem;
+    height: 2.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text-main);
+    letter-spacing: 0.05em;
+  }
+
+  .nequi-input::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  .nequi-error {
+    font-size: 0.8rem;
+    color: #fc8181;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .nequi-success {
+    font-size: 0.85rem;
+    color: #68d391;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  /* ===================== Actions ===================== */
+  .nequi-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nequi-btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: none;
+    background-color: var(--color-accent);
+    color: var(--color-accent-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-md);
+  }
+
+  .nequi-btn-primary:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .nequi-btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .nequi-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .nequi-btn-secondary {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nequi-btn-secondary:hover {
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+    border-color: var(--color-text-secondary);
+  }
+
+  /* ===================== Responsive ===================== */
+  @media (max-width: 520px) {
+    .nequi-content {
+      padding: 2rem 1.25rem 1.5rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    // Clave única basada en el token JWT actual → reaparece en cada nuevo login
+    const token = localStorage.getItem("token");
+    if (!token) return; // Sin sesión, no hacer nada
+
+    // Usamos los últimos 20 chars del token como identificador de sesión
+    const sessionKey = "nequi_dismissed_" + token.slice(-20);
+
+    const overlay = document.getElementById("nequi-update-popup");
+    const input = document.getElementById("nequi-input");
+    const submitBtn = document.getElementById("nequi-submit-btn");
+    const skipBtn = document.getElementById("nequi-skip-btn");
+    const errorMsg = document.getElementById("nequi-error-msg");
+    const successMsg = document.getElementById("nequi-success-msg");
+
+    const API_BASE =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : window.location.origin + "/api";
+
+    function maybeShow() {
+      // Solo omitir si fue descartado en ESTA sesión (mismo token)
+      if (sessionStorage.getItem(sessionKey)) return;
+      overlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function hide() {
+      sessionStorage.setItem(sessionKey, "1");
+      overlay.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = "block";
+      successMsg.style.display = "none";
+    }
+
+    function clearMessages() {
+      errorMsg.style.display = "none";
+      successMsg.style.display = "none";
+    }
+
+    // Solo dígitos
+    input.addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "");
+      clearMessages();
+    });
+
+    // Omitir
+    skipBtn.addEventListener("click", hide);
+
+    // Actualizar
+    submitBtn.addEventListener("click", async function () {
+      const nequi = input.value.trim();
+
+      if (!/^\d{10}$/.test(nequi)) {
+        showError("El número debe tener exactamente 10 dígitos.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Actualizando...";
+      clearMessages();
+
+      try {
+        const res = await fetch(`${API_BASE}/users/update_nequi.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ nequi }),
+        });
+
+        const data = await res.json();
+
+        if (data.status === 200) {
+          successMsg.style.display = "block";
+          submitBtn.style.display = "none";
+          skipBtn.textContent = "Cerrar";
+          setTimeout(hide, 2000);
+        } else {
+          showError(data.message || "Error al actualizar. Intenta de nuevo.");
+        }
+      } catch (err) {
+        showError("Error de conexión. Intenta de nuevo.");
+      } finally {
+        submitBtn.disabled = false;
+        if (submitBtn.style.display !== "none") {
+          submitBtn.innerHTML = `
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:1.1rem;height:1.1rem;flex-shrink:0">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Actualizar Nequi
+          `;
+        }
+      }
+    });
+
+    // Mostrar al cargar
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", maybeShow);
+    } else {
+      maybeShow();
+    }
+  })();
+</script>
