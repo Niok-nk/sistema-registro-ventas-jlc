@@ -35,6 +35,7 @@ if (!preg_match('/^\d{10}$/', $nequi)) {
     exit;
 }
 
+// Actualizar llave_breb
 try {
     $db   = Database::getInstance();
     $conn = $db->getConnection();
@@ -50,6 +51,7 @@ try {
         'message' => 'Número de Nequi actualizado exitosamente.'
     ]);
 
+    // Registrar en auditoría
 } catch (Exception $e) {
     error_log("Error en users/update_nequi.php: " . $e->getMessage());
     http_response_code(500);
