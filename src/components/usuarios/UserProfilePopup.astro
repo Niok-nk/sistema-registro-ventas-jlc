@@ -109,8 +109,53 @@
             <h3 class="card-title">Información Laboral</h3>
             <div class="info-grid">
               <div class="info-field">
-                <span class="field-label">Distribuidor</span>
+                <div style="display:flex;align-items:center;gap:0.4rem">
+                  <span class="field-label">Distribuidor</span>
+                  <!-- Lápiz editar distribuidor — visible solo para admin vía JS -->
+                  <button
+                    id="popup-dist-edit-btn"
+                    title="Editar distribuidor"
+                    style="display:none;background:transparent;border:none;cursor:pointer;padding:0.15rem;color:var(--color-text-secondary);display:flex;align-items:center;transition:color 0.2s"
+                    onmouseover="this.style.color='var(--color-accent)'"
+                    onmouseout="this.style.color='var(--color-text-secondary)'"
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      style="width:0.9rem;height:0.9rem"
+                    >
+                      <path
+                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+                <!-- Modo lectura -->
                 <p id="popup-nombre-distribuidor">-</p>
+                <!-- Modo edición (oculto por defecto) -->
+                <div
+                  id="popup-dist-edit-row"
+                  style="display:none;align-items:center;gap:0.4rem;margin-top:0.2rem"
+                >
+                  <input
+                    id="popup-dist-input"
+                    type="text"
+                    style="flex:1;padding:0.3rem 0.5rem;border:1px solid var(--color-accent);border-radius:var(--radius-sm);background:var(--color-bg-card);color:var(--color-text-main);font-size:0.875rem;outline:none"
+                    placeholder="Nombre del distribuidor"
+                  />
+                  <button
+                    id="popup-dist-save"
+                    title="Guardar"
+                    style="background:rgba(72,187,120,0.15);color:#68d391;border:none;border-radius:var(--radius-sm);padding:0.25rem 0.5rem;cursor:pointer;font-size:0.85rem"
+                    >✓</button
+                  >
+                  <button
+                    id="popup-dist-cancel"
+                    title="Cancelar"
+                    style="background:rgba(245,101,101,0.1);color:#fc8181;border:none;border-radius:var(--radius-sm);padding:0.25rem 0.5rem;cursor:pointer;font-size:0.85rem"
+                    >✗</button
+                  >
+                </div>
               </div>
               <div class="info-field">
                 <span class="field-label">Ciudad del Punto de Venta</span>
@@ -646,6 +691,93 @@
       // Información Laboral
       document.getElementById("popup-nombre-distribuidor").textContent =
         user.nombre_distribuidor || "-";
+
+      // ── Inline edit para el Distribuidor (solo admin) ──────────────────────
+      const editBtn = document.getElementById("popup-dist-edit-btn");
+      const editRow = document.getElementById("popup-dist-edit-row");
+      const distInput = document.getElementById("popup-dist-input");
+      const saveDistBtn = document.getElementById("popup-dist-save");
+      const cancelDistBtn = document.getElementById("popup-dist-cancel");
+      const distDisplay = document.getElementById("popup-nombre-distribuidor");
+
+      if (this.isAdmin && editBtn) {
+        editBtn.style.display = "flex";
+
+        // Limpiar listeners previos clonando el nodo
+        const freshEdit = editBtn.cloneNode(true);
+        const freshSave = saveDistBtn.cloneNode(true);
+        const freshCancel = cancelDistBtn.cloneNode(true);
+        editBtn.replaceWith(freshEdit);
+        saveDistBtn.replaceWith(freshSave);
+        cancelDistBtn.replaceWith(freshCancel);
+
+        const enterEdit = () => {
+          distInput.value = user.nombre_distribuidor || "";
+          distDisplay.style.display = "none";
+          editRow.style.display = "flex";
+          distInput.focus();
+          distInput.select();
+        };
+
+        const exitEdit = () => {
+          distDisplay.style.display = "";
+          editRow.style.display = "none";
+        };
+
+        const saveDist = async () => {
+          const nuevoNombre = distInput.value.trim();
+          if (!nuevoNombre) {
+            exitEdit();
+            return;
+          }
+          freshSave.disabled = true;
+
+          const token = localStorage.getItem("token") || "";
+          const API_BASE =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1"
+              ? "http://localhost:8000"
+              : window.location.origin + "/api";
+
+          try {
+            const res = await fetch(
+              `${API_BASE}/users/update_distributor.php`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  user_id: this.currentUserId,
+                  nombre_distribuidor: nuevoNombre,
+                }),
+              },
+            );
+            const data = await res.json();
+            if (data.status !== 200) throw new Error(data.message);
+            user.nombre_distribuidor = nuevoNombre;
+            distDisplay.textContent = nuevoNombre;
+            exitEdit();
+            // Refrescar grid de distribuidores si está disponible
+            if (window._refreshDistributors) window._refreshDistributors();
+          } catch (err) {
+            alert("Error al guardar: " + (err.message || "inténtalo de nuevo"));
+          } finally {
+            freshSave.disabled = false;
+          }
+        };
+
+        freshEdit.addEventListener("click", enterEdit);
+        freshSave.addEventListener("click", saveDist);
+        freshCancel.addEventListener("click", exitEdit);
+        distInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") saveDist();
+          if (e.key === "Escape") exitEdit();
+        });
+      }
+      // ── Fin inline edit distribuidor ────────────────────────────────────────
+
       document.getElementById("popup-ciudad-punto-venta").textContent =
         user.ciudad_punto_venta || "-";
       document.getElementById("popup-direccion-punto-venta").textContent =
