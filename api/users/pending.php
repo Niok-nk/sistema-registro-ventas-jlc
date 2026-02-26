@@ -81,6 +81,8 @@ try {
                 cargo,
                 activo,
                 estado_aprobacion,
+                llave_breb,
+                certificado,
                 created_at
             FROM usuarios
             WHERE 1=1"; // Siempre true para agregar condiciones dinámicamente

@@ -4,11 +4,17 @@ import Button from "../Button.astro";
 import colombiaData from "../../data/colombia.json";
 
 // Obtener todas las ciudades únicas de todos los departamentos y ordenarlas alfabéticamente
-const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].sort();
+const allCities = [
+  ...new Set(colombiaData.flatMap((dept) => dept.ciudades)),
+].sort();
 ---
 
 <Card title="Registro de Asesor JLC">
-  <form id="registration-form" class="registration-form">
+  <form
+    id="registration-form"
+    class="registration-form"
+    enctype="multipart/form-data"
+  >
     <!-- SECCIÓN 1: INFORMACIÓN PERSONAL -->
     <fieldset>
       <legend>Información Personal</legend>
@@ -158,9 +164,7 @@ const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].so
             required
           >
             <option value="">Seleccione ciudad</option>
-            {allCities.map((city) => (
-              <option value={city}>{city}</option>
-            ))}
+            {allCities.map((city) => <option value={city}>{city}</option>)}
           </select>
         </div>
         <div class="form-group">
@@ -217,6 +221,33 @@ const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].so
             ⚠️ Tu cuenta de Nequi debe coincidir con tu nombre completo o no se realizarán
             pagos de bonos.
           </p>
+        </div>
+
+        <div class="form-group">
+          <label for="certificado" class="form-label">
+            Certificado de cuenta Nequi
+          </label>
+          <div class="file-upload-wrapper">
+            <input
+              type="file"
+              id="certificado"
+              name="certificado"
+              class="file-input"
+              accept=".jpg,.jpeg,.png,.pdf"
+              required
+            />
+            <label for="certificado" class="file-label">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="file-icon">
+                <path
+                  fill-rule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              <span id="cert-file-name"
+                >Seleccionar archivo (PDF,JPG o PNG, máx 5 MB)</span
+              >
+            </label>
+          </div>
         </div>
       </div>
     </fieldset>
@@ -647,11 +678,78 @@ const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].so
     justify-content: center;
     margin: 3rem;
   }
+
+
+  .form-label-optional {
+    font-weight: 400;
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    margin-left: 0.35rem;
+  }
+
+  .file-input {
+    /* Ocultar el input nativo */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+  }
+
+  .file-upload-wrapper {
+    position: relative;
+  }
+
+  .file-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-cardb);
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      background 0.2s;
+  }
+
+  .file-label:hover {
+    border-color: var(--color-accent);
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+  }
+
+  .file-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--color-accent);
+  }
 </style>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("registration-form");
+    // Mostrar nombre del archivo seleccionado
+    const certInput = document.getElementById(
+      "certificado",
+    ) as HTMLInputElement | null;
+    const certFileName = document.getElementById("cert-file-name");
+    if (certInput && certFileName) {
+      certInput.addEventListener("change", function () {
+        certFileName.textContent =
+          certInput.files && certInput.files[0]
+            ? certInput.files[0].name
+            : "Seleccionar archivo (JPG, PNG o PDF, máx 5 MB)";
+      });
+    }
+
+    const form = document.getElementById(
+      "registration-form",
+    ) as HTMLFormElement | null;
     const errorMessageDiv = document.getElementById("form-error-message");
 
     if (!form) return;
@@ -665,6 +763,8 @@ const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].so
       // @ts-ignore
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
+
+      // El archivo no va en 'data' (objeto) — se envía via FormData directamente
 
       // --- VALIDACIONES FRONTEND ---
 
@@ -767,10 +867,26 @@ const allCities = [...new Set(colombiaData.flatMap((dept) => dept.ciudades))].so
       try {
         const response = await fetch(`${API_BASE}/auth/register.php`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+          // NO Content-Type manual — el browser lo pone automáticamente con boundary para multipart
+          body: (() => {
+            const fd = new FormData(form);
+            // Sobrescribir checkboxes convertidos a boolean como string para el backend
+            const boolFields = [
+              "acepta_tratamiento_datos",
+              "acepta_contacto_comercial",
+              "declara_info_verdadera",
+              "declara_naturaleza_comercial",
+              "reconoce_no_salario",
+              "declara_no_subordinacion",
+              "declara_relacion_autonoma",
+              "acepta_liberalidades",
+              "asume_obligaciones_tributarias",
+              "declara_no_contrato",
+              "acepta_terminos_programa",
+            ];
+            boolFields.forEach((f) => fd.set(f, data[f] ? "true" : "false"));
+            return fd;
+          })(),
         });
 
         const result = await response.json();

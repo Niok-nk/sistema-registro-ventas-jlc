@@ -63,6 +63,7 @@ try {
             rol,
             activo,
             llave_breb,
+            certificado,
             created_at,
             updated_at
         FROM usuarios
