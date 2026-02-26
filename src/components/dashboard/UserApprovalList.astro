@@ -141,7 +141,7 @@ interface Props {}
 
   .user-meta {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 0.75rem;
     margin-bottom: 1rem;
   }
@@ -164,6 +164,22 @@ interface Props {}
     font-weight: 500;
   }
 
+  .meta-cert-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .meta-cert-link:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+  }
+
   .user-footer {
     display: flex;
     justify-content: space-between;
@@ -178,6 +194,28 @@ interface Props {}
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  .btn-cert {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-cardb);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .btn-cert:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: var(--color-bg-card);
   }
 
   /* Toggle Switch */
@@ -316,7 +354,12 @@ interface Props {}
 
 <script is:inline>
   (function () {
-    const API_BASE = "http://localhost:8000";
+    const API_BASE =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : window.location.origin + "/api";
+    const token = localStorage.getItem("token") || "";
 
     // Estado
     let allUsers = [];
@@ -476,6 +519,28 @@ interface Props {}
               <span class="meta-label">Cédula</span>
               <span class="meta-value">${user.cedula || "N/A"}</span>
             </div>
+            <div class="meta-item">
+              <span class="meta-label">Nequi</span>
+              <span class="meta-value">${user.llave_breb || "N/A"}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Certificado</span>
+              ${
+                user.certificado
+                  ? `<a
+                    href="${API_BASE}/users/view_certificate.php?file=${encodeURIComponent(user.certificado)}&token=${token}"
+                    target="_blank"
+                    class="meta-cert-link"
+                    title="Ver certificado Nequi"
+                   >
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:0.9rem;height:0.9rem;flex-shrink:0;vertical-align:middle">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                    </svg>
+                    Ver archivo
+                   </a>`
+                  : `<span class="meta-value">N/A</span>`
+              }
+            </div>
           </div>
 
           <div class="user-footer">
@@ -485,6 +550,23 @@ interface Props {}
               </svg>
               ${tiempoTranscurrido}
             </div>
+
+            ${
+              user.certificado
+                ? `
+            <a
+              href="${API_BASE}/users/view_certificate.php?file=${user.certificado}&token=${token}"
+              target="_blank"
+              class="btn-cert"
+              title="Ver certificado adjunto"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" style="width:0.95rem;height:0.95rem;flex-shrink:0">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+              </svg>
+              Ver certificado
+            </a>`
+                : ""
+            }
 
             <div class="approval-toggle">
               <span class="toggle-label ${isActive ? "activo" : "inactivo"}">${isActive ? "Activo" : "Inactivo"}</span>
