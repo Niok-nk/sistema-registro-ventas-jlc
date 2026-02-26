@@ -533,5 +533,8 @@ import Card from "../../Card.astro";
 
     // ─── Init ─────────────────────────────────────────────────────────────────
     loadDistributors();
+
+    // Exponer para que el popup de renombrar pueda refrescar las tarjetas
+    window._refreshDistributors = loadDistributors;
   })();
 </script>
