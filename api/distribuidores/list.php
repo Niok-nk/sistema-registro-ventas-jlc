@@ -25,15 +25,15 @@ try {
     // Agrupa por nombre_distribuidor y calcula métricas
     $sql = "
         SELECT
-            nombre_distribuidor        AS nombre,
-            ciudad_punto_venta         AS ciudad,
-            COUNT(*)                   AS total_asesores,
-            SUM(CASE WHEN activo = 1 THEN 1 ELSE 0 END) AS asesores_activos,
-            MIN(created_at)            AS primera_vinculacion
+            nombre_distribuidor                                    AS nombre,
+            MAX(ciudad_punto_venta)                                AS ciudad,
+            COUNT(*)                                               AS total_asesores,
+            SUM(CASE WHEN activo = 1 THEN 1 ELSE 0 END)           AS asesores_activos,
+            MIN(created_at)                                        AS primera_vinculacion
         FROM usuarios
         WHERE nombre_distribuidor IS NOT NULL
           AND nombre_distribuidor != ''
-        GROUP BY nombre_distribuidor, ciudad_punto_venta
+        GROUP BY nombre_distribuidor
         ORDER BY nombre_distribuidor ASC
     ";
 
