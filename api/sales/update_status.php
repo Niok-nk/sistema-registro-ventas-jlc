@@ -31,6 +31,7 @@ try {
     
     $id = (int)$data['id'];
     $estado = trim($data['estado']);
+    $observaciones = isset($data['observaciones']) ? trim($data['observaciones']) : null;
     
     // Validar estado
     $estadosValidos = ['pendiente', 'aprobada', 'rechazada'];
@@ -40,6 +41,20 @@ try {
             'status' => 400,
             'message' => 'Estado inválido. Debe ser: pendiente, aprobada o rechazada'
         ]);
+        exit;
+    }
+
+    // Validar observaciones — solo permitidas si estado es rechazada
+    $observacionesValidas = [
+        'Número de serie incorrecto o inválido',
+        'Factura sin código QR o CUFE (DIAN)',
+        'Venta sin registro en la DIAN',
+    ];
+    if ($estado !== 'rechazada') {
+        $observaciones = null; // Limpiar al no rechazar
+    } elseif ($observaciones !== null && $observaciones !== '' && !in_array($observaciones, $observacionesValidas)) {
+        http_response_code(400);
+        echo json_encode(['status' => 400, 'message' => 'Observación inválida.']);
         exit;
     }
     
@@ -60,12 +75,13 @@ try {
         exit;
     }
     
-    // Actualizar estado
-    $sql = "UPDATE ventas SET estado = :estado WHERE id = :id";
+    // Actualizar estado y observaciones
+    $sql = "UPDATE ventas SET estado = :estado, observaciones = :observaciones WHERE id = :id";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
-        'id' => $id,
-        'estado' => $estado
+        'id'            => $id,
+        'estado'        => $estado,
+        'observaciones' => $observaciones,
     ]);
     
     http_response_code(200);
@@ -73,8 +89,9 @@ try {
         'status' => 200,
         'message' => 'Estado de venta actualizado exitosamente',
         'data' => [
-            'id' => $id,
-            'estado' => $estado
+            'id'            => $id,
+            'estado'        => $estado,
+            'observaciones' => $observaciones,
         ]
     ]);
     

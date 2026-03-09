@@ -13,6 +13,35 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     <VentasStates />
     <VentasTable />
   </div>
+
+  <!-- Controles de paginación -->
+  <div id="pagination-controls" style="display:none" class="pagination">
+    <button id="prev-page" class="page-btn" disabled>
+      <svg
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        style="width:1rem;height:1rem"
+        ><path
+          fill-rule="evenodd"
+          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+          clip-rule="evenodd"></path></svg
+      >
+      Anterior
+    </button>
+    <span id="page-indicator" class="page-info">Página 1 de 1</span>
+    <button id="next-page" class="page-btn">
+      Siguiente
+      <svg
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        style="width:1rem;height:1rem"
+        ><path
+          fill-rule="evenodd"
+          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+          clip-rule="evenodd"></path></svg
+      >
+    </button>
+  </div>
 </Card>
 
 <!-- User Profile Popup -->
@@ -25,6 +54,45 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     min-height: 300px;
     scrollbar-color: #9d9d9d59 transparent;
   }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 0 0.5rem;
+    border-top: 1px solid var(--color-border);
+    margin-top: 0.5rem;
+  }
+  .page-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-card);
+    color: var(--color-text-main);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .page-info {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+    min-width: 110px;
+    text-align: center;
+  }
 </style>
 
 <script is:inline>
@@ -34,6 +102,8 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     let allSales = [];
     let allProducts = [];
     let currentFilteredSales = []; // Array con ventas filtradas actualmente
+    let currentPage = 1;
+    const ROWS_PER_PAGE = 100;
 
     // Export elements
     const exportBtn = document.getElementById("export-btn");
@@ -150,12 +220,26 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
       }
     }
 
-    // Renderizar ventas
+    // Renderizar ventas (muestra solo la página actual)
     function renderSales(sales) {
+      currentFilteredSales = sales;
+      currentPage = 1;
+      renderPage();
+    }
+
+    function renderPage() {
+      const sales = currentFilteredSales;
       if (!sales || sales.length === 0) {
         showEmpty();
+        updatePagination(0);
         return;
       }
+
+      const totalPages = Math.ceil(sales.length / ROWS_PER_PAGE);
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * ROWS_PER_PAGE;
+      const pageSlice = sales.slice(start, start + ROWS_PER_PAGE);
 
       salesTbody.innerHTML = "";
 
@@ -163,7 +247,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
       const userRole = localStorage.getItem("userRole");
       const isAdmin = userRole === "admin" || userRole === "administrador";
 
-      sales.forEach((sale) => {
+      pageSlice.forEach((sale) => {
         const row = document.createElement("tr");
 
         // Columna de foto
@@ -197,6 +281,25 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
                 <td>${sale.nombre_distribuidor || "N/A"}</td>
                 <td>${estadoHTML}</td>
                 <td>${photoBtn}</td>
+                <td>
+                  ${
+                    isAdmin
+                      ? `<select
+                        class="obs-selector"
+                        data-sale-id="${sale.id}"
+                        ${sale.estado !== "rechazada" ? "disabled" : ""}
+                        style="font-size:0.72rem;padding:0.2rem 0.3rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-bg-card);color:var(--color-text-main);width:100%;max-width:170px;${sale.estado !== "rechazada" ? "opacity:0.35;cursor:not-allowed" : ""}"
+                      >
+                        <option value="">-- Sin observación --</option>
+                        <option value="Número de serie incorrecto o inválido" ${sale.observaciones === "Número de serie incorrecto o inválido" ? "selected" : ""}>N° serie incorrecto o inválido</option>
+                        <option value="Factura sin código QR o CUFE (DIAN)" ${sale.observaciones === "Factura sin código QR o CUFE (DIAN)" ? "selected" : ""}>Sin QR o CUFE (DIAN)</option>
+                        <option value="Venta sin registro en la DIAN" ${sale.observaciones === "Venta sin registro en la DIAN" ? "selected" : ""}>Sin registro DIAN</option>
+                      </select>`
+                      : sale.estado === "rechazada" && sale.observaciones
+                        ? `<span style="font-size:0.72rem;color:#fc8181">${sale.observaciones}</span>`
+                        : `<span style="font-size:0.72rem;color:var(--color-text-secondary)">-</span>`
+                  }
+                </td>
                 <td class="admin-only-column" style="display: none;">
                   <button class="btn-delete-sale" data-sale-id="${sale.id}" data-sale-invoice="${sale.numero_factura}" title="Eliminar venta">
                     <svg viewBox="0 0 20 20" fill="currentColor" style="width:1rem;height:1rem">
@@ -242,6 +345,59 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
             }
 
             await updateSaleStatus(saleId, newStatus, this);
+
+            // Actualizar el select de observaciones de esta fila
+            const row = this.closest("tr");
+            const obsSel = row?.querySelector(".obs-selector");
+            if (obsSel) {
+              const isRejected = newStatus === "rechazada";
+              obsSel.disabled = !isRejected;
+              obsSel.style.opacity = isRejected ? "1" : "0.35";
+              obsSel.style.cursor = isRejected ? "auto" : "not-allowed";
+              if (!isRejected) obsSel.value = "";
+            }
+          });
+        });
+
+        // Event listeners para el selector de observaciones
+        document.querySelectorAll(".obs-selector").forEach((select) => {
+          select.addEventListener("change", async function () {
+            const saleId = this.getAttribute("data-sale-id");
+            const observacion = this.value;
+
+            // Obtener el estado actual de la misma fila
+            const row = this.closest("tr");
+            const statusSel = row?.querySelector(".status-selector");
+            const estado = statusSel ? statusSel.value : "rechazada";
+
+            const token = localStorage.getItem("token");
+            try {
+              const res = await fetch(`${API_BASE}/sales/update_status.php`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  id: saleId,
+                  estado,
+                  observaciones: observacion,
+                }),
+              });
+              const data = await res.json();
+              if (data.status !== 200) {
+                alert("Error al guardar observación: " + (data.message || ""));
+              } else {
+                // ✅ Actualizar en memoria para que filtrar no revierta el valor
+                const id = parseInt(saleId);
+                const target = allSales.find((s) => s.id === id);
+                if (target) target.observaciones = observacion;
+                const target2 = currentFilteredSales.find((s) => s.id === id);
+                if (target2) target2.observaciones = observacion;
+              }
+            } catch (e) {
+              console.error("Error guardando observación:", e);
+            }
           });
         });
       }
@@ -281,7 +437,42 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
       });
 
       showTable();
+      updatePagination(currentFilteredSales.length);
     }
+
+    // ── Paginación ────────────────────────────────────────────
+    const paginationEl = document.getElementById("pagination-controls");
+    const prevBtn = document.getElementById("prev-page");
+    const nextBtn = document.getElementById("next-page");
+    const pageIndicator = document.getElementById("page-indicator");
+
+    function updatePagination(total) {
+      const totalPages = Math.ceil(total / ROWS_PER_PAGE) || 1;
+      if (paginationEl)
+        paginationEl.style.display = total > ROWS_PER_PAGE ? "flex" : "none";
+      if (pageIndicator)
+        pageIndicator.textContent = `Página ${currentPage} de ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    if (prevBtn)
+      prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPage();
+        }
+      });
+    if (nextBtn)
+      nextBtn.addEventListener("click", () => {
+        const totalPages = Math.ceil(
+          currentFilteredSales.length / ROWS_PER_PAGE,
+        );
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPage();
+        }
+      });
 
     // Función para actualizar estado de venta
     async function updateSaleStatus(saleId, newStatus, selectElement) {
@@ -489,20 +680,23 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
       // 1. Headers
       const headers = [
         "ID",
-        "Fecha",
+        "Fecha Registro",
+        "Fecha Venta",
         "N° Factura",
         "Producto",
         "N° Serie",
         "Asesor",
         "Cédula",
-        "Llave BRE-B",
+        "Nequi",
         "Distribuidor",
         "Estado",
+        "Observaciones",
       ];
 
       // 2. Datos
       const rows = sales.map((sale) => [
         sale.id || "",
+        sale.created_at || "",
         sale.fecha_venta || "",
         sale.numero_factura || "",
         sale.modelo_producto || sale.desc_producto || "",
@@ -512,6 +706,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         sale.llave_breb || "",
         sale.nombre_distribuidor || "",
         sale.estado || "",
+        sale.observaciones || "",
       ]);
       // 3. Combinar en string CSV
       const csvContent = [
@@ -536,34 +731,35 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
       console.log(`Exportadas ${sales.length} ventas a CSV`);
     }
 
-    // Exportar a Excel
+    // Exportar a Excel (todas las ventas filtradas, hoja única)
     function exportToExcel(sales) {
       if (typeof XLSX === "undefined") {
         alert("Error: Librería de Excel no disponible");
         return;
       }
 
-      // 1. Preparar datos en formato tabla
       const data = [
         // Headers
         [
           "ID",
-          "Fecha",
+          "Fecha Registro",
+          "Fecha Venta",
           "N° Factura",
           "Producto",
           "Código Producto",
           "N° Serie",
           "Asesor",
           "Cédula",
-          "Llave BRE-B",
+          "Nequi",
           "Distribuidor",
           "Estado",
+          "Observaciones",
           "Link Foto",
         ],
-
         // Datos
         ...sales.map((sale) => [
           sale.id || "",
+          sale.created_at || "",
           sale.fecha_venta || "",
           sale.numero_factura || "",
           sale.modelo_producto || sale.desc_producto || "",
@@ -574,16 +770,16 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
           sale.llave_breb || "",
           sale.nombre_distribuidor || "",
           sale.estado || "",
+          sale.observaciones || "",
           sale.foto_url || "",
         ]),
       ];
-      // 2. Crear worksheet
-      const ws = XLSX.utils.aoa_to_sheet(data);
 
-      // 3. Ajustar anchos de columna
+      const ws = XLSX.utils.aoa_to_sheet(data);
       ws["!cols"] = [
         { wch: 8 }, // ID
-        { wch: 12 }, // Fecha
+        { wch: 20 }, // Fecha Registro
+        { wch: 12 }, // Fecha Venta
         { wch: 15 }, // N° Factura
         { wch: 25 }, // Producto
         { wch: 15 }, // Código Producto
@@ -593,14 +789,14 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         { wch: 20 }, // Llave BRE-B
         { wch: 25 }, // Distribuidor
         { wch: 12 }, // Estado
-        { wch: 50 }, // Link Foto (más ancho para URLs)
+        { wch: 35 }, // Observaciones
+        { wch: 20 }, // Fecha Registro
+        { wch: 50 }, // Link Foto
       ];
+
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Ventas");
-
-      // 5. Generar archivo y descargar
       XLSX.writeFile(wb, `ventas_${getTimestamp()}.xlsx`);
-
       console.log(`✅ Exportadas ${sales.length} ventas a Excel`);
     }
 

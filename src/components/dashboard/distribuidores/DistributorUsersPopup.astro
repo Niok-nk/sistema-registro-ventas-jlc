@@ -585,7 +585,7 @@
     // ── Render users ──────────────────────────────────────────
     function renderUsers(users) {
       loadingEl.style.display = "none";
-      contentEl.style.display = "block";
+      contentEl.style.display = "flex";
 
       const active = users.filter((u) => u.activo).length;
       totalBadge.textContent = `${users.length} asesor${users.length !== 1 ? "es" : ""}`;
