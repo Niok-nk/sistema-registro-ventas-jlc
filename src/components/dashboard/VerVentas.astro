@@ -197,6 +197,25 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
                 <td>${sale.nombre_distribuidor || "N/A"}</td>
                 <td>${estadoHTML}</td>
                 <td>${photoBtn}</td>
+                <td>
+                  ${
+                    isAdmin
+                      ? `<select
+                        class="obs-selector"
+                        data-sale-id="${sale.id}"
+                        ${sale.estado !== "rechazada" ? "disabled" : ""}
+                        style="font-size:0.72rem;padding:0.2rem 0.3rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-bg-card);color:var(--color-text-main);width:100%;max-width:170px;${sale.estado !== "rechazada" ? "opacity:0.35;cursor:not-allowed" : ""}"
+                      >
+                        <option value="">-- Sin observación --</option>
+                        <option value="Número de serie incorrecto o inválido" ${sale.observaciones === "Número de serie incorrecto o inválido" ? "selected" : ""}>N° serie incorrecto o inválido</option>
+                        <option value="Factura sin código QR o CUFE (DIAN)" ${sale.observaciones === "Factura sin código QR o CUFE (DIAN)" ? "selected" : ""}>Sin QR o CUFE (DIAN)</option>
+                        <option value="Venta sin registro en la DIAN" ${sale.observaciones === "Venta sin registro en la DIAN" ? "selected" : ""}>Sin registro DIAN</option>
+                      </select>`
+                      : sale.estado === "rechazada" && sale.observaciones
+                        ? `<span style="font-size:0.72rem;color:#fc8181">${sale.observaciones}</span>`
+                        : `<span style="font-size:0.72rem;color:var(--color-text-secondary)">-</span>`
+                  }
+                </td>
                 <td class="admin-only-column" style="display: none;">
                   <button class="btn-delete-sale" data-sale-id="${sale.id}" data-sale-invoice="${sale.numero_factura}" title="Eliminar venta">
                     <svg viewBox="0 0 20 20" fill="currentColor" style="width:1rem;height:1rem">
@@ -242,6 +261,52 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
             }
 
             await updateSaleStatus(saleId, newStatus, this);
+
+            // Actualizar el select de observaciones de esta fila
+            const row = this.closest("tr");
+            const obsSel = row?.querySelector(".obs-selector");
+            if (obsSel) {
+              const isRejected = newStatus === "rechazada";
+              obsSel.disabled = !isRejected;
+              obsSel.style.opacity = isRejected ? "1" : "0.35";
+              obsSel.style.cursor = isRejected ? "auto" : "not-allowed";
+              if (!isRejected) obsSel.value = "";
+            }
+          });
+        });
+
+        // Event listeners para el selector de observaciones
+        document.querySelectorAll(".obs-selector").forEach((select) => {
+          select.addEventListener("change", async function () {
+            const saleId = this.getAttribute("data-sale-id");
+            const observacion = this.value;
+
+            // Obtener el estado actual de la misma fila
+            const row = this.closest("tr");
+            const statusSel = row?.querySelector(".status-selector");
+            const estado = statusSel ? statusSel.value : "rechazada";
+
+            const token = localStorage.getItem("token");
+            try {
+              const res = await fetch(`${API_BASE}/sales/update_status.php`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  id: saleId,
+                  estado,
+                  observaciones: observacion,
+                }),
+              });
+              const data = await res.json();
+              if (data.status !== 200) {
+                alert("Error al guardar observación: " + (data.message || ""));
+              }
+            } catch (e) {
+              console.error("Error guardando observación:", e);
+            }
           });
         });
       }
