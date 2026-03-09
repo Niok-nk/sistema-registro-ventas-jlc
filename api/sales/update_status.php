@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../utils/audit_helper.php';
 
 // Verificar autenticación y rol de administrador
 $user = requireAuth();
@@ -61,12 +62,13 @@ try {
     $db = Database::getInstance();
     $conn = $db->getConnection();
     
-    // Verificar que la venta existe
-    $checkSql = "SELECT id FROM ventas WHERE id = :id";
+    // Obtener estado anterior antes de actualizar
+    $checkSql = "SELECT id, estado, observaciones FROM ventas WHERE id = :id";
     $checkStmt = $conn->prepare($checkSql);
     $checkStmt->execute(['id' => $id]);
+    $ventaActual = $checkStmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$checkStmt->fetch()) {
+    if (!$ventaActual) {
         http_response_code(404);
         echo json_encode([
             'status' => 404,
@@ -83,6 +85,17 @@ try {
         'estado'        => $estado,
         'observaciones' => $observaciones,
     ]);
+
+    // Auditoría: log del cambio de estado
+    logAudit(
+        $conn,
+        (int)$user['user_id'],
+        'cambio_estado_venta',
+        'ventas',
+        $id,
+        ['estado' => $ventaActual['estado'], 'observaciones' => $ventaActual['observaciones']],
+        ['estado' => $estado, 'observaciones' => $observaciones]
+    );
     
     http_response_code(200);
     echo json_encode([

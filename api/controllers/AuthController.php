@@ -30,15 +30,13 @@ class AuthController {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($user) {
-                // Verificar contraseña con bcrypt
                 $password_valid = password_verify($password, $user['password']);
 
                 if ($password_valid) {
                     if ($user['activo'] == 0) {
-                         return ['status' => 403, 'message' => 'Usuario inactivo. Contacte al administrador.'];
+                        return ['status' => 403, 'message' => 'Usuario inactivo. Contacte al administrador.'];
                     }
                     
-                    // Verificar que el usuario esté aprobado
                     if ($user['estado_aprobacion'] !== 'aprobado') {
                         $mensaje = '';
                         if ($user['estado_aprobacion'] === 'pendiente') {
@@ -52,21 +50,37 @@ class AuthController {
                     // Generar Token
                     $token_payload = [
                         'user_id' => $user['id'],
-                        'cedula' => $user['cedula'],
-                        'rol' => $user['rol'],
-                        'nombre' => $user['nombre']
+                        'cedula'  => $user['cedula'],
+                        'rol'     => $user['rol'],
+                        'nombre'  => $user['nombre']
                     ];
                     
                     $jwt = JWT::generate($token_payload);
 
-                    // Eliminar password del objeto usuario antes de enviar
                     unset($user['password']);
 
+                    // Registrar sesión en tabla sesiones (token_hash SHA-256 + expiración 24 h)
+                    try {
+                        $tokenHash  = hash('sha256', $jwt);
+                        $expiresAt  = date('Y-m-d H:i:s', time() + 86400);
+                        $sesionStmt = $this->conn->prepare(
+                            "INSERT INTO sesiones (usuario_id, token_hash, expires_at)
+                             VALUES (:uid, :hash, :exp)"
+                        );
+                        $sesionStmt->execute([
+                            ':uid'  => $user['id'],
+                            ':hash' => $tokenHash,
+                            ':exp'  => $expiresAt,
+                        ]);
+                    } catch (Exception $se) {
+                        error_log("Error registrando sesión: " . $se->getMessage());
+                    }
+
                     return [
-                        'status' => 200,
+                        'status'  => 200,
                         'message' => 'Login exitoso',
-                        'token' => $jwt,
-                        'user' => $user
+                        'token'   => $jwt,
+                        'user'    => $user
                     ];
                 }
             }

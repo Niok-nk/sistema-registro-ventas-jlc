@@ -9,6 +9,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../utils/audit_helper.php';
 
 $authUser = requireAuth();
 if ($authUser['rol'] !== 'administrador') {
@@ -36,6 +37,7 @@ try {
     $db   = Database::getInstance();
     $conn = $db->getConnection();
 
+    // 1. Actualizar usuarios
     $stmt = $conn->prepare("
         UPDATE usuarios
         SET nombre_distribuidor = :nuevo, updated_at = CURRENT_TIMESTAMP
@@ -43,6 +45,32 @@ try {
     ");
     $stmt->execute([':nuevo' => $nombreNuevo, ':actual' => $nombreActual]);
     $afectados = $stmt->rowCount();
+
+    // 2. Sincronizar tabla distribuidores
+    // Intentar actualizar el nombre en distribuidores
+    $updDist = $conn->prepare("
+        UPDATE distribuidores SET nombre_distribuidor = :nuevo WHERE nombre_distribuidor = :actual
+    ");
+    $updDist->execute([':nuevo' => $nombreNuevo, ':actual' => $nombreActual]);
+
+    // Si no existia el nombre_actual en distribuidores, insertar el nuevo
+    if ($updDist->rowCount() === 0) {
+        $insDist = $conn->prepare("
+            INSERT IGNORE INTO distribuidores (nombre_distribuidor) VALUES (:nuevo)
+        ");
+        $insDist->execute([':nuevo' => $nombreNuevo]);
+    }
+
+    // 3. Auditoría
+    logAudit(
+        $conn,
+        (int)$authUser['user_id'],
+        'renombrar_distribuidor',
+        'distribuidores',
+        null,
+        ['nombre_anterior' => $nombreActual],
+        ['nombre_nuevo'    => $nombreNuevo, 'usuarios_afectados' => $afectados]
+    );
 
     echo json_encode([
         'status'    => 200,
