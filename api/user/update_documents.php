@@ -78,6 +78,13 @@ try {
         $params[':rut'] = $rut !== '' ? $rut : null;
     }
 
+    // Campo texto: llave_breb (número Nequi)
+    if (isset($_POST['llave_breb'])) {
+        $llaveBreb = trim($_POST['llave_breb']);
+        $updates[] = 'llave_breb = :llave_breb';
+        $params[':llave_breb'] = $llaveBreb !== '' ? $llaveBreb : null;
+    }
+
     // Archivo: certificado Nequi
     $certFilename = subirArchivo('certificado', $userId);
     if ($certFilename !== null) {
@@ -105,7 +112,8 @@ try {
     $response = ['status' => 200, 'message' => 'Documentos actualizados correctamente.'];
     if ($certFilename)    $response['certificado']     = $certFilename;
     if ($certRutFilename) $response['certificado_rut'] = $certRutFilename;
-    if (isset($_POST['rut'])) $response['rut'] = $_POST['rut'];
+    if (isset($_POST['rut']))        $response['rut']        = $_POST['rut'];
+    if (isset($_POST['llave_breb'])) $response['llave_breb'] = $_POST['llave_breb'];
 
     echo json_encode($response);
 

@@ -113,8 +113,22 @@ import Card from "../../components/Card.astro";
             <p id="estado-cuenta" class="badge">-</p>
           </div>
           <div class="info-field">
-            <span class="field-label">Nequi</span>
+            <div class="doc-field-header">
+              <span class="field-label">Nequi</span>
+              <button class="doc-edit-btn" data-doc="llave_breb" title="Editar número Nequi">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="width:0.9rem;height:0.9rem"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+              </button>
+            </div>
             <p id="llave-breb">-</p>
+            <div id="llave_breb-edit-form" class="doc-edit-form" style="display:none">
+              <input type="text" id="llave_breb-input" placeholder="Número Nequi" class="doc-text-input" />
+              <p class="form-helper-text warning" style="font-size:0.78rem;margin:0">⚠️ Debe coincidir con tu nombre completo.</p>
+              <div class="doc-edit-actions">
+                <button class="doc-save-btn" data-doc="llave_breb">Guardar</button>
+                <button class="doc-cancel-btn" data-doc="llave_breb">Cancelar</button>
+              </div>
+              <p class="doc-status" id="llave_breb-status"></p>
+            </div>
           </div>
           <!-- Certificado Nequi -->
           <div class="info-field">
@@ -639,6 +653,11 @@ import Card from "../../components/Card.astro";
           if (!val.trim()) { setStatus("rut", "Ingresa el número RUT.", "error"); return; }
           fd.append("rut", val.trim());
           hasData = true;
+        } else if (docName === "llave_breb") {
+          var val2 = (document.getElementById("llave_breb-input") || {}).value || "";
+          if (!val2.trim()) { setStatus("llave_breb", "Ingresa el número Nequi.", "error"); return; }
+          fd.append("llave_breb", val2.trim());
+          hasData = true;
         } else {
           var fi = document.getElementById(docName + "-input");
           if (!fi || !fi.files || !fi.files[0]) { setStatus(docName, "Selecciona un archivo primero.", "error"); return; }
@@ -670,6 +689,10 @@ import Card from "../../components/Card.astro";
             if (docName === "rut" && data.rut !== undefined) {
               var p = document.getElementById("rut");
               if (p) p.textContent = data.rut || "-";
+            }
+            if (docName === "llave_breb" && data.llave_breb !== undefined) {
+              var p2 = document.getElementById("llave-breb");
+              if (p2) p2.textContent = data.llave_breb || "-";
             }
             setTimeout(function() { hideForm(docName); }, 1500);
           } else {
