@@ -252,13 +252,12 @@ const allCities = [
       </div>
             <div class="form-grid">
         <div class="form-group">
-          <label for="RUT" class="form-label">RUT</label>
+          <label for="rut" class="form-label">RUT</label>
           <input
             type="text"
-            id="RUT"
-            name="RUT"
+            id="rut"
+            name="rut"
             class="form-input"
-            required
           />
           <p class="form-helper-text warning">
             <a href="https://www.dian.gov.co/Prensa/Aprendelo-en-un-DIAN-X3/Paginas/Paso-a-Paso-Inscripcion-al-RUT.aspx" target="_blank">¿No tienes RUT? Inscríbete aquí</a>
@@ -266,19 +265,18 @@ const allCities = [
         </div>
 
         <div class="form-group">
-          <label for="certificado-RUT" class="form-label">
+          <label for="certificado_rut" class="form-label">
             Certificado RUT
           </label>
           <div class="file-upload-wrapper">
             <input
               type="file"
-              id="certificado-RUT"
-              name="certificado-RUT"
+              id="certificado_rut"
+              name="certificado_rut"
               class="file-input"
               accept=".jpg,.jpeg,.png,.pdf"
-              required
             />
-            <label for="certificado-RUT" class="file-label">
+            <label for="certificado_rut" class="file-label">
               <svg viewBox="0 0 20 20" fill="currentColor" class="file-icon">
                 <path
                   fill-rule="evenodd"
@@ -792,7 +790,7 @@ const allCities = [
 
     // Lógica para el archivo del RUT (Nuevo)
     const rutInput = document.getElementById(
-      "certificado-RUT",
+      "certificado_rut",
     ) as HTMLInputElement | null;
     const rutFileName = document.getElementById("cert-rut-file-name");
     if (rutInput && rutFileName) {
