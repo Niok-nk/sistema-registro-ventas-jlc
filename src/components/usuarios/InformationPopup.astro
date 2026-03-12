@@ -1,21 +1,21 @@
 ---
-// Componente: Popup de Actualización de Nequi
+// Componente: Popup de Actualización de info
 // Aparece automáticamente al cargar el dashboard si el usuario no lo ha omitido en la sesión.
 ---
 
-<!-- Nequi Update Popup Overlay -->
-<div id="nequi-update-popup" class="nequi-overlay">
-  <div class="nequi-container">
-    <div class="nequi-content">
+<!-- info Update Popup Overlay -->
+<div id="info-update-popup" class="info-overlay">
+  <div class="info-container">
+    <div class="info-content">
       <!-- Ícono y Encabezado -->
-      <div class="nequi-header">
-        <div class="nequi-icon-wrapper">
-          <!-- Ícono Nequi / pago -->
+      <div class="info-header">
+        <div class="info-icon-wrapper">
+          <!-- Ícono info / pago -->
           <svg
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            class="nequi-icon"
+            class="info-icon"
           >
             <path
               stroke-linecap="round"
@@ -25,18 +25,24 @@
             ></path>
           </svg>
         </div>
-        <h2 class="nequi-title">¡Actualiza tus documentos!</h2>
-        <p class="nequi-subtitle">
-          Para nosotros es importante que actualices y adjuntes tus certificado de nequi y tu rut para poder tener un pago proceso mas agil para pagar tus bonos.
+        <h2 class="info-title">¡Actualiza tus documentos!</h2>
+        <p class="info-subtitle">
+          Para poder procesar el pago de tus bonos de forma rápida y sin contratiempos, necesitamos que actualices y adjuntes los siguientes documentos:
+          <br><br>
+          &bull; Certificado de tu cuenta Nequi<br>
+          &bull; RUT
+          <br><br>
+          Con esta información al día podremos agilizar el proceso.<br>
+          ¡Gracias por tu colaboración!
         </p>
       </div>
 
       <!-- Botones -->
-      <div class="nequi-actions">
-        <button id="nequi-profile-btn" class="nequi-btn-primary">
+      <div class="info-actions">
+        <button id="info-profile-btn" class="info-btn-primary">
           Ir a mi Perfil
         </button>
-        <button id="nequi-skip-btn" class="nequi-btn-secondary">
+        <button id="info-skip-btn" class="info-btn-secondary">
           Omitir por ahora
         </button>
       </div>
@@ -46,7 +52,7 @@
 
 <style is:global>
   /* ===================== Overlay ===================== */
-  .nequi-overlay {
+  .info-overlay {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.8);
@@ -56,14 +62,14 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    animation: nequiFadeIn 0.25s ease-out;
+    animation: infoFadeIn 0.25s ease-out;
   }
 
-  .nequi-overlay.show {
+  .info-overlay.show {
     display: flex;
   }
 
-  @keyframes nequiFadeIn {
+  @keyframes infoFadeIn {
     from {
       opacity: 0;
     }
@@ -73,13 +79,13 @@
   }
 
   /* ===================== Container ===================== */
-  .nequi-container {
+  .info-container {
     width: 100%;
     max-width: 480px;
-    animation: nequiSlideUp 0.3s ease-out;
+    animation: infoSlideUp 0.3s ease-out;
   }
 
-  @keyframes nequiSlideUp {
+  @keyframes infoSlideUp {
     from {
       transform: translateY(24px);
       opacity: 0;
@@ -91,7 +97,7 @@
   }
 
   /* ===================== Content ===================== */
-  .nequi-content {
+  .info-content {
     background-color: var(--color-bg-main);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -103,7 +109,7 @@
   }
 
   /* ===================== Header ===================== */
-  .nequi-header {
+  .info-header {
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -111,7 +117,7 @@
     gap: 0.75rem;
   }
 
-  .nequi-icon-wrapper {
+  .info-icon-wrapper {
     width: 4rem;
     height: 4rem;
     border-radius: 50%;
@@ -122,38 +128,38 @@
     justify-content: center;
   }
 
-  .nequi-icon {
+  .info-icon {
     width: 2rem;
     height: 2rem;
     color: var(--color-accent-text);
   }
 
-  .nequi-title {
+  .info-title {
     font-size: 1.375rem;
     font-weight: 700;
     color: var(--color-text-main);
     margin: 0;
   }
 
-  .nequi-subtitle {
+  .info-subtitle {
     font-size: 0.9rem;
     color: var(--color-text-secondary);
     margin: 0;
     line-height: 1.6;
   }
 
-  .nequi-subtitle strong {
+  .info-subtitle strong {
     color: var(--color-text-main);
   }
 
   /* ===================== Form ===================== */
-  .nequi-form-section {
+  .info-form-section {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .nequi-label {
+  .info-label {
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -164,7 +170,7 @@
     gap: 0.5rem;
   }
 
-  .nequi-hint {
+  .info-hint {
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
@@ -174,13 +180,13 @@
   }
 
   /* ===================== Actions ===================== */
-  .nequi-actions {
+  .info-actions {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  .nequi-btn-primary {
+  .info-btn-primary {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -198,27 +204,27 @@
     box-shadow: var(--shadow-md);
   }
 
-  .nequi-btn-primary:hover {
+  .info-btn-primary:hover {
     background-color: var(--color-accent-hover);
     transform: translateY(-1px);
   }
 
-  .nequi-btn-primary:active {
+  .info-btn-primary:active {
     transform: translateY(0);
   }
 
-  .nequi-btn-primary:disabled {
+  .info-btn-primary:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
   }
 
-  .nequi-btn-icon {
+  .info-btn-icon {
     width: 1.1rem;
     height: 1.1rem;
   }
 
-  .nequi-btn-secondary {
+  .info-btn-secondary {
     width: 100%;
     padding: 0.65rem 1rem;
     border-radius: var(--radius-md);
@@ -231,7 +237,7 @@
     transition: all 0.2s;
   }
 
-  .nequi-btn-secondary:hover {
+  .info-btn-secondary:hover {
     background: var(--color-bg-card);
     color: var(--color-text-main);
     border-color: var(--color-text-secondary);
@@ -239,7 +245,7 @@
 
   /* ===================== Responsive ===================== */
   @media (max-width: 520px) {
-    .nequi-content {
+    .info-content {
       padding: 2rem 1.25rem 1.5rem;
     }
   }
@@ -252,11 +258,11 @@
     if (!token) return; // Sin sesión, no hacer nada
 
     // Usamos los últimos 20 chars del token como identificador de sesión
-    const sessionKey = "nequi_dismissed_" + token.slice(-20);
+    const sessionKey = "info_dismissed_" + token.slice(-20);
 
-    const overlay = document.getElementById("nequi-update-popup");
-    const profileBtn = document.getElementById("nequi-profile-btn");
-    const skipBtn = document.getElementById("nequi-skip-btn");
+    const overlay = document.getElementById("info-update-popup");
+    const profileBtn = document.getElementById("info-profile-btn");
+    const skipBtn = document.getElementById("info-skip-btn");
 
     function maybeShow() {
       // Solo omitir si fue descartado en ESTA sesión (mismo token)
