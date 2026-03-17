@@ -1,9 +1,27 @@
 <?php
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../middleware/auth.php';
 
-// No requiere autenticación - productos son públicos
+// Manejar preflight CORS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Solo permitir GET
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['status' => 405, 'message' => 'Método no permitido']);
+    exit();
+}
+
+
+// Catálogo interno — solo usuarios autenticados
+requireAuth();
+
 try {
+
     $db = Database::getInstance();
     $conn = $db->getConnection();
     

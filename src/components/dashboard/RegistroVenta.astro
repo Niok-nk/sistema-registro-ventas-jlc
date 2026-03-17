@@ -306,9 +306,19 @@ import Button from "../Button.astro";
     let allProducts = []; // Almacenar todos los productos
 
     // Cargar productos al iniciar
-    fetch(`${API_BASE}/products/list.php`)
-      .then((res) => res.json())
+    const _token = localStorage.getItem("token");
+    fetch(`${API_BASE}/products/list.php`, {
+      headers: { Authorization: `Bearer ${_token}` },
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
+        if (!data) return;
         if (data.status === 200 && data.data) {
           // Guardar solo productos activos
           allProducts = data.data.filter((product) => product.activo == 1);
@@ -322,6 +332,7 @@ import Button from "../Button.astro";
         productSearchInput.placeholder = "Error al cargar productos";
         productError.style.display = "block";
       });
+
 
     // Lógica de autocompletado
     productSearchInput.addEventListener("input", () => {

@@ -29,10 +29,12 @@ class AuthController {
             
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($user) {
-                $password_valid = password_verify($password, $user['password']);
+            // Siempre ejecutar password_verify para que tarde igual si el usuario no existe
+            // Esto previene timing attacks para enumerar cédulas
+            $hash = $user ? $user['password'] : '$2y$10$invalidHashParaQueTardeIgualxxxxxxxxxxxxxxxxxxxxxx';
+            $password_valid = password_verify($password, $hash);
 
-                if ($password_valid) {
+            if ($user && $password_valid) {
                     if ($user['activo'] == 0) {
                         return ['status' => 403, 'message' => 'Usuario inactivo. Contacte al administrador.'];
                     }
@@ -82,7 +84,6 @@ class AuthController {
                         'token'   => $jwt,
                         'user'    => $user
                     ];
-                }
             }
 
             return ['status' => 401, 'message' => 'Credenciales inválidas'];

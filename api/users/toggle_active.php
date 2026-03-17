@@ -4,15 +4,9 @@
  * Solo accesible por administradores
  */
 
+require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../utils/JWT.php';
-
-// CORS headers - wildcard para desarrollo local
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
-header('Content-Type: application/json');
+require_once __DIR__ . '/../middleware/auth.php';
 
 // Manejar preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -28,26 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // Verificar token JWT
-    $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? '';
-    
-    if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['status' => 401, 'message' => 'Token no proporcionado']);
-        exit();
-    }
-    
-    $token = $matches[1];
-    $decoded = JWT::verify($token);
-    
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['status' => 401, 'message' => 'Token inválido o expirado']);
-        exit();
-    }
-    
-    // Verificar que el usuario sea administrador o auditor
+    // requireAuth() verifica JWT y que el usuario esté activo en BD
+    $decoded = requireAuth();
     $rol = $decoded['rol'] ?? null;
     if ($rol !== 'administrador' && $rol !== 'auditor') {
         http_response_code(403);
