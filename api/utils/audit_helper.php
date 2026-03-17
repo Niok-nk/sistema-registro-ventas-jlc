@@ -20,9 +20,9 @@ function logAudit(
     $datos_nuevos = null
 ): void {
     try {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR']
-            ?? $_SERVER['REMOTE_ADDR']
-            ?? null;
+        // Usar REMOTE_ADDR directamente — HTTP_X_FORWARDED_FOR puede ser falsificado
+        // Si en el futuro se usa un proxy/CDN conocido, validar la IP del proxy primero
+        $ip = $_SERVER['REMOTE_ADDR'] ?? null;
 
         $stmt = $conn->prepare(
             "INSERT INTO auditoria

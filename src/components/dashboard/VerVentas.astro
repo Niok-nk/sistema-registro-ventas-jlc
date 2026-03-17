@@ -96,8 +96,32 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
 </style>
 
 <script is:inline>
+  // Helper: URL firmada efímera para archivos
+  async function openSignedFile(file, type) {
+    const token = localStorage.getItem("token") || "";
+    const AB =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : window.location.origin + "/api";
+    try {
+      const res = await fetch(`${AB}/files/signed_url.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ file, type }),
+      });
+      const data = await res.json();
+      if (data.signed_url) window.open(data.signed_url, "_blank", "noopener,noreferrer");
+      else alert("No se pudo obtener el enlace del archivo.");
+    } catch (e) {
+      alert("Error al abrir el archivo: " + e.message);
+    }
+  }
+
   (function () {
-    const API_BASE = "/api";
+    const API_BASE =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : window.location.origin + "/api";
 
     let allSales = [];
     let allProducts = [];
@@ -156,7 +180,10 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     // Cargar productos para filtro
     async function loadProducts() {
       try {
-        const response = await fetch(`${API_BASE}/products/list.php`);
+        const tk = localStorage.getItem("token") || "";
+        const response = await fetch(`${API_BASE}/products/list.php`, {
+          headers: { Authorization: `Bearer ${tk}` },
+        });
         const data = await response.json();
 
         if (data.status === 200 && data.data) {
@@ -316,14 +343,8 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         btn.addEventListener("click", function () {
           const photoPath = this.getAttribute("data-photo");
           if (photoPath) {
-            // Extraer solo el nombre del archivo de la ruta /uploads/facturas/nombre.jpg
             const filename = photoPath.split("/").pop();
-            const token = localStorage.getItem("token");
-            // Abrir visor seguro
-            window.open(
-              `/api/sales/view_receipt.php?file=${filename}&token=${token}`,
-              "_blank",
-            );
+            openSignedFile(filename, "factura");
           }
         });
       });
@@ -675,8 +696,32 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
       return str;
     }
 
+    // Obtener URLs firmadas para todas las ventas con foto (en paralelo)
+    async function getSignedUrls(sales) {
+      const token = localStorage.getItem("token") || "";
+      const salesWithPhoto = sales.filter((s) => s.foto_factura);
+      const results = await Promise.allSettled(
+        salesWithPhoto.map((sale) =>
+          fetch(`${API_BASE}/files/signed_url.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ file: sale.foto_factura, type: "factura" }),
+          })
+            .then((r) => r.json())
+            .then((d) => ({ id: sale.id, url: d.signed_url || "" }))
+            .catch(() => ({ id: sale.id, url: "" }))
+        )
+      );
+      const urlMap = {};
+      results.forEach((r) => { if (r.status === "fulfilled") urlMap[r.value.id] = r.value.url; });
+      return urlMap;
+    }
+
     // Exportar a CSV
-    function exportToCSV(sales) {
+    async function exportToCSV(sales) {
+      // Obtener URLs firmadas primero
+      const urlMap = await getSignedUrls(sales);
+
       // 1. Headers
       const headers = [
         "ID",
@@ -691,6 +736,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         "Distribuidor",
         "Estado",
         "Observaciones",
+        "Link Foto",
       ];
 
       // 2. Datos
@@ -707,6 +753,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         sale.nombre_distribuidor || "",
         sale.estado || "",
         sale.observaciones || "",
+        urlMap[sale.id] || "",
       ]);
       // 3. Combinar en string CSV
       const csvContent = [
@@ -732,11 +779,14 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     }
 
     // Exportar a Excel (todas las ventas filtradas, hoja única)
-    function exportToExcel(sales) {
+    async function exportToExcel(sales) {
       if (typeof XLSX === "undefined") {
         alert("Error: Librería de Excel no disponible");
         return;
       }
+
+      // Generar URLs firmadas para todas las fotos en paralelo
+      const urlMap = await getSignedUrls(sales);
 
       const data = [
         // Headers
@@ -771,7 +821,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
           sale.nombre_distribuidor || "",
           sale.estado || "",
           sale.observaciones || "",
-          sale.foto_url || "",
+          urlMap[sale.id] || "",
         ]),
       ];
 
@@ -790,8 +840,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         { wch: 25 }, // Distribuidor
         { wch: 12 }, // Estado
         { wch: 35 }, // Observaciones
-        { wch: 20 }, // Fecha Registro
-        { wch: 50 }, // Link Foto
+        { wch: 60 }, // Link Foto
       ];
 
       const wb = XLSX.utils.book_new();
@@ -822,7 +871,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     // Manejar selección de formato
     if (exportMenu) {
       exportMenu.querySelectorAll("button").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
+        btn.addEventListener("click", async (e) => {
           e.stopPropagation();
           const format = btn.getAttribute("data-format");
 
@@ -832,13 +881,22 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
           }
 
           if (format === "excel") {
-            exportToExcel(currentFilteredSales);
+            btn.disabled = true;
+            const orig = btn.textContent;
+            btn.textContent = "⏳ Preparando...";
+            exportMenu.classList.remove("show");
+            await exportToExcel(currentFilteredSales);
+            btn.disabled = false;
+            btn.textContent = orig;
           } else if (format === "csv") {
-            exportToCSV(currentFilteredSales);
+            btn.disabled = true;
+            const origC = btn.textContent;
+            btn.textContent = "⏳ Preparando...";
+            exportMenu.classList.remove("show");
+            await exportToCSV(currentFilteredSales);
+            btn.disabled = false;
+            btn.textContent = origC;
           }
-
-          // Cerrar menu
-          exportMenu.classList.remove("show");
         });
       });
     }

@@ -6,17 +6,13 @@ require_once __DIR__ . '/../utils/JWT.php';
 Database::getInstance();
 
 function requireAuth() {
-    $headers = apache_request_headers();
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
     $token = null;
 
-    if (isset($headers['Authorization'])) {
-        $matches = [];
-        if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+    if (!empty($authHeader)) {
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
             $token = $matches[1];
         }
-    } elseif (isset($_GET['token'])) {
-        // Permitir token por URL para visualización de archivos (window.open)
-        $token = $_GET['token'];
     }
 
     if (!$token) {
@@ -33,6 +29,19 @@ function requireAuth() {
         exit;
     }
 
-    // Retornar datos del usuario para uso en el controlador
+    // Verificar que el usuario siga activo en BD
+    // Esto invalida tokens de cuentas desactivadas sin esperar a que expiren
+    $db   = Database::getInstance();
+    $conn = $db->getConnection();
+    $stmt = $conn->prepare('SELECT activo FROM usuarios WHERE id = ? LIMIT 1');
+    $stmt->execute([$payload['user_id']]);
+    $u = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$u || !$u['activo']) {
+        http_response_code(401);
+        echo json_encode(['status' => 401, 'message' => 'Cuenta desactivada o no encontrada.']);
+        exit;
+    }
+
     return $payload;
 }

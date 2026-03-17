@@ -56,7 +56,7 @@ try {
     // Si no existia el nombre_actual en distribuidores, insertar el nuevo
     if ($updDist->rowCount() === 0) {
         $insDist = $conn->prepare("
-            INSERT IGNORE INTO distribuidores (nombre_distribuidor) VALUES (:nuevo)
+            INSERT OR IGNORE INTO distribuidores (nombre_distribuidor) VALUES (:nuevo)
         ");
         $insDist->execute([':nuevo' => $nombreNuevo]);
     }

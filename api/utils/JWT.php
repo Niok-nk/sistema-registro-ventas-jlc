@@ -93,10 +93,14 @@ class JWT {
             'alg' => self::$algorithm
         ]);
 
-        // Agregar timestamp y expiración por defecto (8 horas)
-        $payload = json_encode(array_merge($data, [
+        // Agregar timestamp y expiración por defecto (8 horas).
+        // $data tiene prioridad: si el caller pasa 'exp' (ej. tokens efímeros de 5 min),
+        // ese valor prevalece sobre el default de 8h. 'iat' siempre se fuerza al momento actual.
+        $payload = json_encode(array_merge([
             'iat' => time(),
-            'exp' => time() + (8 * 60 * 60)
+            'exp' => time() + (8 * 60 * 60),
+        ], $data, [
+            'iat' => time(), // iat siempre es el momento de generación, no puede ser inyectado
         ]));
 
         $base64UrlHeader = self::base64UrlEncode($header);
@@ -118,6 +122,10 @@ class JWT {
         if (count($parts) != 3) return false;
 
         [$header64, $payload64, $sig64] = $parts;
+
+        // Validar que el algoritmo coincida con el esperado
+        $header = json_decode(self::base64UrlDecode($header64), true);
+        if (($header['alg'] ?? '') !== self::$algorithm) return false;
 
         $sig = self::base64UrlDecode($sig64);
         $expectedSig = hash_hmac('sha256', 
@@ -152,9 +160,9 @@ class JWT {
         
         $secret = getenv('JWT_SECRET');
         if (!$secret) {
-            // Fallback para desarrollo local (NUNCA usar en producción)
-            $secret = 'dev-secret-key-change-in-production-' . md5(__DIR__);
-            error_log("ADVERTENCIA: Usando JWT_SECRET por defecto. Configura JWT_SECRET en .env para producción");
+            // Fallar de manera segura — nunca usar un secreto por defecto predecible
+            http_response_code(500);
+            die(json_encode(['status' => 500, 'message' => 'JWT_SECRET no configurado']));
         }
         return $secret;
     }

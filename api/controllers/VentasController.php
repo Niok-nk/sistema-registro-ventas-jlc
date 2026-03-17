@@ -44,7 +44,7 @@ class VentasController {
 
         } catch (PDOException $e) {
             error_log("Error creando venta: " . $e->getMessage());
-            return ['status' => 500, 'message' => 'Error al registrar la venta: ' . $e->getMessage()];
+            return ['status' => 500, 'message' => 'Error al registrar la venta'];
         }
     }
 }

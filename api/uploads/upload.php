@@ -97,12 +97,8 @@ if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
 
-// Generar nombre único y seguro
-$timestamp = time();
-$randomString = bin2hex(random_bytes(8));
-$safeName = preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($file['name'], PATHINFO_FILENAME));
-$safeName = substr($safeName, 0, 50); // Limitar longitud
-$newFileName = "{$safeName}_{$timestamp}_{$randomString}.{$extension}";
+// Generar nombre completamente opaco — sin rastro del nombre original
+$newFileName = bin2hex(random_bytes(16)) . '.' . $extension;
 $destination = $uploadDir . $newFileName;
 
 // Mover archivo

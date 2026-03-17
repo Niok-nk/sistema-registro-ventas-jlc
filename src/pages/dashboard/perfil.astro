@@ -518,9 +518,8 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
           const token = localStorage.getItem("token") || "";
           certContainer.innerHTML = `
             <a
-              href="${API_BASE}/users/view_certificate.php?file=${encodeURIComponent(user.certificado)}&token=${token}"
-              target="_blank"
-              rel="noopener noreferrer"
+            <a
+              href="#" onclick="event.preventDefault(); window.viewCertificate('${user.certificado}')"
               style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-bg-cardb);color:var(--color-text-secondary);font-size:0.8rem;text-decoration:none;transition:all 0.2s;"
               onmouseover="this.style.borderColor='var(--color-accent)';this.style.color='var(--color-accent)'"
               onmouseout="this.style.borderColor='var(--color-border)';this.style.color='var(--color-text-secondary)'"
@@ -545,8 +544,8 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
           const token = localStorage.getItem("token") || "";
           certRutContainer.innerHTML = `
             <a
-              href="${API_BASE}/users/view_certificate.php?file=${encodeURIComponent(user.certificado_rut)}&token=${token}"
-              target="_blank" rel="noopener noreferrer"
+            <a
+              href="#" onclick="event.preventDefault(); window.viewCertificate('${user.certificado_rut}')"
               style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-bg-cardb);color:var(--color-text-secondary);font-size:0.8rem;text-decoration:none;transition:all 0.2s;"
               onmouseover="this.style.borderColor='var(--color-accent)';this.style.color='var(--color-accent)'"
               onmouseout="this.style.borderColor='var(--color-border)';this.style.color='var(--color-text-secondary)'"
@@ -599,9 +598,28 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
         ? "http://localhost:8000"
         : window.location.origin + "/api";
 
+    window.viewCertificate = async function(filename) {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_BASE}/files/signed_url.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ file: filename, type: "certificado" }),
+        });
+        const data = await res.json();
+        if (data.signed_url) {
+          window.open(data.signed_url, "_blank", "noopener,noreferrer");
+        } else {
+          alert("No se pudo obtener el enlace del certificado.");
+        }
+      } catch (err) {
+        alert("Error al abrir el certificado.");
+      }
+    };
+
     function certLink(filename, label) {
-      const token = localStorage.getItem("token") || "";
-      return `<a href="${API_BASE}/users/view_certificate.php?file=${encodeURIComponent(filename)}&token=${token}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-bg-cardb);color:var(--color-text-secondary);font-size:0.8rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--color-accent)';this.style.color='var(--color-accent)'" onmouseout="this.style.borderColor='var(--color-border)';this.style.color='var(--color-text-secondary)'"><svg viewBox="0 0 20 20" fill="currentColor" style="width:0.9rem;height:0.9rem;flex-shrink:0"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>${label}</a>`;
+      return `<a href="#" onclick="event.preventDefault(); window.viewCertificate('${filename}')" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-bg-cardb);color:var(--color-text-secondary);font-size:0.8rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--color-accent)';this.style.color='var(--color-accent)'" onmouseout="this.style.borderColor='var(--color-border)';this.style.color='var(--color-text-secondary)'"><svg viewBox="0 0 20 20" fill="currentColor" style="width:0.9rem;height:0.9rem;flex-shrink:0"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>${label}</a>`;
     }
 
     function setStatus(docName, msg, type) {

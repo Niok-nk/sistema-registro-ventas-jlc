@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../utils/JWT.php';
+require_once __DIR__ . '/../middleware/auth.php';
 
 // Solo permitir POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -16,26 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // Verificar token JWT
-    $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? '';
-    
-    if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['status' => 401, 'message' => 'Token no proporcionado']);
-        exit();
-    }
-    
-    $token = $matches[1];
-    $decoded = JWT::verify($token);
-    
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['status' => 401, 'message' => 'Token inválido o expirado']);
-        exit();
-    }
-    
-    // Verificar que el usuario sea administrador o auditor
+    // requireAuth() verifica JWT y que el usuario esté activo en BD
+    $decoded = requireAuth();
     $rol = $decoded['rol'] ?? null;
     if ($rol !== 'administrador' && $rol !== 'auditor') {
         http_response_code(403);
@@ -72,7 +54,7 @@ try {
     $db = Database::getInstance()->getConnection();
     
     // Verificar que el usuario existe
-    $stmt = $db->prepare("SELECT id, nombre, apellido, correo FROM usuarios WHERE id = :id AND activo = 1");
+    $stmt = $db->prepare("SELECT id, nombre, apellido, correo FROM usuarios WHERE id = :id");
     $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -1,4 +1,16 @@
 <?php
+/**
+ * API Endpoint: Listar ventas
+ * Method: GET
+ * Auth: JWT de sesión requerido por header Authorization: Bearer
+ *
+ * NOTA sobre URLs de archivos:
+ * Este endpoint devuelve solo el nombre del archivo en `foto_factura`.
+ * Para obtener una URL firmada de acceso al archivo, el frontend debe llamar a:
+ *   POST /api/files/signed_url.php  { "file": "<foto_factura>", "type": "factura" }
+ * y recibirá una URL válida 5 minutos (?ftoken=...) sin exponer el JWT de sesión en la URL.
+ */
+
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/auth.php';
@@ -7,11 +19,10 @@ require_once __DIR__ . '/../middleware/auth.php';
 $user = requireAuth();
 
 try {
-    $db = Database::getInstance();
+    $db   = Database::getInstance();
     $conn = $db->getConnection();
 
-    // Consulta - Obtener ventas según el rol del usuario
-    // Admin ve todas las ventas, Asesor solo ve las suyas
+    // Consulta — Admin ve todas las ventas, Asesor solo ve las suyas
     $sql = "SELECT v.id, v.numero_factura, v.fecha_venta, v.estado, v.observaciones, v.numero_serie, v.producto_id, v.foto_factura, v.created_at,
                    v.asesor_id as usuario_id,
                    p.modelo as modelo_producto, p.codigo as codigo_producto, p.descripcion as desc_producto,
@@ -34,27 +45,12 @@ try {
     $stmt->execute($params);
     $ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Obtener el token JWT del header para construir URLs seguras
-    $headers = apache_request_headers();
-    $token = null;
-    if (isset($headers['Authorization'])) {
-        $matches = [];
-        if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
-            $token = $matches[1];
-        }
-    }
-
-    // Agregar URL completa de foto a cada venta
+    // Normalizar foto_factura: devolver solo el basename del archivo.
+    // El frontend obtiene la URL de acceso llamando a POST /api/files/signed_url.php.
+    // Esto evita embeber el JWT de sesión en las URLs de la respuesta.
     foreach ($ventas as &$venta) {
-        if (!empty($venta['foto_factura']) && $token) {
-            // Construir URL segura con endpoint view_receipt.php
-            $apiUrl = getenv('API_URL') ?: 'http://localhost:8000/api';
-            $apiUrl = rtrim($apiUrl, '/'); // Asegurarse de que no haya una barra al final
-
-            // Formato: https://<dominio>/api/sales/view_receipt.php?file=NOMBRE&token=JWT
-            $venta['foto_url'] = $apiUrl . '/sales/view_receipt.php?file=' . urlencode($venta['foto_factura']) . '&token=' . $token;
-        } else {
-            $venta['foto_url'] = null;
+        if (!empty($venta['foto_factura'])) {
+            $venta['foto_factura'] = basename($venta['foto_factura']);
         }
     }
     unset($venta); // Romper referencia

@@ -58,8 +58,8 @@ if (!in_array($realMime, $allowedMimes)) {
 $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'application/pdf' => 'pdf'];
 $ext    = $extMap[$realMime];
 
-// Nombre único
-$filename = 'cert_' . $userId . '_' . time() . '.' . $ext;
+// Nombre completamente opaco — sin rastro del userId ni timestamp
+$filename = bin2hex(random_bytes(16)) . '.' . $ext;
 
 $uploadDir = __DIR__ . '/../../uploads/certificados/';
 if (!is_dir($uploadDir)) {
