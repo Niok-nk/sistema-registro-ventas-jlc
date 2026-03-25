@@ -23,7 +23,7 @@ function requireAuth() {
 
     $payload = JWT::verify($token);
 
-    if (!$payload) {
+    if (!is_array($payload)) {
         http_response_code(401);
         echo json_encode(['status' => 401, 'message' => 'Acceso no autorizado. Token inválido o expirado.']);
         exit;

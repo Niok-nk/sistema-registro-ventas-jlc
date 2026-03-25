@@ -111,7 +111,12 @@ if (!isset($_FILES['certificado']) || $_FILES['certificado']['error'] === UPLOAD
 }
 $data['certificado']     = subirCertificado('certificado');
 
-// ── Certificado RUT (opcional) ───────────────────────────────────────────────
+// ── Certificado RUT (obligatorio) ───────────────────────────────────────────
+if (!isset($_FILES['certificado_rut']) || $_FILES['certificado_rut']['error'] === UPLOAD_ERR_NO_FILE) {
+    http_response_code(400);
+    echo json_encode(['status' => 400, 'message' => 'El certificado RUT es obligatorio.']);
+    exit;
+}
 $data['certificado_rut'] = subirCertificado('certificado_rut');
 
 $controller = new UsuarioController();

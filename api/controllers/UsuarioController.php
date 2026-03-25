@@ -113,7 +113,7 @@ class UsuarioController {
         $required_fields = [
             'nombre', 'apellido', 'tipo_documento', 'numero_documento', 'fecha_nacimiento',
             'ciudad_residencia', 'departamento', 'whatsapp', 'correo', 'nombre_distribuidor', 'ciudad_punto_venta',
-            'cargo', 'antiguedad_meses', 'llave_breb',
+            'cargo', 'antiguedad_meses', 'llave_breb', 'rut',
             'password', 'password_confirm'
         ];
 
