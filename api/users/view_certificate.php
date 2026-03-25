@@ -33,7 +33,7 @@ if (empty($ftoken)) {
 
 // Verificar firma y expiración del token efímero
 $payload = JWT::verify($ftoken);
-if (!$payload) {
+if (!is_array($payload)) {
     http_response_code(401);
     die(json_encode(['status' => 401, 'message' => 'Token inválido o expirado']));
 }
