@@ -37,7 +37,7 @@ try {
     $db   = Database::getInstance();
     $conn = $db->getConnection();
 
-    // 1. Actualizar usuarios
+    // 1. Actualizar usuarios (operación principal — crítica)
     $stmt = $conn->prepare("
         UPDATE usuarios
         SET nombre_distribuidor = :nuevo, updated_at = CURRENT_TIMESTAMP
@@ -46,31 +46,37 @@ try {
     $stmt->execute([':nuevo' => $nombreNuevo, ':actual' => $nombreActual]);
     $afectados = $stmt->rowCount();
 
-    // 2. Sincronizar tabla distribuidores
-    // Intentar actualizar el nombre en distribuidores
-    $updDist = $conn->prepare("
-        UPDATE distribuidores SET nombre_distribuidor = :nuevo WHERE nombre_distribuidor = :actual
-    ");
-    $updDist->execute([':nuevo' => $nombreNuevo, ':actual' => $nombreActual]);
-
-    // Si no existia el nombre_actual en distribuidores, insertar el nuevo
-    if ($updDist->rowCount() === 0) {
-        $insDist = $conn->prepare("
-            INSERT IGNORE INTO distribuidores (nombre_distribuidor) VALUES (:nuevo)
+    // 2. Sincronizar tabla distribuidores (no crítica — si falla no interrumpe)
+    try {
+        $updDist = $conn->prepare("
+            UPDATE distribuidores SET nombre_distribuidor = :nuevo WHERE nombre_distribuidor = :actual
         ");
-        $insDist->execute([':nuevo' => $nombreNuevo]);
+        $updDist->execute([':nuevo' => $nombreNuevo, ':actual' => $nombreActual]);
+
+        if ($updDist->rowCount() === 0) {
+            $insDist = $conn->prepare("
+                INSERT IGNORE INTO distribuidores (nombre_distribuidor) VALUES (:nuevo)
+            ");
+            $insDist->execute([':nuevo' => $nombreNuevo]);
+        }
+    } catch (Exception $eDist) {
+        error_log('rename.php - sync distribuidores falló (no crítico): ' . $eDist->getMessage());
     }
 
-    // 3. Auditoría
-    logAudit(
-        $conn,
-        (int)$authUser['user_id'],
-        'renombrar_distribuidor',
-        'distribuidores',
-        null,
-        ['nombre_anterior' => $nombreActual],
-        ['nombre_nuevo'    => $nombreNuevo, 'usuarios_afectados' => $afectados]
-    );
+    // 3. Auditoría (no crítica — si falla no interrumpe)
+    try {
+        logAudit(
+            $conn,
+            (int)$authUser['user_id'],
+            'renombrar_distribuidor',
+            'distribuidores',
+            null,
+            ['nombre_anterior' => $nombreActual],
+            ['nombre_nuevo'    => $nombreNuevo, 'usuarios_afectados' => $afectados]
+        );
+    } catch (Exception $eAudit) {
+        error_log('rename.php - logAudit falló (no crítico): ' . $eAudit->getMessage());
+    }
 
     echo json_encode([
         'status'    => 200,
