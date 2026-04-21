@@ -89,22 +89,7 @@ const allCities = [
             required
           />
         </div>
-        <div class="form-group">
-          <label for="departamento" class="form-label">Departamento</label>
-          <select
-            id="departamento"
-            name="departamento"
-            class="form-input"
-            required
-          >
-            <option value="">Seleccione departamento</option>
-            {
-              colombiaData.map((item) => (
-                <option value={item.departamento}>{item.departamento}</option>
-              ))
-            }
-          </select>
-        </div>
+
         <div class="form-group">
           <label for="ciudad_residencia" class="form-label"
             >Ciudad de Residencia</label
@@ -129,10 +114,6 @@ const allCities = [
             placeholder="+57 3001234567"
             required
           />
-        </div>
-        <div class="form-group">
-          <label for="telefono" class="form-label">Teléfono (Opcional)</label>
-          <input type="tel" id="telefono" name="telefono" class="form-input" />
         </div>
       </div>
     </fieldset>
@@ -250,18 +231,15 @@ const allCities = [
           </div>
         </div>
       </div>
-            <div class="form-grid">
+      <div class="form-grid">
         <div class="form-group">
           <label for="rut" class="form-label">RUT</label>
-          <input
-            type="text"
-            id="rut"
-            name="rut"
-            class="form-input"
-            required
-          />
+          <input type="text" id="rut" name="rut" class="form-input" required />
           <p class="form-helper-text warning">
-            <a href="https://www.dian.gov.co/Prensa/Aprendelo-en-un-DIAN-X3/Paginas/Paso-a-Paso-Inscripcion-al-RUT.aspx" target="_blank">¿No tienes RUT? Inscríbete aquí</a>
+            <a
+              href="https://www.dian.gov.co/Prensa/Aprendelo-en-un-DIAN-X3/Paginas/Paso-a-Paso-Inscripcion-al-RUT.aspx"
+              target="_blank">¿No tienes RUT? Inscríbete aquí</a
+            >
           </p>
         </div>
 
@@ -292,7 +270,6 @@ const allCities = [
           </div>
         </div>
       </div>
-
     </fieldset>
 
     <!-- SECCIÓN 4: CONTRASEÑA Y POLÍTICAS -->
@@ -325,51 +302,48 @@ const allCities = [
           />
         </div>
       </div>
-      <div class="accept-all-container">
-        <Button type="button" variant="primary" id="accept-all-terms-btn">
-          Aceptar Todos los Términos y Declaraciones
-        </Button>
-      </div>
-      <div class="checkbox-group">
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="acepta_tratamiento_datos"
-            name="acepta_tratamiento_datos"
-            required
-          />
-          <label for="acepta_tratamiento_datos"
-            >Acepto el tratamiento de datos personales.</label
-          >
-        </div>
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="acepta_contacto_comercial"
-            name="acepta_contacto_comercial"
-            required
-          />
-          <label for="acepta_contacto_comercial"
-            >Acepto recibir contacto comercial.</label
-          >
-        </div>
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="declara_info_verdadera"
-            name="declara_info_verdadera"
-            required
-          />
-          <label for="declara_info_verdadera"
-            >Declaro que toda la información es verdadera.</label
-          >
-        </div>
-      </div>
     </fieldset>
-
     <!-- SECCIÓN 5: DECLARACIONES LEGALES DEL PROGRAMA -->
     <fieldset>
       <legend>Declaraciones Legales del Programa de Incentivos JLC</legend>
+
+      <p class="legal-intro">
+        Es obligatorio leer y aceptar todas las declaraciones legales para
+        participar en el Programa de Incentivos:
+      </p>
+
+      <!--
+
+      debe haceptar todos estos campos:
+        "acepta_tratamiento_datos",
+        "acepta_contacto_comercial",
+        "declara_info_verdadera",
+        "declara_naturaleza_comercial",
+        "reconoce_no_salario",
+        "declara_no_subordinacion",
+        "declara_relacion_autonoma",
+        "acepta_liberalidades",
+        "asume_obligaciones_tributarias",
+        "declara_no_contrato",
+        "acepta_terminos_programa",
+      -->
+
+      <div class="legal-declarations">
+        <div class="checkbox-item legal-item">
+          <input
+            type="checkbox"
+            id="acepta_tratamiento_datos, acepta_contacto_comercial, declara_info_verdadera, declara_naturaleza_comercial, reconoce_no_salario, declara_no_subordinacion, declara_relacion_autonoma, acepta_liberalidades, asume_obligaciones_tributarias, declara_no_contrato, acepta_terminos_programa"
+            name="acepta_tratamiento_datos"
+            required
+          />
+          <label
+            for="acepta_tratamiento_datos, acepta_contacto_comercial, declara_info_verdadera, declara_naturaleza_comercial, reconoce_no_salario, declara_no_subordinacion, declara_relacion_autonoma, acepta_liberalidades, asume_obligaciones_tributarias, declara_no_contrato, acepta_terminos_programa"
+            >He leído y acepto los términos y condiciones, el tratamiento de
+            datos, el contacto comercial y declaro que la información es veraz.
+          </label>
+        </div>
+      </div>
+
       <div class="terms-link-box">
         <p>
           📄 Puedes consultar los
@@ -378,138 +352,10 @@ const allCities = [
           </a>
         </p>
       </div>
-      <p class="legal-intro">
-        Es obligatorio leer y aceptar todas las declaraciones legales para
-        participar en el Programa de Incentivos:
-      </p>
 
-      <div class="legal-declarations">
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_naturaleza_comercial"
-            name="declara_naturaleza_comercial"
-            required
-          />
-          <label for="declara_naturaleza_comercial"
-            >Declaro de manera libre, expresa, voluntaria e informada que mi
-            participación en el Programa de Incentivos de JL y RB S.A.S. – JLC
-            tiene naturaleza estrictamente comercial y promocional, y no
-            configura relación laboral, ni contrato de trabajo, ni contrato
-            realidad, ni vínculo civil o comercial alguno con JLC, conforme a
-            los artículos 22, 23 y 24 del Código Sustantivo del Trabajo.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="reconoce_no_salario"
-            name="reconoce_no_salario"
-            required
-          />
-          <label for="reconoce_no_salario"
-            >Reconozco que los incentivos, bonificaciones o beneficios que
-            eventualmente reciba no constituyen salario, no son remuneración, no
-            son habituales ni periódicos, y no integran la base salarial, de
-            conformidad con el artículo 128 del Código Sustantivo del Trabajo,
-            ni generan prestaciones sociales, aportes a seguridad social o
-            parafiscales.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_no_subordinacion"
-            name="declara_no_subordinacion"
-            required
-          />
-          <label for="declara_no_subordinacion"
-            >Manifiesto que no existe subordinación jurídica, técnica ni
-            económica por parte de JLC, que no estoy sujeto a órdenes, control
-            disciplinario, cumplimiento de horarios, metas permanentes,
-            exclusividad, ni dependencia alguna frente a JLC.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_relacion_autonoma"
-            name="declara_relacion_autonoma"
-            required
-          />
-          <label for="declara_relacion_autonoma"
-            >Declaro que mantengo una relación laboral, comercial o contractual
-            exclusiva y autónoma con un distribuidor, empleador o empresa
-            distinta a JLC, siendo dicha relación ajena e independiente, sin que
-            JLC asuma responsabilidad solidaria, subsidiaria o concurrente.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="acepta_liberalidades"
-            name="acepta_liberalidades"
-            required
-          />
-          <label for="acepta_liberalidades"
-            >Acepto que los incentivos corresponden a liberalidades
-            empresariales ocasionales, otorgadas como reconocimiento comercial
-            condicionado, sin generar derechos adquiridos, estabilidad,
-            continuidad, expectativa de pago ni ingresos recurrentes.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="asume_obligaciones_tributarias"
-            name="asume_obligaciones_tributarias"
-            required
-          />
-          <label for="asume_obligaciones_tributarias"
-            >Asumo de manera exclusiva las obligaciones tributarias, fiscales y
-            declarativas ante la DIAN, incluyendo impuestos, retenciones o
-            costos que se deriven de los incentivos recibidos, exonerando
-            expresa e irrevocablemente a JLC de cualquier responsabilidad fiscal
-            o laboral.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_no_contrato"
-            name="declara_no_contrato"
-            required
-          />
-          <label for="declara_no_contrato"
-            >Declaro que esta aceptación no constituye contrato verbal ni
-            escrito, ni podrá ser utilizada para alegar vínculo laboral o
-            contrato realidad en el presente o en el futuro.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="acepta_terminos_programa"
-            name="acepta_terminos_programa"
-            required
-          />
-          <label for="acepta_terminos_programa"
-            >Acepto íntegramente los Términos y Condiciones del Programa de
-            Incentivos JLC.</label
-          >
-        </div>
+      <div id="form-error-message" class="error-message" style="display: none;">
       </div>
     </fieldset>
-
-    <div id="form-error-message" class="error-message" style="display: none;">
-    </div>
 
     <div class="form-actions">
       <Button href="/login" variant="outline">Cancelar</Button>
@@ -577,6 +423,7 @@ const allCities = [
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--color-border);
     width: 100%;
+    margin-top: 1rem;
   }
 
   .form-grid {
@@ -721,7 +568,6 @@ const allCities = [
     justify-content: center;
     margin: 3rem;
   }
-
 
   .form-label-optional {
     font-weight: 400;
