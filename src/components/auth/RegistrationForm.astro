@@ -825,6 +825,32 @@ const allCities = [
 
       // --- VALIDACIONES FRONTEND ---
 
+      // Validar tamaño de archivos
+      const certFile = formData.get("certificado");
+      const rutFile = formData.get("certificado_rut");
+      let totalSize = 0;
+
+      if (certFile && certFile.size) {
+        if (certFile.size > 5 * 1024 * 1024) {
+          showError("El certificado bancario supera los 5 MB permitidos.");
+          return;
+        }
+        totalSize += certFile.size;
+      }
+      
+      if (rutFile && rutFile.size) {
+        if (rutFile.size > 5 * 1024 * 1024) {
+          showError("El certificado RUT supera los 5 MB permitidos.");
+          return;
+        }
+        totalSize += rutFile.size;
+      }
+
+      if (totalSize > 7.5 * 1024 * 1024) {
+        showError("El tamaño combinado de los archivos supera el límite del servidor. Por favor, comprímelos.");
+        return;
+      }
+
       // Passwords
 
       if (data.password !== data.password_confirm) {
