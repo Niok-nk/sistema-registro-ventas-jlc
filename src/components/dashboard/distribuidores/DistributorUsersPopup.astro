@@ -1,4 +1,4 @@
-﻿---
+---
 // DistributorUsersPopup.astro
 // Popup que muestra los asesores de un distribuidor y permite editar su nombre
 ---
@@ -502,6 +502,7 @@
       fetch(
         `${API_BASE}/distribuidores/users.php?nombre=${encodeURIComponent(nombre)}`,
         {
+          credentials: "include",
           headers: { },
         },
       )
@@ -546,8 +547,7 @@
       saveNameBtn.disabled = true;
       try {
         const res = await fetch(`${API_BASE}/distribuidores/rename.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

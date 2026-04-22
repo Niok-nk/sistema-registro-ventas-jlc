@@ -1,4 +1,4 @@
-﻿---
+---
 import Card from "../Card.astro";
 import VentasFilters from "./ventas/VentasFilters.astro";
 import VentasStates from "./ventas/VentasStates.astro";
@@ -104,8 +104,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
         : window.location.origin + "/api";
     try {
       const res = await fetch(`${AB}/files/signed_url.php`, {
-        method: "POST"
-          credentials: "include",,
+        method: "POST",
         credentials: "include",
           headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file, type }),
@@ -219,8 +218,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
 
       try {
         const response = await fetch(`${API_BASE}/sales/list.php`, {
-          method: "GET"
-          credentials: "include",,
+          method: "GET",
           credentials: "include",
           headers: {
           },
@@ -232,7 +230,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
           allSales = data.data;
           renderSales(allSales);
         } else if (response.status === 401) {
-          localStorage.clear();
+          localStorage.removeItem("user"); localStorage.removeItem("userRole");
           window.location.href = "/login";
         } else {
           throw new Error(data.message || "Error desconocido");
@@ -388,8 +386,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
             const estado = statusSel ? statusSel.value : "rechazada";
             try {
               const res = await fetch(`${API_BASE}/sales/update_status.php`, {
-                method: "POST"
-          credentials: "include",,
+                method: "POST",
                 credentials: "include",
           headers: {
                   "Content-Type": "application/json",
@@ -494,8 +491,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     async function updateSaleStatus(saleId, newStatus, selectElement) {
       try {
         const response = await fetch(`${API_BASE}/sales/update_status.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
@@ -532,8 +528,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     async function deleteSale(saleId) {
       try {
         const response = await fetch(`${API_BASE}/sales/delete.php`, {
-          method: "DELETE"
-          credentials: "include",,
+          method: "DELETE",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

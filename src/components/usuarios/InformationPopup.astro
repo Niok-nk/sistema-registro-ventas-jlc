@@ -255,14 +255,14 @@
 <script is:inline>
   (function () {
     // Clave única basada en el ID de usuario → reaparece en cada nuevo login
-    const userStr = localStorage.getItem("user");
-    if (!userStr) return; // Sin sesión activa, no hacer nada
+    const _uStr = localStorage.getItem("user");
+    if (!_uStr) return; // Sin sesión, no hacer nada
 
-    let userId;
-    try { userId = JSON.parse(userStr).id; } catch(e) { return; }
-    if (!userId) return;
+    let _uid;
+    try { _uid = JSON.parse(_uStr).id; } catch(e) { return; }
+    if (!_uid) return;
 
-    const sessionKey = "info_dismissed_" + userId;
+    const sessionKey = "info_dismissed_" + _uid;
 
     const overlay = document.getElementById("info-update-popup");
     const profileBtn = document.getElementById("info-profile-btn");

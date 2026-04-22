@@ -1,4 +1,4 @@
-﻿---
+---
 import Card from "../Card.astro";
 import Button from "../Button.astro";
 ---
@@ -285,7 +285,7 @@ import Button from "../Button.astro";
 
 <script is:inline>
   (function () {
-    const API_BASE = "/api";
+    const API_BASE = "http://localhost:8000";
     const productSearchInput = document.getElementById("producto_jlc_search");
     const productHiddenInput = document.getElementById("producto_jlc");
     const productResultsContainer = document.getElementById("product-results");
@@ -308,7 +308,7 @@ import Button from "../Button.astro";
     // Cargar productos al iniciar
     fetch(`${API_BASE}/products/list.php`, {
       credentials: "include",
-          headers: { },
+      headers: { },
     })
       .then((res) => {
         if (res.status === 401) {
@@ -447,8 +447,7 @@ import Button from "../Button.astro";
           fileData.append("file", selectedFile);
 
           const uploadResponse = await fetch(`${API_BASE}/uploads/upload.php`, {
-            method: "POST"
-          credentials: "include",,
+            method: "POST",
             credentials: "include",
           headers: {
             },
@@ -479,8 +478,7 @@ import Button from "../Button.astro";
         };
 
         const response = await fetch(`${API_BASE}/sales/create.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

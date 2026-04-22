@@ -406,8 +406,7 @@
     async function importCSV(data) {
 
       const response = await fetch(`${API_BASE}/sales/import_csv.php`, {
-        method: "POST"
-          credentials: "include",,
+        method: "POST",
         credentials: "include",
           headers: {
           "Content-Type": "application/json",

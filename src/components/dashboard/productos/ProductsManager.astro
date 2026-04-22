@@ -1,4 +1,4 @@
-﻿---
+---
 // Script de manejo de productos (lógica separada)
 ---
 
@@ -212,8 +212,7 @@
         } else {
           // Modo creación
           const response = await fetch(`${this.API_BASE}/products/create.php`, {
-            method: "POST"
-          credentials: "include",,
+            method: "POST",
             credentials: "include",
           headers: {
               "Content-Type": "application/json",
@@ -256,8 +255,7 @@
 
       try {
         const response = await fetch(`${this.API_BASE}/products/toggle.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
@@ -347,8 +345,7 @@
     async updateProduct(data, id) {
       try {
         const response = await fetch(`${this.API_BASE}/products/update.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

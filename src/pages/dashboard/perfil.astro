@@ -447,7 +447,7 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
         if (data.status === 200 && data.data) {
           displayProfile(data.data);
         } else if (response.status === 401) {
-          localStorage.clear();
+          localStorage.removeItem("user"); localStorage.removeItem("userRole");
           window.location.href = "/login";
         } else {
           throw new Error(data.message || "Error al cargar perfil");
@@ -593,8 +593,7 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
     window.viewCertificate = async function(filename) {
       try {
         const res = await fetch(`${API_BASE}/files/signed_url.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ file: filename, type: "certificado" }),
@@ -688,8 +687,7 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
 
         try {
           var res = await fetch(API_BASE + "/user/update_documents.php", {
-            method: "POST"
-          credentials: "include",,
+            method: "POST",
             credentials: "include",
             body: fd
           });

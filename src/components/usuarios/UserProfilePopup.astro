@@ -1,4 +1,4 @@
-﻿---
+---
 // Componente: Popup Modal de Perfil de Usuario
 // Muestra información completa del usuario en un modal
 ---
@@ -568,8 +568,7 @@
         : window.location.origin + "/api";
     try {
       const res = await fetch(`${AB}/files/signed_url.php`, {
-        method: "POST"
-          credentials: "include",,
+        method: "POST",
         credentials: "include",
           headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file, type }),
@@ -775,8 +774,7 @@
             const res = await fetch(
               `${API_BASE}/users/update_distributor.php`,
               {
-                method: "POST"
-          credentials: "include",,
+                method: "POST",
                 credentials: "include",
           headers: {
                   "Content-Type": "application/json",
@@ -947,8 +945,7 @@
 
       try {
         const response = await fetch(`${API_BASE}/users/update_role.php`, {
-          method: "POST"
-          credentials: "include",,
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
@@ -976,7 +973,7 @@
           }
 
           // Show success notification
-          console.log(`Rol actualizado a: ${newRole}`);
+          console.log(`✅ Rol actualizado a: ${newRole}`);
         } else {
           throw new Error(data.message || "Error al actualizar rol");
         }
