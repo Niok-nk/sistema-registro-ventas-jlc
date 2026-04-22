@@ -25,10 +25,6 @@ $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
 // Verificar si el origin está en la lista blanca
 if (in_array($requestOrigin, $allowedOrigins)) {
     header("Access-Control-Allow-Origin: $requestOrigin");
-} elseif (strpos($requestOrigin, 'localhost') !== false ||
-          strpos($requestOrigin, '127.0.0.1') !== false) {
-    // Permitir cualquier localhost en desarrollo
-    header("Access-Control-Allow-Origin: $requestOrigin");
 } else {
     // Log del origen rechazado
     error_log("CORS: Origin no permitido: $requestOrigin");
