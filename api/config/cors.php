@@ -31,8 +31,10 @@ if ($environment === 'development') {
         in_array($requestOrigin, $allowedOrigins)) {
         header("Access-Control-Allow-Origin: $requestOrigin");
     } else {
-        // Desarrollo: permitir cualquier origen como fallback (menos seguro pero práctico)
-        header("Access-Control-Allow-Origin: *");
+        // Desarrollo: intentar con el origin específico; sin fallback * (incompatible con credentials)
+        if (!empty($requestOrigin)) {
+            header("Access-Control-Allow-Origin: $requestOrigin");
+        }
     }
 } else {
     // Producción: estricto - solo orígenes en lista blanca
@@ -48,6 +50,7 @@ if ($environment === 'development') {
 }
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Max-Age: 3600");
 // Lista exhaustiva de headers permitidos para evitar bloqueos
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Origin, Accept");

@@ -1,4 +1,4 @@
----
+﻿---
 // Componente: Popup de Actualización de info
 // Aparece automáticamente al cargar el dashboard si el usuario no lo ha omitido en la sesión.
 ---
@@ -255,7 +255,6 @@
 <script is:inline>
   (function () {
     // Clave única basada en el token JWT actual → reaparece en cada nuevo login
-    const token = localStorage.getItem("token");
     if (!token) return; // Sin sesión, no hacer nada
 
     // Usamos los últimos 20 chars del token como identificador de sesión

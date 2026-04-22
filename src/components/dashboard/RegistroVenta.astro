@@ -1,4 +1,4 @@
----
+﻿---
 import Card from "../Card.astro";
 import Button from "../Button.astro";
 ---
@@ -306,9 +306,8 @@ import Button from "../Button.astro";
     let allProducts = []; // Almacenar todos los productos
 
     // Cargar productos al iniciar
-    const _token = localStorage.getItem("token");
     fetch(`${API_BASE}/products/list.php`, {
-      headers: { Authorization: `Bearer ${_token}` },
+      headers: { },
     })
       .then((res) => {
         if (res.status === 401) {
@@ -431,8 +430,6 @@ import Button from "../Button.astro";
         alert("Por favor, selecciona un producto válido de la lista.");
         return;
       }
-
-      const token = localStorage.getItem("token");
       if (!token) {
         alert("Sesión expirada. Por favor inicia sesión nuevamente.");
         window.location.href = "/login";
@@ -455,8 +452,8 @@ import Button from "../Button.astro";
 
           const uploadResponse = await fetch(`${API_BASE}/uploads/upload.php`, {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
+            credentials: "include",
+          headers: {
             },
             body: fileData,
           });
@@ -486,9 +483,9 @@ import Button from "../Button.astro";
 
         const response = await fetch(`${API_BASE}/sales/create.php`, {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(data),
         });

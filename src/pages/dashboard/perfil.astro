@@ -434,7 +434,6 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
     const profileContent = document.getElementById("profile-content");
 
     async function loadProfile() {
-      const token = localStorage.getItem("token");
 
       if (!token) {
         window.location.href = "/login";
@@ -444,7 +443,6 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
       try {
         const response = await fetch(`${API_BASE}/user/profile.php`, {
           headers: {
-            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -515,7 +513,6 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
       const certContainer = document.getElementById("certificado-container");
       if (certContainer) {
         if (user.certificado) {
-          const token = localStorage.getItem("token") || "";
           certContainer.innerHTML = `
             <a
             <a
@@ -541,7 +538,6 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
       const certRutContainer = document.getElementById("certificado-rut-container");
       if (certRutContainer) {
         if (user.certificado_rut) {
-          const token = localStorage.getItem("token") || "";
           certRutContainer.innerHTML = `
             <a
             <a
@@ -599,12 +595,12 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
         : window.location.origin + "/api";
 
     window.viewCertificate = async function(filename) {
-      const token = localStorage.getItem("token");
       if (!token) return;
       try {
         const res = await fetch(`${API_BASE}/files/signed_url.php`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ file: filename, type: "certificado" }),
         });
         const data = await res.json();
@@ -669,7 +665,6 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
     document.querySelectorAll(".doc-save-btn").forEach(function(btn) {
       btn.addEventListener("click", async function() {
         var docName = btn.dataset.doc;
-        var token = localStorage.getItem("token");
         if (!token) return;
 
         var fd = new FormData();
@@ -699,7 +694,7 @@ import AnimatedCard from "../../components/AnimatedCard.astro";
         try {
           var res = await fetch(API_BASE + "/user/update_documents.php", {
             method: "POST",
-            headers: { Authorization: "Bearer " + token },
+            credentials: "include",
             body: fd
           });
           var data = await res.json();

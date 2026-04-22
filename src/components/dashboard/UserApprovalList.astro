@@ -1,4 +1,4 @@
----
+﻿---
 import SearchBox from "../SearchBox.astro";
 import FilterSelect from "../FilterSelect.astro";
 import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
@@ -375,7 +375,6 @@ interface Props {}
 <script is:inline>
   // Helper: URL firmada efímera para archivos
   async function openSignedFile(file, type) {
-    const token = localStorage.getItem("token") || "";
     const AB =
       window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
         ? "http://localhost:8000"
@@ -383,7 +382,8 @@ interface Props {}
     try {
       const res = await fetch(`${AB}/files/signed_url.php`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        credentials: "include",
+          headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file, type }),
       });
       const data = await res.json();
@@ -400,7 +400,6 @@ interface Props {}
       window.location.hostname === "127.0.0.1"
         ? "http://localhost:8000"
         : window.location.origin + "/api";
-    const token = localStorage.getItem("token") || "";
 
     // Estado
     let allUsers = [];
@@ -447,7 +446,6 @@ interface Props {}
     // Cargar usuarios
     async function loadUsers() {
       showLoading();
-      const token = localStorage.getItem("token");
       const user = localStorage.getItem("user");
 
       // DEBUG: Mostrar información del token
@@ -475,8 +473,8 @@ interface Props {}
 
         const response = await fetch(url, {
           method: "GET",
+          credentials: "include",
           headers: {
-            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -654,14 +652,12 @@ interface Props {}
       // Deshabilitar toggle mientras se procesa
       toggleElement.disabled = true;
 
-      const token = localStorage.getItem("token");
-
       try {
         const response = await fetch(`${API_BASE}/users/toggle_active.php`, {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             userId: userId,

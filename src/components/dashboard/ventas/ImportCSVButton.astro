@@ -1,4 +1,4 @@
----
+﻿---
 // Componente: Botón de Importación CSV
 // Solo visible para administradores
 // Permite actualización masiva de estados de facturas
@@ -404,12 +404,11 @@
 
     // Importar CSV
     async function importCSV(data) {
-      const token = localStorage.getItem("token");
 
       const response = await fetch(`${API_BASE}/sales/import_csv.php`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+        credentials: "include",
+          headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ updates: data }),
