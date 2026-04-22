@@ -1,4 +1,4 @@
----
+﻿---
 // Componente: Popup Modal de Perfil de Usuario
 // Muestra información completa del usuario en un modal
 ---
@@ -562,15 +562,16 @@
 <script is:inline>
   // Helper: obtener URL firmada y abrir el archivo
   async function openSignedFile(file, type) {
-    const token = localStorage.getItem("token") || "";
     const AB =
       window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
         ? "http://localhost:8000"
         : window.location.origin + "/api";
     try {
       const res = await fetch(`${AB}/files/signed_url.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        method: "POST"
+          credentials: "include",,
+        credentials: "include",
+          headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file, type }),
       });
       const data = await res.json();
@@ -667,7 +668,6 @@
     },
 
     async fetchUserData(userId) {
-      const token = localStorage.getItem("token");
       const API_BASE =
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
@@ -676,8 +676,8 @@
 
       try {
         const response = await fetch(`${API_BASE}/users/get.php?id=${userId}`, {
+          credentials: "include",
           headers: {
-            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -765,8 +765,6 @@
             return;
           }
           freshSave.disabled = true;
-
-          const token = localStorage.getItem("token") || "";
           const API_BASE =
             window.location.hostname === "localhost" ||
             window.location.hostname === "127.0.0.1"
@@ -777,10 +775,11 @@
             const res = await fetch(
               `${API_BASE}/users/update_distributor.php`,
               {
-                method: "POST",
-                headers: {
+                method: "POST"
+          credentials: "include",,
+                credentials: "include",
+          headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                   user_id: this.currentUserId,
@@ -946,14 +945,13 @@
           ? "http://localhost:8000"
           : window.location.origin + "/api";
 
-      const token = localStorage.getItem("token");
-
       try {
         const response = await fetch(`${API_BASE}/users/update_role.php`, {
-          method: "POST",
+          method: "POST"
+          credentials: "include",,
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             userId: this.currentUserData.id,

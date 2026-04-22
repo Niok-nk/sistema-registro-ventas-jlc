@@ -1,4 +1,4 @@
----
+﻿---
 // DistributorUsersPopup.astro
 // Popup que muestra los asesores de un distribuidor y permite editar su nombre
 ---
@@ -460,8 +460,6 @@
         ? "http://localhost:8000"
         : window.location.origin + "/api";
 
-    const token = localStorage.getItem("token") || "";
-
     let isAdmin = false;
     try {
       const u = JSON.parse(localStorage.getItem("user") || "{}");
@@ -504,7 +502,7 @@
       fetch(
         `${API_BASE}/distribuidores/users.php?nombre=${encodeURIComponent(nombre)}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { },
         },
       )
         .then((r) => r.json())
@@ -548,10 +546,11 @@
       saveNameBtn.disabled = true;
       try {
         const res = await fetch(`${API_BASE}/distribuidores/rename.php`, {
-          method: "POST",
+          method: "POST"
+          credentials: "include",,
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             nombre_actual: currentNombre,

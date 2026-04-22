@@ -254,12 +254,15 @@
 
 <script is:inline>
   (function () {
-    // Clave única basada en el token JWT actual → reaparece en cada nuevo login
-    const token = localStorage.getItem("token");
-    if (!token) return; // Sin sesión, no hacer nada
+    // Clave única basada en el ID de usuario → reaparece en cada nuevo login
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return; // Sin sesión activa, no hacer nada
 
-    // Usamos los últimos 20 chars del token como identificador de sesión
-    const sessionKey = "info_dismissed_" + token.slice(-20);
+    let userId;
+    try { userId = JSON.parse(userStr).id; } catch(e) { return; }
+    if (!userId) return;
+
+    const sessionKey = "info_dismissed_" + userId;
 
     const overlay = document.getElementById("info-update-popup");
     const profileBtn = document.getElementById("info-profile-btn");

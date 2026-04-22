@@ -1,4 +1,4 @@
----
+﻿---
 // Script de manejo de productos (lógica separada)
 ---
 
@@ -14,9 +14,6 @@
       this.loadProducts();
     },
 
-    getToken() {
-      return localStorage.getItem("token");
-    },
 
     attachEventListeners() {
       // Formulario de agregar producto
@@ -49,22 +46,12 @@
       `;
 
       try {
-        const token = this.getToken();
-
-        if (!token) {
-          window.location.href = "/login";
-          return;
-        }
-
         const response = await fetch(`${this.API_BASE}/products/list.php`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
 
         // Si el token expiró, redirigir al login
         if (response.status === 401) {
-          localStorage.removeItem("token");
           localStorage.removeItem("user");
           localStorage.removeItem("userRole");
           window.location.href = "/login";
@@ -224,12 +211,12 @@
           }
         } else {
           // Modo creación
-          const token = this.getToken();
           const response = await fetch(`${this.API_BASE}/products/create.php`, {
-            method: "POST",
-            headers: {
+            method: "POST"
+          credentials: "include",,
+            credentials: "include",
+          headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(data),
           });
@@ -268,12 +255,12 @@
       }
 
       try {
-        const token = this.getToken();
         const response = await fetch(`${this.API_BASE}/products/toggle.php`, {
-          method: "POST",
+          method: "POST"
+          credentials: "include",,
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             id: id,
@@ -359,12 +346,12 @@
 
     async updateProduct(data, id) {
       try {
-        const token = this.getToken();
         const response = await fetch(`${this.API_BASE}/products/update.php`, {
-          method: "POST",
+          method: "POST"
+          credentials: "include",,
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ ...data, id: parseInt(id) }),
         });

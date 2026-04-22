@@ -1,4 +1,4 @@
----
+﻿---
 import Button from "../../Button.astro";
 import Card from "../../Card.astro";
 ---
@@ -401,8 +401,6 @@ import Card from "../../Card.astro";
         ? "http://localhost:8000"
         : window.location.origin + "/api";
 
-    const token = localStorage.getItem("token") || "";
-
     // Elements
     const grid = document.getElementById("distributors-grid");
     const loading = document.getElementById("loading-state");
@@ -420,7 +418,8 @@ import Card from "../../Card.astro";
       showLoading();
       try {
         const res = await fetch(`${API_BASE}/distribuidores/list.php`, {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+          headers: { },
         });
 
         if (res.status === 401) {

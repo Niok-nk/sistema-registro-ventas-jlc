@@ -118,19 +118,23 @@ import Button from "../components/Button.astro";
       const data = Object.fromEntries(formData);
 
       try {
-        const response = await fetch("/api/auth/login.php", {
+        const API_BASE =
+          window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+            ? "http://localhost:8000"
+            : window.location.origin + "/api";
+
+        const response = await fetch(`${API_BASE}/auth/login.php`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",   // ← necesario para recibir la cookie HttpOnly
           body: JSON.stringify(data),
         });
 
         const result = await response.json();
 
         if (response.ok && result.status === 200) {
-          // Login exitoso
-          localStorage.setItem("token", result.token);
+          // Login exitoso — el token ya NO llega en el JSON, está en la cookie HttpOnly
+          // Solo guardamos datos de UI (no sensibles) en localStorage
           localStorage.setItem("user", JSON.stringify(result.user));
           localStorage.setItem("userRole", result.user.rol);
 

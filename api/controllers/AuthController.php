@@ -61,6 +61,16 @@ class AuthController {
 
                     unset($user['password']);
 
+                    // Emitir cookie HttpOnly — JS nunca puede leerla (protección XSS)
+                    $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+                    setcookie('auth_token', $jwt, [
+                        'expires'  => time() + 86400,   // 24h igual que el JWT
+                        'path'     => '/',
+                        'secure'   => $isSecure,         // Solo HTTPS en producción
+                        'httponly' => true,              // JS no puede leerla
+                        'samesite' => 'Lax',            // Protección CSRF básica
+                    ]);
+
                     // Registrar sesión en tabla sesiones (token_hash SHA-256 + expiración 24 h)
                     try {
                         $tokenHash  = hash('sha256', $jwt);
@@ -78,10 +88,10 @@ class AuthController {
                         error_log("Error registrando sesión: " . $se->getMessage());
                     }
 
+                    // No se devuelve 'token' en el JSON — ya está en la cookie HttpOnly
                     return [
                         'status'  => 200,
                         'message' => 'Login exitoso',
-                        'token'   => $jwt,
                         'user'    => $user
                     ];
             }

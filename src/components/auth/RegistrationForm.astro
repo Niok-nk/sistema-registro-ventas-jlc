@@ -1,4 +1,4 @@
----
+﻿---
 import Card from "../Card.astro";
 import Button from "../Button.astro";
 import colombiaData from "../../data/colombia.json";
@@ -923,7 +923,8 @@ const allCities = [
 
       try {
         const response = await fetch(`${API_BASE}/auth/register.php`, {
-          method: "POST",
+          method: "POST"
+          credentials: "include",,
           // NO Content-Type manual — el browser lo pone automáticamente con boundary para multipart
           body: (() => {
             const fd = new FormData(form);

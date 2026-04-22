@@ -1,4 +1,4 @@
----
+﻿---
 import Card from "../Card.astro";
 import VentasFilters from "./ventas/VentasFilters.astro";
 import VentasStates from "./ventas/VentasStates.astro";
@@ -98,15 +98,16 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
 <script is:inline>
   // Helper: URL firmada efímera para archivos
   async function openSignedFile(file, type) {
-    const token = localStorage.getItem("token") || "";
     const AB =
       window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
         ? "http://localhost:8000"
         : window.location.origin + "/api";
     try {
       const res = await fetch(`${AB}/files/signed_url.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        method: "POST"
+          credentials: "include",,
+        credentials: "include",
+          headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file, type }),
       });
       const data = await res.json();
@@ -180,9 +181,9 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     // Cargar productos para filtro
     async function loadProducts() {
       try {
-        const tk = localStorage.getItem("token") || "";
         const response = await fetch(`${API_BASE}/products/list.php`, {
-          headers: { Authorization: `Bearer ${tk}` },
+          credentials: "include",
+          headers: { },
         });
         const data = await response.json();
 
@@ -215,18 +216,13 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     // Cargar ventas
     async function loadSales() {
       showLoading();
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        window.location.href = "/login";
-        return;
-      }
 
       try {
         const response = await fetch(`${API_BASE}/sales/list.php`, {
-          method: "GET",
+          method: "GET"
+          credentials: "include",,
+          credentials: "include",
           headers: {
-            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -390,14 +386,13 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
             const row = this.closest("tr");
             const statusSel = row?.querySelector(".status-selector");
             const estado = statusSel ? statusSel.value : "rechazada";
-
-            const token = localStorage.getItem("token");
             try {
               const res = await fetch(`${API_BASE}/sales/update_status.php`, {
-                method: "POST",
-                headers: {
+                method: "POST"
+          credentials: "include",,
+                credentials: "include",
+          headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                   id: saleId,
@@ -498,12 +493,12 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     // Función para actualizar estado de venta
     async function updateSaleStatus(saleId, newStatus, selectElement) {
       try {
-        const token = localStorage.getItem("token");
         const response = await fetch(`${API_BASE}/sales/update_status.php`, {
-          method: "POST",
+          method: "POST"
+          credentials: "include",,
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             id: parseInt(saleId),
@@ -536,12 +531,12 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
     // Función para eliminar venta
     async function deleteSale(saleId) {
       try {
-        const token = localStorage.getItem("token");
         const response = await fetch(`${API_BASE}/sales/delete.php`, {
-          method: "DELETE",
+          method: "DELETE"
+          credentials: "include",,
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ id: parseInt(saleId) }),
         });
@@ -698,13 +693,13 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
 
     // Obtener URLs firmadas para todas las ventas con foto (en paralelo)
     async function getSignedUrls(sales) {
-      const token = localStorage.getItem("token") || "";
       const salesWithPhoto = sales.filter((s) => s.foto_factura);
       const results = await Promise.allSettled(
         salesWithPhoto.map((sale) =>
           fetch(`${API_BASE}/files/signed_url.php`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            credentials: "include",
+          headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ file: sale.foto_factura, type: "factura" }),
           })
             .then((r) => r.json())
