@@ -826,11 +826,11 @@ const allCities = [
       // --- VALIDACIONES FRONTEND ---
 
       // Validar tamaño de archivos
-      const certFile = formData.get("certificado");
-      const rutFile = formData.get("certificado_rut");
+      const certFile = formData.get("certificado") as File | null;
+      const rutFile = formData.get("certificado_rut") as File | null;
       let totalSize = 0;
 
-      if (certFile && certFile.size) {
+      if (certFile instanceof File && certFile.size) {
         if (certFile.size > 5 * 1024 * 1024) {
           showError("El certificado bancario supera los 5 MB permitidos.");
           return;
@@ -838,7 +838,7 @@ const allCities = [
         totalSize += certFile.size;
       }
       
-      if (rutFile && rutFile.size) {
+      if (rutFile instanceof File && rutFile.size) {
         if (rutFile.size > 5 * 1024 * 1024) {
           showError("El certificado RUT supera los 5 MB permitidos.");
           return;
