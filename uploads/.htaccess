@@ -1,7 +1,6 @@
-# Denegar todo por defecto
+# Denegar todo acceso directo por HTTP
 Order Deny,Allow
 Deny from all
-
 
 # Deshabilitar ejecución de scripts PHP (Capa extra de seguridad)
 <IfModule mod_php.c>

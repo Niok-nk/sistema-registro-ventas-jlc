@@ -57,7 +57,6 @@ try {
 
     http_response_code(200);
     echo json_encode(['status' => 200, 'data' => $ventas]);
-
 } catch (PDOException $e) {
     error_log("Error listando ventas: " . $e->getMessage());
     http_response_code(500);
