@@ -307,179 +307,17 @@ const allLocations = colombiaData.flatMap(dept =>
           />
         </div>
       </div>
-      <div class="checkbox-group">
-        <div class="checkbox-item">
+      <div class="checkbox-group" style="margin-top: 1rem;">
+        <div class="checkbox-item legal-item highlight-accept" style="border: 2px solid var(--color-accent); background-color: rgba(59, 130, 246, 0.05); padding: 1.5rem; border-radius: var(--radius-md);">
           <input
             type="checkbox"
-            id="acepta_tratamiento_datos"
-            name="acepta_tratamiento_datos"
+            id="acepta_todo"
+            name="acepta_todo"
             required
+            style="transform: scale(1.2); margin-top: 0.25rem;"
           />
-          <label for="acepta_tratamiento_datos"
-            >Acepto el tratamiento de datos personales.</label
-          >
-        </div>
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="acepta_contacto_comercial"
-            name="acepta_contacto_comercial"
-            required
-          />
-          <label for="acepta_contacto_comercial"
-            >Acepto recibir contacto comercial.</label
-          >
-        </div>
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="declara_info_verdadera"
-            name="declara_info_verdadera"
-            required
-          />
-          <label for="declara_info_verdadera"
-            >Declaro que toda la información es verdadera.</label
-          >
-        </div>
-      </div>
-    </fieldset>
-
-    <!-- SECCIÓN 5: DECLARACIONES LEGALES DEL PROGRAMA -->
-    <fieldset>
-      <legend>Declaraciones Legales del Programa de Incentivos JLC</legend>
-      <div class="terms-link-box">
-        <p>
-          📄 Puedes consultar los
-          <a href="/terminosycondiciones" target="_blank" class="terms-link">
-            Términos y Condiciones completos aquí
-          </a>
-        </p>
-      </div>
-      <p class="legal-intro">
-        Es obligatorio leer y aceptar todas las declaraciones legales para
-        participar en el Programa de Incentivos:
-      </p>
-
-      <div class="legal-declarations">
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_naturaleza_comercial"
-            name="declara_naturaleza_comercial"
-            required
-          />
-          <label for="declara_naturaleza_comercial"
-            >Declaro de manera libre, expresa, voluntaria e informada que mi
-            participación en el Programa de Incentivos de JL y RB S.A.S. – JLC
-            tiene naturaleza estrictamente comercial y promocional, y no
-            configura relación laboral, ni contrato de trabajo, ni contrato
-            realidad, ni vínculo civil o comercial alguno con JLC, conforme a
-            los artículos 22, 23 y 24 del Código Sustantivo del Trabajo.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="reconoce_no_salario"
-            name="reconoce_no_salario"
-            required
-          />
-          <label for="reconoce_no_salario"
-            >Reconozco que los incentivos, bonificaciones o beneficios que
-            eventualmente reciba no constituyen salario, no son remuneración, no
-            son habituales ni periódicos, y no integran la base salarial, de
-            conformidad con el artículo 128 del Código Sustantivo del Trabajo,
-            ni generan prestaciones sociales, aportes a seguridad social o
-            parafiscales.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_no_subordinacion"
-            name="declara_no_subordinacion"
-            required
-          />
-          <label for="declara_no_subordinacion"
-            >Manifiesto que no existe subordinación jurídica, técnica ni
-            económica por parte de JLC, que no estoy sujeto a órdenes, control
-            disciplinario, cumplimiento de horarios, metas permanentes,
-            exclusividad, ni dependencia alguna frente a JLC.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_relacion_autonoma"
-            name="declara_relacion_autonoma"
-            required
-          />
-          <label for="declara_relacion_autonoma"
-            >Declaro que mantengo una relación laboral, comercial o contractual
-            exclusiva y autónoma con un distribuidor, empleador o empresa
-            distinta a JLC, siendo dicha relación ajena e independiente, sin que
-            JLC asuma responsabilidad solidaria, subsidiaria o concurrente.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="acepta_liberalidades"
-            name="acepta_liberalidades"
-            required
-          />
-          <label for="acepta_liberalidades"
-            >Acepto que los incentivos corresponden a liberalidades
-            empresariales ocasionales, otorgadas como reconocimiento comercial
-            condicionado, sin generar derechos adquiridos, estabilidad,
-            continuidad, expectativa de pago ni ingresos recurrentes.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="asume_obligaciones_tributarias"
-            name="asume_obligaciones_tributarias"
-            required
-          />
-          <label for="asume_obligaciones_tributarias"
-            >Asumo de manera exclusiva las obligaciones tributarias, fiscales y
-            declarativas ante la DIAN, incluyendo impuestos, retenciones o
-            costos que se deriven de los incentivos recibidos, exonerando
-            expresa e irrevocablemente a JLC de cualquier responsabilidad fiscal
-            o laboral.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_no_contrato"
-            name="declara_no_contrato"
-            required
-          />
-          <label for="declara_no_contrato"
-            >Declaro que esta aceptación no constituye contrato verbal ni
-            escrito, ni podrá ser utilizada para alegar vínculo laboral o
-            contrato realidad en el presente o en el futuro.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="acepta_terminos_programa"
-            name="acepta_terminos_programa"
-            required
-          />
-          <label for="acepta_terminos_programa"
-            >Acepto íntegramente los Términos y Condiciones del Programa de
-            Incentivos JLC.</label
+          <label for="acepta_todo" style="font-weight: 500; font-size: 1rem;"
+            >He leído íntegramente y acepto los <a href="/terminosycondiciones" target="_blank" class="terms-link">Términos y Condiciones del Programa de Incentivos JLC</a> y todas sus declaraciones legales y políticas de privacidad asociadas.</label
           >
         </div>
       </div>
@@ -920,52 +758,13 @@ const allLocations = colombiaData.flatMap(dept =>
         return;
       }
 
-      // Checkboxes originales
-      if (
-        !data.acepta_tratamiento_datos ||
-        !data.acepta_contacto_comercial ||
-        !data.declara_info_verdadera
-      ) {
+      // Checkbox único de aceptación
+      if (!data.acepta_todo) {
         showError(
-          "Debes aceptar todas las políticas originales para continuar.",
+          "Debes aceptar los Términos y Condiciones y las declaraciones legales para continuar.",
         );
         return;
       }
-
-      // Declaraciones legales del programa (8 nuevos checkboxes)
-      const declaracionesLegales = [
-        "declara_naturaleza_comercial",
-        "reconoce_no_salario",
-        "declara_no_subordinacion",
-        "declara_relacion_autonoma",
-        "acepta_liberalidades",
-        "asume_obligaciones_tributarias",
-        "declara_no_contrato",
-        "acepta_terminos_programa",
-      ];
-
-      for (const declaracion of declaracionesLegales) {
-        if (!data[declaracion]) {
-          showError(
-            `Debes aceptar todas las declaraciones legales del Programa de Incentivos para continuar.`,
-          );
-          return;
-        }
-      }
-
-      // Convertir TODOS los checkboxes a booleano (11 total)
-      // @ts-ignore - Converting FormData checkboxes to boolean
-      data.acepta_tratamiento_datos = data.acepta_tratamiento_datos === "on";
-      // @ts-ignore
-      data.acepta_contacto_comercial = data.acepta_contacto_comercial === "on";
-      // @ts-ignore
-      data.declara_info_verdadera = data.declara_info_verdadera === "on";
-
-      // Convertir declaraciones legales
-      declaracionesLegales.forEach((declaracion) => {
-        // @ts-ignore - Converting FormData checkboxes to boolean
-        data[declaracion] = data[declaracion] === "on";
-      });
 
       // --- ENVÍO A LA API ---
 
@@ -991,6 +790,12 @@ const allLocations = colombiaData.flatMap(dept =>
           // NO Content-Type manual — el browser lo pone automáticamente con boundary para multipart
           body: (() => {
             const fd = new FormData(form);
+
+            // Inyectar ciudad y departamento separados (del campo unificado ciudad_search)
+            fd.set("ciudad_residencia", data.ciudad_residencia?.toString() || "");
+            fd.set("departamento", data.departamento?.toString() || "");
+            fd.delete("ciudad_search");
+
             // Sobrescribir checkboxes convertidos a boolean como string para el backend
             const boolFields = [
               "acepta_tratamiento_datos",
@@ -1005,7 +810,10 @@ const allLocations = colombiaData.flatMap(dept =>
               "declara_no_contrato",
               "acepta_terminos_programa",
             ];
-            boolFields.forEach((f) => fd.set(f, data[f] ? "true" : "false"));
+            boolFields.forEach((f) => {
+              if (data.acepta_todo) fd.set(f, "true");
+            });
+            fd.delete("acepta_todo");
             return fd;
           })(),
         });
