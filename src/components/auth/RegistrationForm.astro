@@ -630,6 +630,13 @@ const allLocations = colombiaData.flatMap(dept =>
 
       // El archivo no va en 'data' (objeto) — se envía via FormData directamente
 
+      // Validar que se haya seleccionado una ciudad válida del autocomplete
+      const ciudadSearchVal = (data.ciudad_search as string) || "";
+      if (!ciudadSearchVal.includes(" - ")) {
+        showError("Por favor selecciona una ciudad válida de la lista.");
+        return;
+      }
+
       // --- VALIDACIONES FRONTEND ---
 
       // Validar tamaño de archivos
@@ -721,6 +728,15 @@ const allLocations = colombiaData.flatMap(dept =>
           // NO Content-Type manual — el browser lo pone automáticamente con boundary para multipart
           body: (() => {
             const fd = new FormData(form);
+
+            // Extraer ciudad y departamento del campo unificado "Ciudad - Departamento"
+            const ciudadSearch = (fd.get("ciudad_search") as string) || "";
+            if (ciudadSearch.includes(" - ")) {
+              const parts = ciudadSearch.split(" - ");
+              fd.set("ciudad_residencia", parts[0].trim());
+              fd.set("departamento", parts[1].trim());
+            }
+            fd.delete("ciudad_search");
 
             // Sobrescribir checkboxes convertidos a boolean como string para el backend
             const boolFields = [
