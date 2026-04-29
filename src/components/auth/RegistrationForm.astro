@@ -3,10 +3,13 @@ import Card from "../Card.astro";
 import Button from "../Button.astro";
 import colombiaData from "../../data/colombia.json";
 
-// Obtener todas las ciudades únicas de todos los departamentos y ordenarlas alfabéticamente
 const allCities = [
   ...new Set(colombiaData.flatMap((dept) => dept.ciudades)),
 ].sort();
+
+const allLocations = colombiaData.flatMap(dept => 
+  dept.ciudades.map(city => `${city} - ${dept.departamento}`)
+).sort();
 ---
 
 <Card title="Registro de Asesor JLC">
@@ -89,35 +92,18 @@ const allCities = [
             required
           />
         </div>
-        <div class="form-group">
-          <label for="departamento" class="form-label">Departamento</label>
-          <select
-            id="departamento"
-            name="departamento"
+        <div class="form-group custom-autocomplete">
+          <label for="ciudad_search" class="form-label">Ciudad de Residencia</label>
+          <input
+            type="text"
+            id="ciudad_search"
+            name="ciudad_search"
             class="form-input"
+            placeholder="Ej: Leticia - Amazonas"
             required
-          >
-            <option value="">Seleccione departamento</option>
-            {
-              colombiaData.map((item) => (
-                <option value={item.departamento}>{item.departamento}</option>
-              ))
-            }
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="ciudad_residencia" class="form-label"
-            >Ciudad de Residencia</label
-          >
-          <select
-            id="ciudad_residencia"
-            name="ciudad_residencia"
-            class="form-input"
-            required
-            disabled
-          >
-            <option value="">Primero seleccione departamento</option>
-          </select>
+            autocomplete="off"
+          />
+          <ul id="ciudades-dropdown" class="autocomplete-dropdown" style="display: none;"></ul>
         </div>
         <div class="form-group">
           <label for="whatsapp" class="form-label">WhatsApp</label>
@@ -129,10 +115,6 @@ const allCities = [
             placeholder="+57 3001234567"
             required
           />
-        </div>
-        <div class="form-group">
-          <label for="telefono" class="form-label">Teléfono (Opcional)</label>
-          <input type="tel" id="telefono" name="telefono" class="form-input" />
         </div>
       </div>
     </fieldset>
@@ -325,184 +307,17 @@ const allCities = [
           />
         </div>
       </div>
-      <div class="accept-all-container">
-        <Button type="button" variant="primary" id="accept-all-terms-btn">
-          Aceptar Todos los Términos y Declaraciones
-        </Button>
-      </div>
-      <div class="checkbox-group">
-        <div class="checkbox-item">
+      <div class="checkbox-group" style="margin-top: 1rem;">
+        <div class="checkbox-item legal-item highlight-accept" style="border: 2px solid var(--color-accent); background-color: rgba(59, 130, 246, 0.05); padding: 1.5rem; border-radius: var(--radius-md);">
           <input
             type="checkbox"
-            id="acepta_tratamiento_datos"
-            name="acepta_tratamiento_datos"
+            id="acepta_todo"
+            name="acepta_todo"
             required
+            style="transform: scale(1.2); margin-top: 0.25rem;"
           />
-          <label for="acepta_tratamiento_datos"
-            >Acepto el tratamiento de datos personales.</label
-          >
-        </div>
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="acepta_contacto_comercial"
-            name="acepta_contacto_comercial"
-            required
-          />
-          <label for="acepta_contacto_comercial"
-            >Acepto recibir contacto comercial.</label
-          >
-        </div>
-        <div class="checkbox-item">
-          <input
-            type="checkbox"
-            id="declara_info_verdadera"
-            name="declara_info_verdadera"
-            required
-          />
-          <label for="declara_info_verdadera"
-            >Declaro que toda la información es verdadera.</label
-          >
-        </div>
-      </div>
-    </fieldset>
-
-    <!-- SECCIÓN 5: DECLARACIONES LEGALES DEL PROGRAMA -->
-    <fieldset>
-      <legend>Declaraciones Legales del Programa de Incentivos JLC</legend>
-      <div class="terms-link-box">
-        <p>
-          📄 Puedes consultar los
-          <a href="/terminosycondiciones" target="_blank" class="terms-link">
-            Términos y Condiciones completos aquí
-          </a>
-        </p>
-      </div>
-      <p class="legal-intro">
-        Es obligatorio leer y aceptar todas las declaraciones legales para
-        participar en el Programa de Incentivos:
-      </p>
-
-      <div class="legal-declarations">
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_naturaleza_comercial"
-            name="declara_naturaleza_comercial"
-            required
-          />
-          <label for="declara_naturaleza_comercial"
-            >Declaro de manera libre, expresa, voluntaria e informada que mi
-            participación en el Programa de Incentivos de JL y RB S.A.S. – JLC
-            tiene naturaleza estrictamente comercial y promocional, y no
-            configura relación laboral, ni contrato de trabajo, ni contrato
-            realidad, ni vínculo civil o comercial alguno con JLC, conforme a
-            los artículos 22, 23 y 24 del Código Sustantivo del Trabajo.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="reconoce_no_salario"
-            name="reconoce_no_salario"
-            required
-          />
-          <label for="reconoce_no_salario"
-            >Reconozco que los incentivos, bonificaciones o beneficios que
-            eventualmente reciba no constituyen salario, no son remuneración, no
-            son habituales ni periódicos, y no integran la base salarial, de
-            conformidad con el artículo 128 del Código Sustantivo del Trabajo,
-            ni generan prestaciones sociales, aportes a seguridad social o
-            parafiscales.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_no_subordinacion"
-            name="declara_no_subordinacion"
-            required
-          />
-          <label for="declara_no_subordinacion"
-            >Manifiesto que no existe subordinación jurídica, técnica ni
-            económica por parte de JLC, que no estoy sujeto a órdenes, control
-            disciplinario, cumplimiento de horarios, metas permanentes,
-            exclusividad, ni dependencia alguna frente a JLC.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_relacion_autonoma"
-            name="declara_relacion_autonoma"
-            required
-          />
-          <label for="declara_relacion_autonoma"
-            >Declaro que mantengo una relación laboral, comercial o contractual
-            exclusiva y autónoma con un distribuidor, empleador o empresa
-            distinta a JLC, siendo dicha relación ajena e independiente, sin que
-            JLC asuma responsabilidad solidaria, subsidiaria o concurrente.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="acepta_liberalidades"
-            name="acepta_liberalidades"
-            required
-          />
-          <label for="acepta_liberalidades"
-            >Acepto que los incentivos corresponden a liberalidades
-            empresariales ocasionales, otorgadas como reconocimiento comercial
-            condicionado, sin generar derechos adquiridos, estabilidad,
-            continuidad, expectativa de pago ni ingresos recurrentes.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="asume_obligaciones_tributarias"
-            name="asume_obligaciones_tributarias"
-            required
-          />
-          <label for="asume_obligaciones_tributarias"
-            >Asumo de manera exclusiva las obligaciones tributarias, fiscales y
-            declarativas ante la DIAN, incluyendo impuestos, retenciones o
-            costos que se deriven de los incentivos recibidos, exonerando
-            expresa e irrevocablemente a JLC de cualquier responsabilidad fiscal
-            o laboral.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="declara_no_contrato"
-            name="declara_no_contrato"
-            required
-          />
-          <label for="declara_no_contrato"
-            >Declaro que esta aceptación no constituye contrato verbal ni
-            escrito, ni podrá ser utilizada para alegar vínculo laboral o
-            contrato realidad en el presente o en el futuro.</label
-          >
-        </div>
-
-        <div class="checkbox-item legal-item">
-          <input
-            type="checkbox"
-            id="acepta_terminos_programa"
-            name="acepta_terminos_programa"
-            required
-          />
-          <label for="acepta_terminos_programa"
-            >Acepto íntegramente los Términos y Condiciones del Programa de
-            Incentivos JLC.</label
+          <label for="acepta_todo" style="font-weight: 500; font-size: 1rem;"
+            >He leído íntegramente y acepto los <a href="/terminosycondiciones" target="_blank" class="terms-link">Términos y Condiciones del Programa de Incentivos JLC</a> y todas sus declaraciones legales y políticas de privacidad asociadas.</label
           >
         </div>
       </div>
@@ -518,41 +333,95 @@ const allCities = [
   </form>
 </Card>
 
-<script define:vars={{ colombiaData }}>
-  const departmentSelect = document.getElementById("departamento");
-  const citySelect = document.getElementById("ciudad_residencia");
 
-  if (departmentSelect && citySelect) {
-    departmentSelect.addEventListener("change", (e) => {
-      const selectedDept = e.target.value;
 
-      // Limpiar ciudades
-      citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-      citySelect.disabled = true;
+<script define:vars={{ allLocations }}>
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById('ciudad_search');
+    const dropdown = document.getElementById('ciudades-dropdown');
 
-      if (selectedDept) {
-        const deptData = colombiaData.find(
-          (d) => d.departamento === selectedDept,
-        );
+    if (searchInput && dropdown) {
+      searchInput.addEventListener('focus', updateDropdown);
+      searchInput.addEventListener('input', updateDropdown);
 
-        if (deptData && deptData.ciudades) {
-          deptData.ciudades.forEach((city) => {
-            const option = document.createElement("option");
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
-          });
-          citySelect.disabled = false;
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
         }
-      } else {
-        citySelect.innerHTML =
-          '<option value="">Primero seleccione departamento</option>';
+      });
+
+      function updateDropdown() {
+        const val = searchInput.value;
+        dropdown.innerHTML = '';
+        
+        if (!val) {
+          dropdown.style.display = 'none';
+          return;
+        }
+        
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const searchVal = normalize(val);
+        
+        const matches = allLocations.filter(loc => normalize(loc).includes(searchVal)).slice(0, 50);
+        
+        if (matches.length > 0) {
+          matches.forEach(loc => {
+            const li = document.createElement('li');
+            li.textContent = loc;
+            li.addEventListener('click', () => {
+              searchInput.value = loc;
+              dropdown.style.display = 'none';
+            });
+            dropdown.appendChild(li);
+          });
+          dropdown.style.display = 'block';
+        } else {
+          const li = document.createElement('li');
+          li.textContent = "No se encontraron resultados";
+          li.style.color = "var(--color-text-secondary)";
+          li.style.pointerEvents = "none";
+          dropdown.appendChild(li);
+          dropdown.style.display = 'block';
+        }
       }
-    });
-  }
+    }
+  });
 </script>
 
 <style>
+  .custom-autocomplete {
+    position: relative;
+  }
+  .autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    background-color: var(--color-bg-cardb);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    z-index: 10;
+    margin: 0.25rem 0 0 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .autocomplete-dropdown li {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    color: var(--color-text-main);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 1rem;
+  }
+  .autocomplete-dropdown li:last-child {
+    border-bottom: none;
+  }
+  .autocomplete-dropdown li:hover {
+    background-color: var(--color-bg-card);
+    color: var(--color-accent);
+  }
   .registration-form {
     display: flex;
 
@@ -648,63 +517,6 @@ const allCities = [
     background-color: var(--color-bg-cardb);
   }
 
-  .legal-intro {
-    font-size: 0.95rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 1.5rem;
-    padding: 0.75rem 1rem;
-    background-color: rgba(66, 153, 225, 0.1);
-    border-left: 3px solid var(--color-accent);
-    border-radius: var(--radius-sm);
-  }
-
-  .legal-declarations {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .legal-item {
-    padding: 1rem;
-    background-color: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    transition: all 0.2s;
-  }
-
-  .legal-item:hover {
-    border-color: var(--color-accent);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .legal-item label {
-    font-size: 0.875rem;
-    line-height: 1.6;
-    color: var(--color-text-main);
-    text-align: justify;
-  }
-
-  .legal-item input[type="checkbox"] {
-    margin-top: 0.25rem;
-    flex-shrink: 0;
-  }
-
-  .terms-link-box {
-    background-color: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    margin: 1rem;
-  }
-
-  .terms-link-box p {
-    margin: 0;
-    color: var(--color-text-main);
-    font-size: 0.95rem;
-  }
-
   .terms-link {
     color: var(--color-accent);
     font-weight: 600;
@@ -715,11 +527,6 @@ const allCities = [
   .terms-link:hover {
     color: var(--color-accent-hover);
     text-decoration: none;
-  }
-  .accept-all-container {
-    display: flex;
-    justify-content: center;
-    margin: 3rem;
   }
 
 
@@ -825,6 +632,32 @@ const allCities = [
 
       // --- VALIDACIONES FRONTEND ---
 
+      // Validar tamaño de archivos
+      const certFile = formData.get("certificado") as File | null;
+      const rutFile = formData.get("certificado_rut") as File | null;
+      let totalSize = 0;
+
+      if (certFile instanceof File && certFile.size) {
+        if (certFile.size > 5 * 1024 * 1024) {
+          showError("El certificado bancario supera los 5 MB permitidos.");
+          return;
+        }
+        totalSize += certFile.size;
+      }
+      
+      if (rutFile instanceof File && rutFile.size) {
+        if (rutFile.size > 5 * 1024 * 1024) {
+          showError("El certificado RUT supera los 5 MB permitidos.");
+          return;
+        }
+        totalSize += rutFile.size;
+      }
+
+      if (totalSize > 7.5 * 1024 * 1024) {
+        showError("El tamaño combinado de los archivos supera el límite del servidor. Por favor, comprímelos.");
+        return;
+      }
+
       // Passwords
 
       if (data.password !== data.password_confirm) {
@@ -857,52 +690,13 @@ const allCities = [
         return;
       }
 
-      // Checkboxes originales
-      if (
-        !data.acepta_tratamiento_datos ||
-        !data.acepta_contacto_comercial ||
-        !data.declara_info_verdadera
-      ) {
+      // Checkbox único de aceptación
+      if (!data.acepta_todo) {
         showError(
-          "Debes aceptar todas las políticas originales para continuar.",
+          "Debes aceptar los Términos y Condiciones y las declaraciones legales para continuar.",
         );
         return;
       }
-
-      // Declaraciones legales del programa (8 nuevos checkboxes)
-      const declaracionesLegales = [
-        "declara_naturaleza_comercial",
-        "reconoce_no_salario",
-        "declara_no_subordinacion",
-        "declara_relacion_autonoma",
-        "acepta_liberalidades",
-        "asume_obligaciones_tributarias",
-        "declara_no_contrato",
-        "acepta_terminos_programa",
-      ];
-
-      for (const declaracion of declaracionesLegales) {
-        if (!data[declaracion]) {
-          showError(
-            `Debes aceptar todas las declaraciones legales del Programa de Incentivos para continuar.`,
-          );
-          return;
-        }
-      }
-
-      // Convertir TODOS los checkboxes a booleano (11 total)
-      // @ts-ignore - Converting FormData checkboxes to boolean
-      data.acepta_tratamiento_datos = data.acepta_tratamiento_datos === "on";
-      // @ts-ignore
-      data.acepta_contacto_comercial = data.acepta_contacto_comercial === "on";
-      // @ts-ignore
-      data.declara_info_verdadera = data.declara_info_verdadera === "on";
-
-      // Convertir declaraciones legales
-      declaracionesLegales.forEach((declaracion) => {
-        // @ts-ignore - Converting FormData checkboxes to boolean
-        data[declaracion] = data[declaracion] === "on";
-      });
 
       // --- ENVÍO A LA API ---
 
@@ -927,6 +721,7 @@ const allCities = [
           // NO Content-Type manual — el browser lo pone automáticamente con boundary para multipart
           body: (() => {
             const fd = new FormData(form);
+
             // Sobrescribir checkboxes convertidos a boolean como string para el backend
             const boolFields = [
               "acepta_tratamiento_datos",
@@ -941,7 +736,10 @@ const allCities = [
               "declara_no_contrato",
               "acepta_terminos_programa",
             ];
-            boolFields.forEach((f) => fd.set(f, data[f] ? "true" : "false"));
+            boolFields.forEach((f) => {
+              if (data.acepta_todo) fd.set(f, "true");
+            });
+            fd.delete("acepta_todo");
             return fd;
           })(),
         });
@@ -974,23 +772,6 @@ const allCities = [
       // @ts-ignore
       errorMessageDiv.style.display = "block";
       window.scrollTo(0, document.body.scrollHeight);
-    }
-  });
-</script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const acceptAllBtn = document.getElementById("accept-all-terms-btn");
-    if (acceptAllBtn) {
-      acceptAllBtn.addEventListener("click", () => {
-        const form = document.getElementById("registration-form");
-        if (form) {
-          const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-          checkboxes.forEach((checkbox) => {
-            (checkbox as HTMLInputElement).checked = true;
-          });
-        }
-      });
     }
   });
 </script>

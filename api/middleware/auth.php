@@ -6,11 +6,17 @@ require_once __DIR__ . '/../utils/JWT.php';
 Database::getInstance();
 
 function requireAuth() {
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
     $token = null;
 
-    if (!empty($authHeader)) {
-        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    // 1. Leer desde cookie HttpOnly (método seguro, inaccesible para JS)
+    if (!empty($_COOKIE['auth_token'])) {
+        $token = $_COOKIE['auth_token'];
+    }
+
+    // 2. Fallback: header Authorization: Bearer (compatibilidad / llamadas directas)
+    if (!$token) {
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (!empty($authHeader) && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
             $token = $matches[1];
         }
     }

@@ -29,6 +29,7 @@ database/*.sqlite
 
 # Documentation / Agents
 agente-*.md
+objetivo.md
 brain/
 
 # Uploads (facturas)
