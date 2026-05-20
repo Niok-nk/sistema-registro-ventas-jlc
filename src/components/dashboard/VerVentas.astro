@@ -314,7 +314,7 @@ import UserProfilePopup from "../usuarios/UserProfilePopup.astro";
                         class="obs-selector"
                         data-sale-id="${sale.id}"
                         ${sale.estado !== "rechazada" ? "disabled" : ""}
-                        style="font-size:0.72rem;padding:0.2rem 0.3rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-bg-card);color:var(--color-text-main);width:100%;max-width:170px;${sale.estado !== "rechazada" ? "opacity:0.35;cursor:not-allowed" : ""}"
+                        style="font-size:0.72rem;padding:0.2rem 0.3rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-bg-cardb);color:var(--color-text-main);width:100%;max-width:170px;${sale.estado !== "rechazada" ? "opacity:0.35;cursor:not-allowed" : ""}"
                       >
                         <option value="">-- Sin observación --</option>
                         <option value="Número de serie incorrecto o inválido" ${sale.observaciones === "Número de serie incorrecto o inválido" ? "selected" : ""}>N° serie incorrecto o inválido</option>
