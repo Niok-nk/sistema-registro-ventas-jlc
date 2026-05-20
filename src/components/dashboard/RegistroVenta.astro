@@ -304,10 +304,29 @@ import Button from "../Button.astro";
     const progressFill = document.getElementById("progress-fill");
     const progressText = document.getElementById("progress-text");
     const submitBtn = form.querySelector('button[type="submit"]');
+    const fechaVentaInput = document.getElementById("fecha_venta");
 
     let uploadedFileUrl = "";
     let selectedFile = null;
     let allProducts = []; // Almacenar todos los productos
+
+    // Limitar la fecha de venta al mes actual
+    if (fechaVentaInput) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      
+      const firstDay = `${year}-${month}-01`;
+      const lastDayDate = new Date(year, now.getMonth() + 1, 0);
+      const lastDay = `${year}-${month}-${String(lastDayDate.getDate()).padStart(2, "0")}`;
+      
+      fechaVentaInput.min = firstDay;
+      fechaVentaInput.max = lastDay;
+      
+      // Autocompletar con la fecha de hoy
+      const today = String(now.getDate()).padStart(2, "0");
+      fechaVentaInput.value = `${year}-${month}-${today}`;
+    }
 
     // Cargar productos al iniciar
     fetch(`${API_BASE}/products/list.php`, {
@@ -437,6 +456,13 @@ import Button from "../Button.astro";
       }
 
       const formData = new FormData(form);
+      const fechaVentaVal = formData.get("fecha_venta");
+      if (fechaVentaVal && fechaVentaInput) {
+        if (fechaVentaVal < fechaVentaInput.min || fechaVentaVal > fechaVentaInput.max) {
+          alert("La fecha de venta debe pertenecer al mes actual.");
+          return;
+        }
+      }
       let fotoUrl = uploadedFileUrl;
 
       try {
