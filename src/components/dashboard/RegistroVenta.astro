@@ -310,19 +310,25 @@ import Button from "../Button.astro";
     let selectedFile = null;
     let allProducts = []; // Almacenar todos los productos
 
-    // Limitar la fecha de venta al mes actual
+    // AJUSTE TEMPORAL: permitir fechas desde hace 2 meses hasta el fin del mes actual
     if (fechaVentaInput) {
       const now = new Date();
+
+      // Calcular el primer día de hace 2 meses
+      const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      const minYear = twoMonthsAgo.getFullYear();
+      const minMonth = String(twoMonthsAgo.getMonth() + 1).padStart(2, "0");
+      const firstDay = `${minYear}-${minMonth}-01`;
+
+      // Calcular el último día del mes actual
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, "0");
-      
-      const firstDay = `${year}-${month}-01`;
       const lastDayDate = new Date(year, now.getMonth() + 1, 0);
       const lastDay = `${year}-${month}-${String(lastDayDate.getDate()).padStart(2, "0")}`;
-      
+
       fechaVentaInput.min = firstDay;
       fechaVentaInput.max = lastDay;
-      
+
       // Autocompletar con la fecha de hoy
       const today = String(now.getDate()).padStart(2, "0");
       fechaVentaInput.value = `${year}-${month}-${today}`;
@@ -459,7 +465,7 @@ import Button from "../Button.astro";
       const fechaVentaVal = formData.get("fecha_venta");
       if (fechaVentaVal && fechaVentaInput) {
         if (fechaVentaVal < fechaVentaInput.min || fechaVentaVal > fechaVentaInput.max) {
-          alert("La fecha de venta debe pertenecer al mes actual.");
+          alert("La fecha de venta debe estar dentro de los últimos 2 meses.");
           return;
         }
       }
