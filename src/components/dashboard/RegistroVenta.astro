@@ -3,45 +3,40 @@ import Card from "../Card.astro";
 import Button from "../Button.astro";
 ---
 
+
 <!-- Panel de configuración de fechas (solo admin) -->
 <div id="admin-date-config" class="admin-config-panel" style="display:none;">
-  <div class="admin-config-header" id="admin-config-toggle">
-    <span class="admin-config-icon">⚙️</span>
-    <span class="admin-config-title">Configuración de Rango de Fechas</span>
-    <span class="admin-badge">Admin</span>
-    <span class="admin-chevron" id="admin-chevron">▼</span>
-  </div>
-  <div class="admin-config-body" id="admin-config-body">
-    <p class="admin-config-desc">Ajusta el rango permitido para la fecha de venta en el formulario de registro.</p>
-    <div class="admin-config-controls">
-      <div class="admin-control-group">
-        <label for="cfg-meses-atras" class="form-label">Meses hacia atrás permitidos</label>
-        <div class="admin-select-wrap">
-          <select id="cfg-meses-atras" class="form-input admin-select">
-            <option value="0">Solo mes actual</option>
-            <option value="1">1 mes atrás</option>
-            <option value="2" selected>2 meses atrás</option>
-            <option value="3">3 meses atrás</option>
-            <option value="4">4 meses atrás</option>
-            <option value="5">5 meses atrás</option>
-            <option value="6">6 meses atrás</option>
-          </select>
-        </div>
+  <div class="admin-config-controls">
+    <div class="admin-control-group">
+      <label for="cfg-meses-atras" class="form-label">
+        Meses hacia atrás permitidos
+        <span class="admin-badge">Admin</span>
+      </label>
+      <select id="cfg-meses-atras" class="form-input admin-select">
+        <option value="0">Solo mes actual</option>
+        <option value="1">1 mes atrás</option>
+        <option value="2" selected>2 meses atrás</option>
+        <option value="3">3 meses atrás</option>
+        <option value="4">4 meses atrás</option>
+        <option value="5">5 meses atrás</option>
+        <option value="6">6 meses atrás</option>
+      </select>
+    </div>
+    <div class="admin-control-group">
+      <label class="form-label">Rango activo</label>
+      <div class="admin-range-preview" id="admin-range-preview">
+        <span id="preview-min">–</span>
+        <span class="range-arrow">→</span>
+        <span id="preview-max">–</span>
       </div>
-      <div class="admin-control-group">
-        <label class="form-label">Rango activo</label>
-        <div class="admin-range-preview" id="admin-range-preview">
-          <span id="preview-min">–</span>
-          <span class="range-arrow">→</span>
-          <span id="preview-max">–</span>
-        </div>
-      </div>
-      <button id="cfg-apply-btn" class="admin-apply-btn">
-        ✓ Aplicar cambios
-      </button>
+    </div>
+    <div class="admin-control-group admin-control-action">
+      <label class="form-label" style="opacity:0;pointer-events:none">.</label>
+      <button id="cfg-apply-btn" class="admin-apply-btn">Aplicar</button>
     </div>
   </div>
 </div>
+
 
 <Card title="Registrar Nueva Venta">
   <form class="sale-form" id="sale-form">
@@ -327,38 +322,8 @@ import Button from "../Button.astro";
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     background: var(--color-bg-card);
-    overflow: hidden;
+    padding: 1.25rem;
     box-shadow: var(--shadow-sm);
-  }
-
-  .admin-config-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.85rem 1.25rem;
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid transparent;
-    transition: background 0.2s;
-  }
-
-  .admin-config-header:hover {
-    background: var(--color-bg-cardb);
-  }
-
-  .admin-config-panel.open .admin-config-header {
-    border-bottom-color: var(--color-border);
-  }
-
-  .admin-config-icon {
-    font-size: 1rem;
-  }
-
-  .admin-config-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--color-text-main);
-    flex: 1;
   }
 
   .admin-badge {
@@ -371,55 +336,27 @@ import Button from "../Button.astro";
     border: 1px solid rgba(234, 179, 8, 0.35);
     border-radius: var(--radius-sm);
     padding: 0.15rem 0.5rem;
-  }
-
-  .admin-chevron {
-    font-size: 0.7rem;
-    color: var(--color-text-secondary);
-    transition: transform 0.25s;
-  }
-
-  .admin-config-panel.open .admin-chevron {
-    transform: rotate(180deg);
-  }
-
-  .admin-config-body {
-    display: none;
-    padding: 1.25rem;
-    animation: fadeSlideDown 0.2s ease;
-  }
-
-  .admin-config-panel.open .admin-config-body {
-    display: block;
-  }
-
-  @keyframes fadeSlideDown {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .admin-config-desc {
-    font-size: 0.8rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 1rem;
+    margin-left: 0.25rem;
   }
 
   .admin-config-controls {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-end;
-    gap: 1rem;
+    gap: 1.25rem;
+    width: 100%;
   }
 
   .admin-control-group {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    min-width: 180px;
+    flex: 1 1 200px;
   }
 
-  .admin-select-wrap {
-    position: relative;
+  .admin-control-action {
+    flex: 0 0 auto;
   }
 
   .admin-select {
@@ -453,32 +390,40 @@ import Button from "../Button.astro";
     opacity: 0.5;
   }
 
-  .admin-apply-btn {
+  #cfg-apply-btn {
     height: 2.75rem;
-    padding: 0 1.25rem;
+    padding: 0 1.5rem;
     background: var(--color-accent);
     color: var(--color-accent-text);
-    border: none;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    transition: all 0.2s ease;
     white-space: nowrap;
-    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-sm);
   }
 
-  .admin-apply-btn:hover {
+  #cfg-apply-btn:hover {
     background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
   }
 
-  .admin-apply-btn:active {
-    transform: scale(0.97);
+  #cfg-apply-btn:active {
+    transform: translateY(0) scale(0.98);
   }
 
-  .admin-apply-btn.applied {
-    background: #22c55e;
-    color: #fff;
+  #cfg-apply-btn.applied {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    color: var(--color-accent-text);
   }
 </style>
 
@@ -565,10 +510,10 @@ import Button from "../Button.astro";
         mesesAtras = parseInt(cfgSelect.value, 10);
         sessionStorage.setItem("cfg_meses_atras", String(mesesAtras));
         applyRango(mesesAtras);
-        applyBtn.textContent = "✓ Aplicado";
+        applyBtn.textContent = "Aplicado";
         applyBtn.classList.add("applied");
         setTimeout(() => {
-          applyBtn.textContent = "✓ Aplicar cambios";
+          applyBtn.textContent = "Aplicar";
           applyBtn.classList.remove("applied");
         }, 2000);
       });
