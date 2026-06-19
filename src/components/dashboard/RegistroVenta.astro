@@ -3,6 +3,46 @@ import Card from "../Card.astro";
 import Button from "../Button.astro";
 ---
 
+<!-- Panel de configuración de fechas (solo admin) -->
+<div id="admin-date-config" class="admin-config-panel" style="display:none;">
+  <div class="admin-config-header" id="admin-config-toggle">
+    <span class="admin-config-icon">⚙️</span>
+    <span class="admin-config-title">Configuración de Rango de Fechas</span>
+    <span class="admin-badge">Admin</span>
+    <span class="admin-chevron" id="admin-chevron">▼</span>
+  </div>
+  <div class="admin-config-body" id="admin-config-body">
+    <p class="admin-config-desc">Ajusta el rango permitido para la fecha de venta en el formulario de registro.</p>
+    <div class="admin-config-controls">
+      <div class="admin-control-group">
+        <label for="cfg-meses-atras" class="form-label">Meses hacia atrás permitidos</label>
+        <div class="admin-select-wrap">
+          <select id="cfg-meses-atras" class="form-input admin-select">
+            <option value="0">Solo mes actual</option>
+            <option value="1">1 mes atrás</option>
+            <option value="2" selected>2 meses atrás</option>
+            <option value="3">3 meses atrás</option>
+            <option value="4">4 meses atrás</option>
+            <option value="5">5 meses atrás</option>
+            <option value="6">6 meses atrás</option>
+          </select>
+        </div>
+      </div>
+      <div class="admin-control-group">
+        <label class="form-label">Rango activo</label>
+        <div class="admin-range-preview" id="admin-range-preview">
+          <span id="preview-min">–</span>
+          <span class="range-arrow">→</span>
+          <span id="preview-max">–</span>
+        </div>
+      </div>
+      <button id="cfg-apply-btn" class="admin-apply-btn">
+        ✓ Aplicar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
 <Card title="Registrar Nueva Venta">
   <form class="sale-form" id="sale-form">
     <div class="form-grid">
@@ -281,6 +321,165 @@ import Button from "../Button.astro";
     font-size: 0.875rem;
     color: var(--color-text-secondary);
   }
+  /* ── Admin config panel ── */
+  .admin-config-panel {
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .admin-config-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s;
+  }
+
+  .admin-config-header:hover {
+    background: var(--color-bg-cardb);
+  }
+
+  .admin-config-panel.open .admin-config-header {
+    border-bottom-color: var(--color-border);
+  }
+
+  .admin-config-icon {
+    font-size: 1rem;
+  }
+
+  .admin-config-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    flex: 1;
+  }
+
+  .admin-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    border-radius: var(--radius-sm);
+    padding: 0.15rem 0.5rem;
+  }
+
+  .admin-chevron {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    transition: transform 0.25s;
+  }
+
+  .admin-config-panel.open .admin-chevron {
+    transform: rotate(180deg);
+  }
+
+  .admin-config-body {
+    display: none;
+    padding: 1.25rem;
+    animation: fadeSlideDown 0.2s ease;
+  }
+
+  .admin-config-panel.open .admin-config-body {
+    display: block;
+  }
+
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .admin-config-desc {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .admin-config-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+  }
+
+  .admin-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 180px;
+  }
+
+  .admin-select-wrap {
+    position: relative;
+  }
+
+  .admin-select {
+    height: 2.75rem;
+    font-size: 0.9rem;
+    padding-right: 2.5rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+  }
+
+  .admin-range-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 0.875rem;
+    background: var(--color-bg-cardb);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    font-family: monospace;
+    white-space: nowrap;
+  }
+
+  .range-arrow {
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+  }
+
+  .admin-apply-btn {
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+
+  .admin-apply-btn:hover {
+    background: var(--color-accent-hover);
+  }
+
+  .admin-apply-btn:active {
+    transform: scale(0.97);
+  }
+
+  .admin-apply-btn.applied {
+    background: #22c55e;
+    color: #fff;
+  }
 </style>
 
 <script is:inline>
@@ -310,28 +509,91 @@ import Button from "../Button.astro";
     let selectedFile = null;
     let allProducts = []; // Almacenar todos los productos
 
-    // AJUSTE TEMPORAL: permitir fechas desde hace 2 meses hasta el fin del mes actual
-    if (fechaVentaInput) {
+    // ── Configuración de rango de fecha (admin-configurable) ──
+    const cfgSelect   = document.getElementById("cfg-meses-atras");
+    const previewMin  = document.getElementById("preview-min");
+    const previewMax  = document.getElementById("preview-max");
+    const applyBtn    = document.getElementById("cfg-apply-btn");
+    const adminPanel  = document.getElementById("admin-date-config");
+    const configToggle = document.getElementById("admin-config-toggle");
+
+    // Leer meses guardados en sessionStorage (persiste mientras la sesión esté activa)
+    let mesesAtras = parseInt(sessionStorage.getItem("cfg_meses_atras") ?? "2", 10);
+    if (cfgSelect) cfgSelect.value = String(mesesAtras);
+
+    function calcRango(meses) {
       const now = new Date();
+      const startDate = new Date(now.getFullYear(), now.getMonth() - meses, 1);
+      const sY = startDate.getFullYear();
+      const sM = String(startDate.getMonth() + 1).padStart(2, "0");
+      const firstDay = `${sY}-${sM}-01`;
 
-      // Calcular el primer día de hace 2 meses
-      const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-      const minYear = twoMonthsAgo.getFullYear();
-      const minMonth = String(twoMonthsAgo.getMonth() + 1).padStart(2, "0");
-      const firstDay = `${minYear}-${minMonth}-01`;
+      const eY = now.getFullYear();
+      const eM = String(now.getMonth() + 1).padStart(2, "0");
+      const lastDayDate = new Date(eY, now.getMonth() + 1, 0);
+      const lastDay = `${eY}-${eM}-${String(lastDayDate.getDate()).padStart(2, "0")}`;
 
-      // Calcular el último día del mes actual
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const lastDayDate = new Date(year, now.getMonth() + 1, 0);
-      const lastDay = `${year}-${month}-${String(lastDayDate.getDate()).padStart(2, "0")}`;
+      return { firstDay, lastDay, eY, eM, now };
+    }
 
+    function applyRango(meses) {
+      if (!fechaVentaInput) return;
+      const { firstDay, lastDay, eY, eM, now } = calcRango(meses);
       fechaVentaInput.min = firstDay;
       fechaVentaInput.max = lastDay;
-
-      // Autocompletar con la fecha de hoy
       const today = String(now.getDate()).padStart(2, "0");
-      fechaVentaInput.value = `${year}-${month}-${today}`;
+      fechaVentaInput.value = `${eY}-${eM}-${today}`;
+      if (previewMin) previewMin.textContent = firstDay;
+      if (previewMax) previewMax.textContent = lastDay;
+    }
+
+    // Aplicar al cargar
+    applyRango(mesesAtras);
+
+    // Actualizar preview en tiempo real al cambiar select
+    if (cfgSelect) {
+      cfgSelect.addEventListener("change", () => {
+        const { firstDay, lastDay } = calcRango(parseInt(cfgSelect.value, 10));
+        if (previewMin) previewMin.textContent = firstDay;
+        if (previewMax) previewMax.textContent = lastDay;
+      });
+    }
+
+    // Botón Aplicar
+    if (applyBtn && cfgSelect) {
+      applyBtn.addEventListener("click", () => {
+        mesesAtras = parseInt(cfgSelect.value, 10);
+        sessionStorage.setItem("cfg_meses_atras", String(mesesAtras));
+        applyRango(mesesAtras);
+        applyBtn.textContent = "✓ Aplicado";
+        applyBtn.classList.add("applied");
+        setTimeout(() => {
+          applyBtn.textContent = "✓ Aplicar cambios";
+          applyBtn.classList.remove("applied");
+        }, 2000);
+      });
+    }
+
+    // Toggle colapsar/expandir
+    if (configToggle && adminPanel) {
+      configToggle.addEventListener("click", () => {
+        adminPanel.classList.toggle("open");
+      });
+    }
+
+    // Mostrar panel solo si es admin
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const isAdmin = user.rol === "admin" || user.rol === "administrador";
+      if (isAdmin && adminPanel) {
+        adminPanel.style.display = "block";
+        // Actualizar preview inicial
+        const { firstDay, lastDay } = calcRango(mesesAtras);
+        if (previewMin) previewMin.textContent = firstDay;
+        if (previewMax) previewMax.textContent = lastDay;
+      }
+    } catch (e) {
+      console.warn("No se pudo verificar el rol del usuario.", e);
     }
 
     // Cargar productos al iniciar
@@ -465,7 +727,7 @@ import Button from "../Button.astro";
       const fechaVentaVal = formData.get("fecha_venta");
       if (fechaVentaVal && fechaVentaInput) {
         if (fechaVentaVal < fechaVentaInput.min || fechaVentaVal > fechaVentaInput.max) {
-          alert("La fecha de venta debe estar dentro de los últimos 2 meses.");
+          alert(`La fecha de venta debe estar entre ${fechaVentaInput.min} y ${fechaVentaInput.max}.`);
           return;
         }
       }
